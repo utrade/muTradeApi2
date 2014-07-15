@@ -1,0 +1,24 @@
+[SYMBOL]
+SYMBOL LEG1=UINT64
+Order Mode 1=UCHAR
+SYMBOL LEG2=UINT64
+Order Mode 2=UCHAR
+#SYMBOL LEG3=UINT64
+#Order Mode 3=UCHAR
+#SYMBOL LEG4=UINT64
+#Order Mode 4=UCHAR
+ 
+[STRATEGY_PARAMS]
+Total Qty=UINT64:Q
+Order Qty=UINT64:Q
+Min Profit=FLOAT:P
+Hedge Method=COMBO:Market Order:Best Bid/Ask:Best Ask/Bid
+SEPARATOR=1
+Timer=TIMER
+Spread Type=RADIO:Product:Actual:Actual
+STRETCH=1
+Chk Spread=BOOL
+STRETCH=1
+Bid Diff=BOOL
+
+[OTHER]  

@@ -8,6 +8,8 @@
 #define SERIES_SIZE 20
 #define API_REQUEST_SIZE 200
 
+#define API_COMPILATION 1
+
 typedef uint8_t UNSIGNED_CHARACTER;
 typedef uint16_t UNSIGNED_SHORT;
 typedef uint32_t UNSIGNED_INTEGER;
@@ -17,6 +19,8 @@ typedef std::map<UNSIGNED_LONG, UNSIGNED_LONG> MapULong;
 typedef MapULong::const_iterator MapULongIter;
 
 
+
+#define ACCOUNT_FIELD_SIZE 12
 #define MARKET_DATA_DEPTH_MAX 11
 
 #define stringify( name ) # name

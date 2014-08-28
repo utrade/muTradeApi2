@@ -3,11 +3,11 @@
 #include <string>
 namespace API2  {
 
-/**
+  /**
  * @brief The API_SymbolStaticData struct
  */
-struct SymbolStaticData
-{
+  struct SymbolStaticData
+  {
 
     /**
      * @brief marketId
@@ -24,6 +24,10 @@ struct SymbolStaticData
      */
     std::string symbol;
 
+    /**
+     * @brief instrumentName
+     */
+    std::string instrumentName;
     /**
      * @brief securityType
      */
@@ -210,6 +214,32 @@ struct SymbolStaticData
     std::string symbolAlias;
 
     /**
+     * @brief contractType
+     */
+    char contractType;
+
+    /**
+     * @brief maturityYearmon2
+     */
+    unsigned int maturityYearmon2;
+
+    /**
+     * @brief maturityDay2
+     */
+    int maturityDay2;
+
+    /**
+     * @brief securityId1
+     */
+    long long  securityId1;
+
+    /**
+     * @brief securityId2
+     */
+    long long securityId2;
+
+
+    /**
      * @brief API_SymbolStaticData
      */
     SymbolStaticData();
@@ -218,6 +248,6 @@ struct SymbolStaticData
      * @brief dump
      */
     void dump();
-};
+  };
 }
 #endif

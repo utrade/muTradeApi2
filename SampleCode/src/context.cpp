@@ -283,5 +283,5 @@ void *API2::FutFutDriver(void *params)
   API2::StrategyParameters *sgParams = (API2::StrategyParameters*)params;
   API2::Context context(sgParams);
   std::cout<<"Hey "<<std::endl;
-  return context.startAlgo(true);
+  return context.startAlgo(true,false);
 }

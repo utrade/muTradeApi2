@@ -2,13 +2,13 @@
 #define SG_API_PARAMETERS_H
 namespace API2
 {
-/**
+  /**
  * @brief The StrategyParameters class provides the Basic Strategy Parameters, StrategyId and ClientId.\n
  * Stratgy Parameters are provided by StrategyParameters::getInfo()
  */
-class StrategyParameters
-{
-public:
+  class StrategyParameters
+  {
+  public:
     /**
        * @brief getInfo, Provides the Strategy Parameters
        * @return
@@ -25,7 +25,13 @@ public:
        * @return
        */
     int getId();
-protected:
+
+    StrategyParameters():
+      _clientId(-1),
+      _info(0),
+      _id(-1)
+    {}
+  protected:
     /**
        * @brief _clientId
        */
@@ -42,6 +48,6 @@ protected:
 
 
 
-};
+  };
 }
 #endif

@@ -11,7 +11,7 @@ namespace API2
 {
 
 
-/**
+  /**
  * \mainpage
  *
  *  muTrade API Version 2.0
@@ -20,15 +20,15 @@ namespace API2
 
 
 
-class SGContextImpl;
+  class SGContextImpl;
 
-/**
+  /**
  * @brief The SGContext class The main class to be inherited for creating a new Strategy
  */
-class SGContext
-{
+  class SGContext
+  {
 
-public:
+  public:
 
     /**
      * @brief ~SGContext
@@ -83,16 +83,23 @@ public:
      * @return
      */
     virtual bool usingSegment(
-            const DATA_TYPES::ExchangeId &exch,
-            const DATA_TYPES::SecurityType &securityType = CONSTANTS::CMD_SecurityType_MAX
-            );
+        const DATA_TYPES::ExchangeId &exch,
+        const DATA_TYPES::SecurityType &securityType = CONSTANTS::CMD_SecurityType_MAX
+        );
 
     /**
      * @brief startAlgo, function call to Start the Strategy
      * @param marketDataEventRequired, Set True to register for call-backs on Market-Data Event on registered Instruments
+     * @param tradeTicksEventRequired, Set True to register for call-backs on Trade Tick Events on registered Instruments
      * @return
      */
-    void *startAlgo(bool marketDataEventRequired);
+    void *startAlgo(bool marketDataEventRequired, bool tradeTicksEventRequired);
+
+    /**
+     * @brief startOhlcAlgo, function call to Start the Strategy listening to OHLC update events
+     * @return
+     */
+    void *startOhlcAlgo();
 
 
     /**
@@ -123,6 +130,23 @@ public:
     COMMON::MktData *getMktData(SYMBOL_ID symbolId);
 
     /**
+     * @brief processTradeTicks
+     * @param error
+     * @param symbolId
+     * @return
+     */
+    bool processTradeTicks(bool &error, SYMBOL_ID symbolId);
+
+    /**
+     * @brief getOhlcQuote
+     * @param error
+     * @param symbolId
+     * @return
+     */
+    COMMON::OhlcQuote *getOhlcQuote(bool &error, SYMBOL_ID symbolId);
+
+
+    /**
        * @brief getNetMTM, This function will return net Mark To Market Profit and Loss for the strategy( sum of all Instruments being traded)
        * @return
        */
@@ -135,33 +159,66 @@ public:
     SIGNED_LONG getNetBookedPnl();
 
     /**
+       * @brief getSymbolId, This function will return System Unique ID for the Instrument as API2::DATA_TYPES::SYMBOL_ID
+       * @param instrumentName, Instrument Name,
+       *        Format:
+       *        [ExchangeName] [Symbol] [Expiry(YYYYMMDD)] [StrikePrice] [C/P(For Call/Put)]
+       *        Example:
+       *        Cash Segment: NSE RELIANCE
+       *        Futures Segment: NSE RELIANCE 20140828
+       *        Options Segment: NSE RELIANCE 20140828 980.00 C
+      */
+    DATA_TYPES::SYMBOL_ID getSymbolId(std::string instrumentName);
+
+    /**
        * @brief getAddInstrument, To add a new Instrument in the strategy \n
        *    The Pointer to the added Instrument is set in instrument, passed as reference
        * @param instrument, Reference to the pointer to API2::COMMON::Instrument
        * @param symbolId, System Unique ID for the Instrument as API2::DATA_TYPES::SYMBOL_ID
        * @param regMktData, set True to register for Market Data for the Instrument
        * @param useSnapShot, Set True if Snapshot Feed is to be used and False to use TBT-Feed
+       * @param useOhlc, Set True if OHLC Heed is also required
        * @throw MarketDataSubscriptionFailedException
        */
-    void getAddInstrument(COMMON::Instrument *&instrument,UNSIGNED_LONG symbolId, bool regMktData=false, bool useSnapShot=true);
+    void getAddInstrument(COMMON::Instrument *&instrument,UNSIGNED_LONG symbolId, bool regMktData=false, bool useSnapShot=true, bool useOhlc=false);
+
+    /**
+       * @brief getAddInstrument, To add a new Instrument in the strategy \n
+       *    The Pointer to the added Instrument is set in instrument, passed as reference
+       * @param instrument, Reference to the pointer to API2::COMMON::Instrument
+       * @param instrumentName, Instrument Name,
+       *        Format:
+       *        [ExchangeName] [Symbol] [Expiry(YYYYMMDD)] [StrikePrice] [C/P(For Call/Put)]
+       *        Example:
+       *        Cash Segment: NSE RELIANCE
+       *        Futures Segment: NSE RELIANCE 20140828
+       *        Options Segment: NSE RELIANCE 20140828 980.00 C
+       * @param regMktData, set True to register for Market Data for the Instrument
+       * @param useSnapShot, Set True if Snapshot Feed is to be used and False to use TBT-Feed
+       * @param useOhlc, Set True if OHLC Heed is also required
+       * @throw MarketDataSubscriptionFailedException
+       */
+    void getAddInstrument(COMMON::Instrument *&instrument,const std::string &instrumentName, bool regMktData=false, bool useSnapShot=true, bool useOhlc=false);
 
 
     /**
      * @brief addInstrument, To add a new Instrument in the strategy \n
      * @param symbolId, System Unique ID for the Instrument
-     * @param regMktData, If Market Feed required
+     * @param regMktData, If TBT/Snapshot Market Feed required
+     * @param useOhlc, If OHLC Feed is required
      * @throw MarketDataSubscriptionFailedException
      */
-    void addInstrument(UNSIGNED_LONG symbolId, bool regMktData=false);
+    void addInstrument(UNSIGNED_LONG symbolId, bool regMktData=false, bool useOhlc=false);
 
 
     /**
      * @brief addInstrument, To add Instrument, Internal Method,not to be used.
      * @param instrument
-     * @param regMktData
+     * @param regMktData, If TBT/Snapshot Market Feed required
+     * @param useOhlc, If OHLC Feed is required
      * @throw MarketDataSubscriptionFailedException
      */
-    void addInstrument(COMMON::Instrument *instrument, bool regMktData=false);
+    void addInstrument(COMMON::Instrument *instrument, bool regMktData=false, bool useOhlc=false);
 
 
     /**
@@ -188,8 +245,9 @@ public:
        * @brief registerSymbol, Register a API2::DATA_TYPES::SYMBOL_ID for market Data
        * @param symbolId, System Unique Id for the Instrument
        * @param isSnapShot, Set True if Snapshot Feed is to be used and False to use TBT-Feed
+       * @param isOhlc, Set True if OHLC feed is also required
        */
-    void registerSymbol(SYMBOL_ID symbolID, bool isSnapshot=true);
+    void registerSymbol(SYMBOL_ID symbolID, bool isSnapshot=true, bool isOhlc=false);
 
     /**
        * @brief registerSymbol, UnRegister a API2::DATA_TYPES::SYMBOL_ID for market Data
@@ -256,10 +314,10 @@ public:
        * @param strategyComment, the Strategy Comment as DATA_TYPES::StrategyComment
        */
     void sendStrategyResponse(
-            DATA_TYPES::ResponseType responseType,
-            DATA_TYPES::RiskStatus riskStatus,
-            DATA_TYPES::StrategyComment strategyComment = CONSTANTS::RSP_StrategyComment_MAX
-            );
+        DATA_TYPES::ResponseType responseType,
+        DATA_TYPES::RiskStatus riskStatus,
+        DATA_TYPES::StrategyComment strategyComment = CONSTANTS::RSP_StrategyComment_MAX
+        );
 
     /**
        * @brief exitStrategy, To exit a strategy, terminates the Strategy thread and returns the StrategyDriver.
@@ -314,11 +372,12 @@ public:
 
 
     /**
-       * @brief run
-       * @param marketDataEventRequired
-       * @return
-       */
-    void* run(bool marketDataEventRequired);
+     * @brief run
+     * @param marketDataEventRequired
+     * @param ohlcEvent
+     * @return
+     */
+    void* run(bool marketDataEventRequired, bool ohlcEvent=false, bool tradeTicksEventRequired=false);
 
     /**
        * @brief createNewOrder, To create a New Order for an instrument
@@ -343,7 +402,7 @@ public:
                         const DATA_TYPES::ProductType &product = CONSTANTS::CMD_ProductType_DELIVERY,
                         const UNSIGNED_LONG &price=0,
                         const UNSIGNED_LONG &stopPrice=0
-            );
+        );
 
     /**
      * @brief setStrategyComment, To set the current Startegy Comment, Whenever a strategy Response is sent to frontend, this will be the  sent as the strategy Comment
@@ -439,6 +498,15 @@ public:
        * @param symbolId    SymbolId of the Instrument that received marketData, SymbolId should be subscribed for Market Data while initializing
        */
     virtual void onDerivedMarketDataEvent(UNSIGNED_LONG symbolId);
+
+    /**
+       * @brief onDerivedOHlcDataEvent Called if Configured to received OHLC update Event while Running Algo \n
+       *  Callback is provided each time the OHLC Data is updated
+       */
+    virtual void onDerivedOHlcDataEvent();
+
+
+    virtual void onDerivedTradeTick(COMMON::TradeTick tradeTick);
 
     /**
        * @brief processAdminCommand Called when ever a command from frontend is issued.
@@ -560,7 +628,7 @@ public:
     /*********************************************************************/
     //----------------------Event Calllback Functions--------------------//
 
-private:
+  private:
 
     /**
        * @brief SGContext, Private Default Constructor
@@ -585,7 +653,7 @@ private:
     SGContextImpl *pimpl;
 
 
-};
+  };
 
 } //namespace  API2
 #endif // SGCONTEXT_H

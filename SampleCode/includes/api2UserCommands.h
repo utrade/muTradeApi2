@@ -56,10 +56,10 @@ public:
     template<class T>
     UserParamsError setValue(const std::string &key,const T &val)
     {
-      std::map<std::string,BaseType *>::iterator it = _userParams.find(key);
+        std::map<std::string,BaseType *>::iterator it = _userParams.find(key);
         if(it == _userParams.end())
         {
-          std::cout<<"Key not found : "<<key;
+            std::cout<<"Key not found : "<<key;
 
             return UserParamsError_KeyNotFound;
         }
@@ -68,11 +68,11 @@ public:
             DerivedType<T> *value = dynamic_cast<DerivedType<T> *>(it->second);
             if(value == NULL)
             {
-          std::cout<<"Data Type Mismatch for "
-                  <<key<<" "
-                   << typeid(val).name()
-                    <<std::endl;
-          //it->second->printType();
+                std::cout<<"Data Type Mismatch for "
+                        <<key<<" "
+                       << typeid(val).name()
+                       <<std::endl;
+                //it->second->printType();
                 return UserParamsError_DataTypeMismatch;
             }
             else
@@ -93,7 +93,7 @@ public:
     template<class T>
     UserParamsError getValue(const std::string &key,T &val)
     {
-      std::map<std::string,BaseType *>::iterator it = _userParams.find(key);
+        std::map<std::string,BaseType *>::iterator it = _userParams.find(key);
         if(it == _userParams.end())
         {
             return UserParamsError_KeyNotFound;

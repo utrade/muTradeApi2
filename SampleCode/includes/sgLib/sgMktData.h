@@ -6,214 +6,278 @@
 #include <sharedCommands.h>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <queue>
 
 namespace TBTDATA {
-struct SymbolData ;
+  struct SymbolData ;
 }
+
+
 namespace API2 { namespace COMMON {
 
-/**
+    class OhlcQuoteImpl;
+    class OhlcQuote{
+
+      OhlcQuoteImpl *_impl;
+
+    public:
+      OhlcQuote(UNSIGNED_LONG symbolId);
+
+      DATA_TYPES::PRICE getOpenPrice();
+      DATA_TYPES::PRICE getHighPrice();
+      DATA_TYPES::PRICE getLowPrice();
+      DATA_TYPES::PRICE getClosePrice();
+      DATA_TYPES::PRICE getAverageOhlcPrice();
+      time_t getLastProcessTimestamp();
+      bool checkForModification(time_t lastProcessTimeStamp);
+
+
+    };
+
+    struct TradeTick{
+
+      CREATE_FIELD(DATA_TYPES::PRICE, Price);
+      CREATE_FIELD(DATA_TYPES::QTY, Qty);
+      CREATE_FIELD(UNSIGNED_LONG, Timestamp);
+
+    public:
+      TradeTick(
+          const DATA_TYPES::PRICE &price,
+          const DATA_TYPES::QTY &qty,
+          const UNSIGNED_LONG &timestamp
+          )
+        :
+          _Price(price),
+          _Qty(qty),
+          _Timestamp(timestamp)
+      {}
+
+    };
+
+
+    /**
  * @brief The MktData class, The wrapper class for getting Market Feed for both Snapshot and Tick-By-Tick
  */
-class MktData
-{
+    class MktData
+    {
 
-    /**
+      /**
        * @brief _symbolId
        */
-    DATA_TYPES::SYMBOL_ID _symbolId;
+      DATA_TYPES::SYMBOL_ID _symbolId;
 
-    /**
+      /**
        * @brief Quote
        */
-    CREATE_FIELD( COMMON::MarketDataWrapper, Quote);
+      CREATE_FIELD( COMMON::MarketDataWrapper, Quote);
 
 
-    /**
+      /**
        * @brief IsSnapShot, If Set true, will provide Snapshot Data, else Tick-By-Tick Data
        */
-    CREATE_FIELD( bool, IsSnapShot);
+      CREATE_FIELD( bool, IsSnapShot);
 
-    /**
+      /**
        * @brief multiplier
        */
-    CREATE_FIELD( int, multiplier);
+      CREATE_FIELD( int, multiplier);
 
-    /**
+      /**
        * @brief _tbtData
        */
-    TBTDATA::SymbolData *_tbtData;
-private:
-    /**
+      TBTDATA::SymbolData *_tbtData;
+
+      CREATE_FIELD(std::queue<TradeTick>, TradeTicks);
+
+      /**
+       * @brief _LatestIndexCounter
+       */
+      volatile unsigned long _LatestIndexCounter;
+
+      /**
+       * @brief _LatestTick
+       */
+      int _LatestTickIndex;
+
+    private:
+      /**
        * @brief getPrice
        * @param wrapper
        * @param mode
        * @return
        */
-    DATA_TYPES::PRICE  getPrice(const COMMON::MarketDepthWrapper &wrapper,
-                                const DATA_TYPES::OrderMode & mode);
+      DATA_TYPES::PRICE  getPrice(const COMMON::MarketDepthWrapper &wrapper,
+                                  const DATA_TYPES::OrderMode & mode);
 
-    /**
+      /**
        * @brief getQty
        * @param wrapper
        * @param mode
        * @return
        */
-    DATA_TYPES::QTY  getQty(const COMMON::MarketDepthWrapper &wrapper,
-                            const DATA_TYPES::OrderMode & mode);
-    /**
+      DATA_TYPES::QTY  getQty(const COMMON::MarketDepthWrapper &wrapper,
+                              const DATA_TYPES::OrderMode & mode);
+      /**
        * @brief updateTbt
        * @return
        */
-    bool updateTbt();
+      bool updateTbt();
 
-    /**
+
+      /**
        * @brief updateMcl
        * @return
        */
-    bool updateMcl();
-public:
-    /**
+      bool updateMcl();
+    public:
+      /**
        * @brief getOpenPrice
        * @return
        */
-    DATA_TYPES::PRICE getOpenPrice();
+      DATA_TYPES::PRICE getOpenPrice();
 
-    /**
+      /**
        * @brief getHighPrice
        * @return
        */
-    DATA_TYPES::PRICE getHighPrice();
+      DATA_TYPES::PRICE getHighPrice();
 
-    /**
+      /**
        * @brief getLowPrice
        * @return
        */
-    DATA_TYPES::PRICE getLowPrice();
+      DATA_TYPES::PRICE getLowPrice();
 
-    /**
+      /**
        * @brief getClosePrice
        * @return
        */
-    DATA_TYPES::PRICE getClosePrice();
+      DATA_TYPES::PRICE getClosePrice();
 
-    /**
+      /**
        * @brief getVolume
        * @return
        */
-    DATA_TYPES::VOLUME getVolume();
+      DATA_TYPES::VOLUME getVolume();
 
-    /**
+      /**
        * @brief getLastTradeQty
        * @return
        */
-    DATA_TYPES::QTY getLastTradeQty();
+      DATA_TYPES::QTY getLastTradeQty();
 
-    /**
+      /**
        * @brief getLastTradePrice
        * @return
        */
-    DATA_TYPES::PRICE getLastTradePrice();
+      DATA_TYPES::PRICE getLastTradePrice();
 
-    /**
+      /**
        * @brief getPrice
        * @param position
        * @param mode
        * @return
        */
-    DATA_TYPES::PRICE getPrice(size_t position, const DATA_TYPES::OrderMode & mode);
+      DATA_TYPES::PRICE getPrice(size_t position, const DATA_TYPES::OrderMode & mode);
 
-    /**
+      /**
        * @brief getQty
        * @param position
        * @param mode
        * @return
        */
-    DATA_TYPES::QTY getQty(size_t position, const DATA_TYPES::OrderMode & mode);
+      DATA_TYPES::QTY getQty(size_t position, const DATA_TYPES::OrderMode & mode);
 
-    /**
+      /**
        * @brief getBidPrice
        * @param pos
        * @return
        */
-    DATA_TYPES::PRICE getBidPrice(size_t pos);
+      DATA_TYPES::PRICE getBidPrice(size_t pos);
 
-    /**
+      /**
        * @brief getBidQty
        * @param pos
        * @return
        */
-    DATA_TYPES::QTY getBidQty(size_t pos);
+      DATA_TYPES::QTY getBidQty(size_t pos);
 
-    /**
+      /**
        * @brief getAskPrice
        * @param pos
        * @return
        */
-    DATA_TYPES::PRICE getAskPrice(size_t pos);
+      DATA_TYPES::PRICE getAskPrice(size_t pos);
 
-    /**
+      /**
        * @brief getAskQty
        * @param pos
        * @return
        */
-    DATA_TYPES::QTY getAskQty(size_t pos);
+      DATA_TYPES::QTY getAskQty(size_t pos);
 
-    /**
+      /**
        * @brief subscribe
        * @param symbol
        * @param isSnapshot
        * @return
        */
-    bool subscribe(DATA_TYPES::SYMBOL_ID symbol,bool isSnapshot);
+      bool subscribe(DATA_TYPES::SYMBOL_ID symbol,bool isSnapshot);
 
-    /**
+      /**
        * @brief unsubscribe
        */
-    void unsubscribe();
+      void unsubscribe();
 
-    /**
+      /**
        * @brief MktData
        * @param symbolId
        * @param isSnapshot
        */
-    MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true);
+      MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true);
 
-    //MktData();
-    ~MktData();
+      //MktData();
+      ~MktData();
 
-    /**
+      /**
        * @brief update
        * @return
        */
-    bool update();
+      bool update();
+
+      /**
+       * @brief updateTbtTradeTicks
+       * @return
+       */
+      bool updateTbtTradeTicks();
+
 
 #if 0
-    /**
+      /**
        * @brief checkUpdateStatus
        * @param lastProcessTime
        * @return
        */
-    bool checkUpdateStatus(time_t lastProcessTime);
+      bool checkUpdateStatus(time_t lastProcessTime);
 
-    /**
+      /**
        * @brief checkUpdateStatus
        * @param lastProcessTime
        * @return
        */
-    bool checkUpdateStatus(boost::posix_time::ptime lastProcessTime);
+      bool checkUpdateStatus(boost::posix_time::ptime lastProcessTime);
 #endif
-    /**
+      /**
        * @brief operator ()
        */
-    void operator ()();
+      void operator ()();
 
-    /**
+      /**
        * @brief dump
        */
-    void dump();
+      void dump();
 
-};
-}
+    };
+  }
                }
 #endif

@@ -3,79 +3,79 @@
 
 
 #define CREATE_FIELD_DECLARATION( TYPE, NAME ) \
-    public : TYPE get##NAME() const ; \
-    public : TYPE &getRef##NAME() ; \
-    public : void set##NAME(const TYPE &value ) ; \
-    private : TYPE _##NAME
+  public : TYPE get##NAME() const ; \
+  public : TYPE &getRef##NAME() ; \
+  public : void set##NAME(const TYPE &value ) ; \
+  private : TYPE _##NAME
 
 #define CREATE_FIELD_DEFINATION( TYPE, NAME ,CLASS) \
-    TYPE ##CLASS::get##NAME() const ; \
-    TYPE &  ##CLASS::getRef##NAME() ; \
-    void ##CLASS::set##NAME(const TYPE &value )
+  TYPE ##CLASS::get##NAME() const ; \
+  TYPE &  ##CLASS::getRef##NAME() ; \
+  void ##CLASS::set##NAME(const TYPE &value )
 
 #define CREATE_FIELD( TYPE, NAME ) \
-    public : TYPE get##NAME() const {  return _##NAME ; } \
-    public : TYPE &getRef##NAME() {  return _##NAME ; } \
-    public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
-    private : TYPE _##NAME
+  public : TYPE get##NAME() const {  return _##NAME ; } \
+  public : TYPE &getRef##NAME() {  return _##NAME ; } \
+  public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
+  private : TYPE _##NAME
 
 
 
 #define CONVERT_TO_STRING(x) #x
 
 #define CREATE_FIELD_DERIVED( TYPE, NAME ) \
-    public : TYPE get##NAME() const {  return _##NAME.getValue() ; } \
-    public : TYPE &getRef##NAME() {  return _##NAME.getRefValue() ; } \
-    public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
-    private : DerivedType<TYPE> _##NAME
+  public : TYPE get##NAME() const {  return _##NAME.getValue() ; } \
+  public : TYPE &getRef##NAME() {  return _##NAME.getRefValue() ; } \
+  public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
+  private : DerivedType<TYPE> _##NAME
 
 #define CREATE_FIELD_DERIVED( TYPE, NAME ) \
-    public : TYPE get##NAME() const {  return _##NAME.getValue() ; } \
-    public : TYPE &getRef##NAME() {  return _##NAME.getRefValue() ; } \
-    public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
-    private : DerivedType<TYPE> _##NAME
+  public : TYPE get##NAME() const {  return _##NAME.getValue() ; } \
+  public : TYPE &getRef##NAME() {  return _##NAME.getRefValue() ; } \
+  public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
+  private : DerivedType<TYPE> _##NAME
 
 #define CREATE_FIELD_PTR( TYPE, NAME ) \
-    public : TYPE* get##NAME() {  return _##NAME ; } \
-    public : TYPE* &getRef##NAME() {  return _##NAME ; } \
-    public : void set##NAME(TYPE *value ) { _##NAME = value ; } \
-    private : TYPE *_##NAME
+  public : TYPE* get##NAME() {  return _##NAME ; } \
+  public : TYPE* &getRef##NAME() {  return _##NAME ; } \
+  public : void set##NAME(TYPE *value ) { _##NAME = value ; } \
+  private : TYPE *_##NAME
 
 #define CREATE_CONSTRUCTORS( Cls, Command, Response, VERSION) \
-    public:     static const UNSIGNED_LONG STRATEGY_VERSION = VERSION; \
-    public:     Cls(const char *buf) {    deSerialize(buf);} \
-    public:     Cls(){initialize();} \
-    public: int serialize(char* buf, bool isResponse = false){ \
-    return AbstractUserParams::serialize(buf, \
-    isResponse, (UNSIGNED_CHARACTER)Response, \
-    (UNSIGNED_CHARACTER)Command);}
+  public:     static const UNSIGNED_LONG STRATEGY_VERSION = VERSION; \
+  public:     Cls(const char *buf) {    deSerialize(buf);} \
+  public:     Cls(){initialize();} \
+  public: int serialize(char* buf, bool isResponse = false){ \
+  return AbstractUserParams::serialize(buf, \
+  isResponse, (UNSIGNED_CHARACTER)Response, \
+  (UNSIGNED_CHARACTER)Command);}
 
 #define DECLARE_CONSTRUCTORS( Cls, VERSION) \
-    public:     static const UNSIGNED_LONG STRATEGY_VERSION = VERSION; \
-    public:     Cls(const char *buf); \
-    public:     Cls();\
-    public: int serialize(char* buf, bool isResponse = false); \
-    public: void initialize();
+  public:     static const UNSIGNED_LONG STRATEGY_VERSION = VERSION; \
+  public:     Cls(const char *buf); \
+  public:     Cls();\
+  public: int serialize(char* buf, bool isResponse = false); \
+  public: void initialize();
 
 
 #define DEFINE_CONSTRUCTORS( Cls, Cmd, Response) \
-    Cls::Cls(const char *buf){ deSerialize(buf); }\
-    Cls::Cls(){initialize();} \
-    int Cls::serialize(char* buf, bool isResponse){ \
-    return AbstractUserParams::serialize(buf, \
-    isResponse, (UNSIGNED_CHARACTER)Response, \
-    (UNSIGNED_CHARACTER)Cmd);}
+  Cls::Cls(const char *buf){ deSerialize(buf); }\
+  Cls::Cls(){initialize();} \
+  int Cls::serialize(char* buf, bool isResponse){ \
+  return AbstractUserParams::serialize(buf, \
+  isResponse, (UNSIGNED_CHARACTER)Response, \
+  (UNSIGNED_CHARACTER)Cmd);}
 
 
 
 
 #define INIT_DERIVED_TYPE( NAME, VALUE ) \
-    _##NAME(CONVERT_TO_STRING(NAME))
+  _##NAME(CONVERT_TO_STRING(NAME))
 
 #define SET_DERIVED_TYPE( NAME, VALUE ) \
-    _##NAME.setString(CONVERT_TO_STRING(NAME)); \
-    set##NAME(VALUE); \
-    addType(&_##NAME)
+  _##NAME.setString(CONVERT_TO_STRING(NAME)); \
+  set##NAME(VALUE); \
+  addType(&_##NAME)
 
 #define DEBUG_METHOD(DEBUG_OBJECT) { DEBUG_OBJECT->message(__FUNCTION__); }
 #define DEBUG_MESSAGE(DEBUG_OBJECT,debug_message) {  DEBUG_OBJECT->message(debug_message); }

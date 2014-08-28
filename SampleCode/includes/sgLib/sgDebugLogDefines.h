@@ -3,11 +3,11 @@
 namespace API2
 {
 
-/**
+  /**
  * @brief The DebugLog class
  */
-class DebugLog
-{
+  class DebugLog
+  {
     /* TO USE THIS CREATE INSTANCE AS _debugLog ALWAYS */
 
     /**
@@ -20,7 +20,7 @@ class DebugLog
      */
     struct timeval ttime;
 
-public:
+  public:
 
     /**
      * @brief DebugLog
@@ -68,8 +68,8 @@ public:
      */
     template<class T> void value_of(const std::string& name, const T& value)
     {
-        timeStamp();
-        log_file  << name << " = " << value << "\n";
+      timeStamp();
+      log_file  << name << " = " << value << "\n";
     }
 
     /**
@@ -79,8 +79,8 @@ public:
      */
     template<class T> void printToLog(const char* debug_message,const T& debug_var)
     {
-        timeStamp();
-        log_file  << debug_message << " " << debug_var << "\n";
+      timeStamp();
+      log_file  << debug_message << " " << debug_var << "\n";
     }
 
     /**
@@ -91,9 +91,9 @@ public:
      */
     template<class T>  void printToLog2(const char* debug_message,const T& debug_var1, const T& debug_var2)
     {
-        timeStamp();
-        log_file  << debug_message << " " << debug_var1 << " " <<debug_var2 << "\n";
-        std::cout  << debug_message << " " << debug_var1 << " " <<debug_var2 << "\n";
+      timeStamp();
+      log_file  << debug_message << " " << debug_var1 << " " <<debug_var2 << "\n";
+      std::cout  << debug_message << " " << debug_var1 << " " <<debug_var2 << "\n";
     }
 
 
@@ -105,14 +105,14 @@ public:
      */
     template<class T> void printToLogArr(const char* debug_message,const T debug_var[],int index)
     {
-        timeStamp();
-        log_file  << debug_message;
-        for(int i=0; i < index; i++)
-            log_file  << " " << debug_var[i].getPrice() << "," << debug_var[i].getQty() << ";";
-        log_file << "\n";
+      timeStamp();
+      log_file  << debug_message;
+      for(int i=0; i < index; i++)
+        log_file  << " " << debug_var[i].getPrice() << "," << debug_var[i].getQty() << ";";
+      log_file << "\n";
     }
 
-};
+  };
 
 #define DEBUG_METHOD(DEBUG_OBJECT) { DEBUG_OBJECT->message(__FUNCTION__); }
 #define DEBUG_MESSAGE(DEBUG_OBJECT,debug_message) {  DEBUG_OBJECT->message(debug_message); }  

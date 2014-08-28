@@ -6,12 +6,12 @@
 namespace API2
 {
 
-/**
+  /**
    * @brief The SharedUtilities class
    */
-class SharedUtilities
-{
-public:
+  class SharedUtilities
+  {
+  public:
 
     /**
          * @brief roundPriceToTick
@@ -24,17 +24,17 @@ public:
                                  CMD::OrderMode mode,
                                  const B &symbolData)
     {
-        UNSIGNED_LONG tickDeviation = price % symbolData.tickSize;
-        if( tickDeviation )
+      UNSIGNED_LONG tickDeviation = price % symbolData.tickSize;
+      if( tickDeviation )
         {
-            if( mode == CMD::OrderMode_BUY)
-                price -= tickDeviation;
-            else
-                price += (symbolData.tickSize - tickDeviation);
+          if( mode == CMD::OrderMode_BUY)
+            price -= tickDeviation;
+          else
+            price += (symbolData.tickSize - tickDeviation);
         }
 
     }
-};
+  };
 
 
 }

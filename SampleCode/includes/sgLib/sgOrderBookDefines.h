@@ -3,18 +3,19 @@
 #include <boost/unordered_map.hpp>
 namespace CMD {
 
-/**
+  /**
  *
  */
-class SingleOrder;
+  class SingleOrder;
+  class SpreadOrder;
 }
 namespace API2   {
 
-/**
+  /**
  * @brief The OrderBook struct
  */
-struct OrderBook
-{
+  struct OrderBook
+  {
     /**
      * @brief insert
      * @param order
@@ -27,12 +28,21 @@ struct OrderBook
      */
     void insert(SingleOrder* order);
 
+    void insert(CMD::SpreadOrder* order);
+
     /**
      * @brief getOrder
      * @param clOrderId
      * @return
      */
     CMD::SingleOrder* getOrder(long clOrderId);
+
+    /**
+     * @brief getSpreadOrder
+     * @param clOrderId
+     * @return
+     */
+    CMD::SpreadOrder* getSpreadOrder(long clOrderId);
 
     /**
      * @brief getApiOrder
@@ -56,11 +66,12 @@ struct OrderBook
     void alignOrders(CMD::SingleOrder * order);
     // Client order Id to order mapping
     boost::unordered_map<long, CMD::SingleOrder*> _orderBook;
+    boost::unordered_map<long, CMD::SpreadOrder*> _spreadOrderBook;
     //boost::unordered_map<long, CMD::ThreeLegOrder*> _orderBookThreeLeg;
 
     // ExchangeOrderId to TradeId mapping -- used in reconcilation to find duplicate fills
     std::multimap<std::string, std::string> _exchangeOrderIdToTradeId;
-};
+  };
 
 }
 #endif

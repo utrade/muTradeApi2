@@ -7,19 +7,57 @@ namespace API2
 {
 
 
-class OrderConfirmationImpl;
+  class OrderConfirmationImpl;
 
-/**
+  /**
  * @brief The OrderConfirmation class contains the Exchange Order Confirmation Message data.
  */
-class OrderConfirmation
-{
+  class OrderConfirmation
+  {
     /**
      * @brief pimpl
      */
-    OrderConfirmationImpl *pimpl;
+    //    OrderConfirmationImpl *pimpl;
 
-public:
+    DATA_TYPES::CLORDER_ID _clOrderId;
+    DATA_TYPES::SYMBOL_ID _symbolId;
+    DATA_TYPES::QTY _lastFillQuantity;
+    DATA_TYPES::PRICE  _lastFillPrice;
+    DATA_TYPES::EXCHANGE_TIME  _exchangeEntryTime;
+    DATA_TYPES::EXCHANGE_TIME  _exchangeModifyTime;
+    DATA_TYPES::STRATEGY_ID  _strategyId;
+    DATA_TYPES::CLIENT_ID  _clientId;
+    // Limit price will come in Market to Limit order conversion
+    DATA_TYPES::PRICE _limitPrice;
+    UNSIGNED_CHARACTER _orderStatus;
+    UNSIGNED_CHARACTER _orderMode;
+    // Adding following two fields for market making
+    DATA_TYPES::QTY _orderQuantity;
+    DATA_TYPES::PRICE _orderPrice;
+    DATA_TYPES::QTY _iocCanceledQuantity;
+    DATA_TYPES::CLORDER_ID _originalClOrderId;
+    DATA_TYPES::SEQUENCE_NUMBER _sequenceNumber;
+    DATA_TYPES::TRADER_ID _traderId;
+    DATA_TYPES::ERROR_CODE _errorCode;
+    DATA_TYPES::ENUM _orderCategory;
+    DATA_TYPES::PRICE  _lastFillPrice1;
+    DATA_TYPES::PRICE  _lastFillPrice2;
+    char _exchangeOrderId[EXCHANGE_ORDERID_SIZE];
+    char _tradeId[TRADEID_SIZE];
+
+
+  public:
+
+
+    OrderConfirmation(const OrderConfirmation& other);
+    OrderConfirmation &operator =(const OrderConfirmation& );
+
+    void clone(const OrderConfirmation& other);
+
+    /**
+     * @brief ~OrderConfirmation
+     */
+    virtual ~OrderConfirmation();
 
     /**
      * @brief OrderConfirmation Constructor
@@ -281,10 +319,46 @@ public:
     void setTraderId(DATA_TYPES::TRADER_ID traderId);
 
     /**
+     * @brief setOrderCategory
+     * @param orderCategory
+     */
+    void setOrderCategory(DATA_TYPES::ENUM orderCategory);
+
+    /**
+     * @brief setLastFillPrice1
+     * @param lastFillPrice1
+     */
+    void setLastFillPrice1(DATA_TYPES::PRICE lastFillPrice1);
+
+    /**
+     * @brief setLastFillPrice2
+     * @param lastFillPrice2
+     */
+    void setLastFillPrice2(DATA_TYPES::PRICE lastFillPrice2);
+
+    /**
      * @brief dump
      */
     void dump();
-};
+
+    /**
+     * @brief getOrderCategory
+     * @return
+     */
+    DATA_TYPES::ENUM getOrderCategory() const;
+
+    /**
+     * @brief getLastFillPrice1
+     * @return
+     */
+    DATA_TYPES::PRICE getLastFillPrice1() const;
+
+    /**
+     * @brief getLastFillPrice2
+     * @return
+     */
+    DATA_TYPES::PRICE getLastFillPrice2() const;
+  };
 
 }
 #endif 

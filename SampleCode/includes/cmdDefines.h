@@ -51,12 +51,13 @@
   (UNSIGNED_CHARACTER)Command);}
 
 #define DECLARE_CONSTRUCTORS( Cls, VERSION) \
-  public:     static const UNSIGNED_LONG STRATEGY_VERSION = VERSION; \
+  public:     static const UNSIGNED_LONG BACK_END_STRATEGY_VERSION = VERSION; \
   public:     Cls(const char *buf); \
   public:     Cls();\
   public: int serialize(char* buf, bool isResponse = false); \
-  public: void initialize();
-
+  public: void initialize();\
+  public: bool isVersionValid(){return BACK_END_STRATEGY_VERSION == getStrategyVersion(); } \
+  public: UNSIGNED_LONG getBackendStrategyVersion() const { return BACK_END_STRATEGY_VERSION;}
 
 #define DEFINE_CONSTRUCTORS( Cls, Cmd, Response) \
   Cls::Cls(const char *buf){ deSerialize(buf); }\
@@ -72,9 +73,9 @@
 #define INIT_DERIVED_TYPE( NAME, VALUE ) \
   _##NAME(CONVERT_TO_STRING(NAME))
 
-#define SET_DERIVED_TYPE( NAME, VALUE ) \
+#define SET_DERIVED_TYPE( NAME, VALUE) \
   _##NAME.setString(CONVERT_TO_STRING(NAME)); \
-  set##NAME(VALUE); \
+    set##NAME(VALUE); \
   addType(&_##NAME)
 
 #define DEBUG_METHOD(DEBUG_OBJECT) { DEBUG_OBJECT->message(__FUNCTION__); }

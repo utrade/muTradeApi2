@@ -1,7 +1,6 @@
 #ifndef MYAPI_CONTEXT_H
 #define MYAPI_CONTEXT_H
-#include <sgLib/sgContext.h>
-#include <sgLib/sgCommon.h>
+#include <sgContext.h>
 #include <api2UserCommands.h>
 namespace API2
 {
@@ -55,7 +54,7 @@ class Context: public API2::SGContext
     /**
      * @brief _currentOrderId
      */
-    API2::COMMON::InstrumentOrderId *_currentOrderId;
+    API2::COMMON::OrderId *_currentOrderId;
 
     /**
      * @brief _params
@@ -88,6 +87,21 @@ class Context: public API2::SGContext
     API2::SingleOrder *_firstLegOrder;
 
     /**
+     * @brief _firstLegOrderId
+     */
+    API2::COMMON::OrderId *_firstLegOrderId;
+
+    /**
+     * @brief _secondLegOrder
+     */
+    API2::SingleOrder *_secondLegOrder;
+
+    /**
+     * @brief _secondLegOrderId
+     */
+    API2::COMMON::OrderId *_secondLegOrderId;
+
+    /**
      * @brief _replaceOrder
      */
     API2::SingleOrder *_replaceOrder;
@@ -102,12 +116,12 @@ public:
     /**
      * @brief processCurrentState
      */
-    void processCurrentState();
+    void OnDefaultEvent();
 
     /**
-     * @brief onModifyStrategy
+     * @brief OnCMDModifyStrategy
      */
-    void onModifyStrategy(API2::AbstractUserParams*);
+    void onCMDModifyStrategy(API2::AbstractUserParams*);
 
     /**
      * @brief setInternalParameters
@@ -128,10 +142,10 @@ public:
     void createOrderIds();
 
     /**
-     * @brief onDerivedMarketDataEvent
+     * @brief OnMarketDataEvent
      * @param symbolId
      */
-    void onDerivedMarketDataEvent(UNSIGNED_LONG symbolId);
+    void OnMarketDataEvent(UNSIGNED_LONG symbolId);
 
     /**
      * @brief getFirstLegPrice
@@ -145,10 +159,10 @@ public:
     void cancelOrder();
 
     /**
-     * @brief processOrderConfirmation
+     * @brief onProcessOrderConfirmattion
      * @param confirmation
      */
-    void processOrderConfirmation(API2::OrderConfirmation &confirmation);
+    void onProcessOrderConfirmation(API2::OrderConfirmation &confirmation);
 
     /**
      * @brief onNewConfirmed
@@ -156,14 +170,14 @@ public:
      * @param orderId
      */
     void onNewConfirmed(API2::OrderConfirmation &confirmation,
-                        API2::COMMON::InstrumentOrderId *orderId);
+                        API2::COMMON::OrderId *orderId);
 
     /**
      * @brief onReplaced
      * @param confirmation
      * @param orderId
      */
-    void onReplaced(API2::OrderConfirmation &confirmation,API2::COMMON::InstrumentOrderId *orderId);
+    void onReplaced(API2::OrderConfirmation &confirmation,API2::COMMON::OrderId *orderId);
 
     /**
      * @brief onCanceled
@@ -171,7 +185,7 @@ public:
      * @param orderId
      */
     void onCanceled(API2::OrderConfirmation &confirmation,
-                    API2::COMMON::InstrumentOrderId *orderId);
+                    API2::COMMON::OrderId *orderId);
 
     /**
      * @brief placeFirstLegOrder
@@ -192,6 +206,11 @@ public:
     static void replaceOrder(Context &obj);
 
 };
+
+/**
+ * @brief Strategy Driver
+ * @param obj
+ */
 void *FutFutDriver(void *params);
 }
 #endif

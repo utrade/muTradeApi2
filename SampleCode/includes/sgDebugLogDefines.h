@@ -4,8 +4,8 @@ namespace API2
 {
 
   /**
- * @brief The DebugLog class
- */
+   * @brief The DebugLog class
+   */
   class DebugLog
   {
     /* TO USE THIS CREATE INSTANCE AS _debugLog ALWAYS */
@@ -20,7 +20,7 @@ namespace API2
      */
     struct timeval ttime;
 
-  public:
+    public:
 
     /**
      * @brief DebugLog
@@ -89,7 +89,7 @@ namespace API2
      * @param debug_var1
      * @param debug_var2
      */
-    template<class T>  void printToLog2(const char* debug_message,const T& debug_var1, const T& debug_var2)
+    template<class T,class K>  void printToLog2(const char* debug_message,const T& debug_var1, const K& debug_var2)
     {
       timeStamp();
       log_file  << debug_message << " " << debug_var1 << " " <<debug_var2 << "\n";

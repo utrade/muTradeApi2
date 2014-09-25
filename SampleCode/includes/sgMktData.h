@@ -16,24 +16,74 @@ namespace TBTDATA {
 namespace API2 { namespace COMMON {
 
     class OhlcQuoteImpl;
+
+    /**
+     * @brief The OhlcQuote class
+     */
     class OhlcQuote{
 
+      /**
+       * @brief _impl
+       */
       OhlcQuoteImpl *_impl;
 
     public:
+
+      /**
+       * @brief OhlcQuote
+       * @param symbolId
+       */
       OhlcQuote(UNSIGNED_LONG symbolId);
 
+      /**
+       * @brief getOpenPrice
+       * @return
+       */
       DATA_TYPES::PRICE getOpenPrice();
+
+      /**
+       * @brief getHighPrice
+       * @return
+       */
       DATA_TYPES::PRICE getHighPrice();
+
+      /**
+       * @brief getLowPrice
+       * @return
+       */
       DATA_TYPES::PRICE getLowPrice();
+
+      /**
+       * @brief getClosePrice
+       * @return
+       */
       DATA_TYPES::PRICE getClosePrice();
+
+      /**
+       * @brief getAverageOhlcPrice
+       * @return
+       */
       DATA_TYPES::PRICE getAverageOhlcPrice();
+
+      /**
+       * @brief getLastProcessTimestamp
+       * @return
+       */
       time_t getLastProcessTimestamp();
+
+      /**
+       * @brief checkForModification
+       * @param lastProcessTimeStamp
+       * @return
+       */
       bool checkForModification(time_t lastProcessTimeStamp);
 
 
     };
 
+    /**
+     * @brief The TradeTick struct
+     */
     struct TradeTick{
 
       CREATE_FIELD(DATA_TYPES::PRICE, Price);
@@ -41,6 +91,13 @@ namespace API2 { namespace COMMON {
       CREATE_FIELD(UNSIGNED_LONG, Timestamp);
 
     public:
+
+      /**
+       * @brief TradeTick
+       * @param price
+       * @param qty
+       * @param timestamp
+       */
       TradeTick(
           const DATA_TYPES::PRICE &price,
           const DATA_TYPES::QTY &qty,

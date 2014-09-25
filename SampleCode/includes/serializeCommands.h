@@ -94,7 +94,7 @@ namespace API2 {
  * @param buf
  * @param bytes
  */
-    void serialize(AccountDetail &accountDetails, char* buf, int &bytes);
+    void serialize(const AccountDetail &accountDetails, char* buf, int &bytes);
 
 
     /**

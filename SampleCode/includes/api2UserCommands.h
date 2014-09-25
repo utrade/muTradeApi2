@@ -1,7 +1,7 @@
 #ifndef api2_UserParams_h
 #define api2_UserParams_h
 #include <baseCommands.h>
-#include <sgLib/sgDebugLogDefines.h>
+#include <sgDebugLogDefines.h>
 namespace API2 {
 
 /**

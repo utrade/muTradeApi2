@@ -1,6 +1,7 @@
 #ifndef SG_SYMBOL_DATA_DEFINESH
 #define SG_SYMBOL_DATA_DEFINESH
 #include <string>
+#include <sharedDefines.h>
 namespace API2  {
 
   /**
@@ -248,6 +249,7 @@ namespace API2  {
      * @brief dump
      */
     void dump();
+    static SIGNED_LONG getUnderlyingSymbolIdIV(API2::SymbolStaticData *staticData);
   };
 }
 #endif

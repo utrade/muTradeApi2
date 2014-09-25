@@ -744,9 +744,9 @@ RECURSIVE              = YES
 
 EXCLUDE                = /home/utrade/Trinity/code/trunk-2/futfut/includes/userParamsReader.h \
                          /home/utrade/Trinity/code/trunk-2/futfut/includes/cmdDefines.h \
-                         /home/utrade/Trinity/code/trunk-2/futfut/includes/sgLib/sgDebugLogDefines.h \
-                         /home/utrade/Trinity/code/trunk-2/futfut/includes/sgLib/sgOrderBookDefines.h \
-                         /home/utrade/Trinity/code/trunk-2/futfut/includes/sgLib/sharedUtilities.h
+                         /home/utrade/Trinity/code/trunk-2/futfut/includes/sgDebugLogDefines.h \
+                         /home/utrade/Trinity/code/trunk-2/futfut/includes/sgOrderBookDefines.h \
+                         /home/utrade/Trinity/code/trunk-2/futfut/includes/sharedUtilities.h
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or 
 # directories that are symbolic links (a Unix file system feature) are excluded 

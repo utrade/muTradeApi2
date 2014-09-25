@@ -9,16 +9,17 @@
 #include <serializeCommands.h>
 #include <stdio.h>
 #include <typeinfo>
+#include <sstream>
 namespace API2{
 
   using namespace Serialization;
   /**
- * @brief The BaseType class
- */
+   * @brief The BaseType class
+   */
   class BaseType
   {
     CREATE_FIELD(std::string, String);
-  public:
+    public:
 
 
     virtual ~BaseType(){}
@@ -41,6 +42,12 @@ namespace API2{
      * @brief dump
      */
     virtual void dump()=0;
+
+    /**
+     * @brief getKeyValueString
+     */
+    virtual std::string getKeyValueString()=0;
+
 
     /**
      * @brief printType
@@ -66,16 +73,16 @@ namespace API2{
 
 
   /**
- * @brief The DerivedType class
- */
+   * @brief The DerivedType class
+   */
   template <class T>
-  class DerivedType :public BaseType
+    class DerivedType :public BaseType
   {
     CREATE_FIELD( T, Value);
     CREATE_FIELD( UNSIGNED_INTEGER, Count );
 
 
-  public:
+    public:
 
     /**
      * @brief DerivedType
@@ -136,12 +143,12 @@ namespace API2{
     {
       UNSIGNED_LONG tmpLong = 0;
       for(MapULongIter i= mapULong.begin(); i!= mapULong.end(); i++)
-        {
-          Serialization::serialize(i->first,buf,bytes);
-          Serialization::serialize(i->second,buf,bytes);
-          //SERIALIZE_64(tmpLong, i->first, buf, bytes);
-          //SERIALIZE_64(tmpLong, (i->second), buf, bytes);
-        }
+      {
+        Serialization::serialize(i->first,buf,bytes);
+        Serialization::serialize(i->second,buf,bytes);
+        //SERIALIZE_64(tmpLong, i->first, buf, bytes);
+        //SERIALIZE_64(tmpLong, (i->second), buf, bytes);
+      }
     }
 
     /**
@@ -154,15 +161,15 @@ namespace API2{
     {
       UNSIGNED_LONG tmp1,tmp2= 0;
       for(int i=0; i<getCount();i++)
-        {
-          UNSIGNED_LONG key;
-          UNSIGNED_LONG value;
-          Serialization::deSerialize(key,buf,offset);
-          Serialization::deSerialize(value,buf,offset);
-          //DESERIALIZE_64(tmp1, tmp2, t.setTmpKey(tmp2), buf, offset);
-          //DESERIALIZE_64(tmp1, tmp2, t.setTmpVal(tmp2), buf, offset);
-          val[key] = value;
-        }
+      {
+        UNSIGNED_LONG key;
+        UNSIGNED_LONG value;
+        Serialization::deSerialize(key,buf,offset);
+        Serialization::deSerialize(value,buf,offset);
+        //DESERIALIZE_64(tmp1, tmp2, t.setTmpKey(tmp2), buf, offset);
+        //DESERIALIZE_64(tmp1, tmp2, t.setTmpVal(tmp2), buf, offset);
+        val[key] = value;
+      }
     }
     /**
      * @brief serialize
@@ -171,23 +178,23 @@ namespace API2{
      * @param bytes
      */
     template<class M>
-    void serialize(const M &value,
-                   char *buf,int &bytes)
-    {
-      Serialization::serialize(value,buf,bytes);
-    }
+      void serialize(const M &value,
+          char *buf,int &bytes)
+      {
+        Serialization::serialize(value,buf,bytes);
+      }
     template<class M>
 
-    /**
-     * @brief deSerialize
-     * @param val
-     * @param buf
-     * @param offset
-     */
-    void deSerialize(M &val, const char *buf, int &offset)
-    {
-      Serialization::deSerialize(val,buf,offset);
-    }
+      /**
+       * @brief deSerialize
+       * @param val
+       * @param buf
+       * @param offset
+       */
+      void deSerialize(M &val, const char *buf, int &offset)
+      {
+        Serialization::deSerialize(val,buf,offset);
+      }
 #endif
 
     /**
@@ -195,48 +202,69 @@ namespace API2{
      */
     void dump()
     {
-      dumpImpl(getValue());
+      std::cout<<getKeyValueStringImpl(getValue());
+    }
+    /**
+     * @brief getKeyValueString
+     */
+    std::string getKeyValueString()
+    {
+      return getKeyValueStringImpl(getValue());
     }
 
     /**
-     * @brief dumpImpl
+     * @brief getKeyValueStringImpl
      * @param val
      */
     template<class M>
-    void dumpImpl(const M &val)
+      std::string getKeyValueStringImpl(const M &val)
+      {
+        std::ostringstream out;
+        out << std::endl << getString() <<"--->"<< val;
+        return out.str();
+      }
+    std::string getKeyValueStringImpl(const API2::AccountDetail &val)
     {
-      std::cout << std::endl << getString() <<"--->"<< val;
+      std::ostringstream out;
+      out << std::endl << getString() <<"--->"<< val.dump();
+      return out.str();
     }
 
     /**
-     * @brief dumpImpl
+     * @brief getKeyValueStringImpl
      * @param val
      */
-    void dumpImpl(const char &val)
+    std::string getKeyValueStringImpl(const char &val)
     {
-      std::cout << std::endl << getString() <<"--->"<< (short)val;
+      std::ostringstream out;
+      out << std::endl << getString() <<"--->"<< (short)val;
+      return out.str();
     }
 
     /**
-     * @brief dumpImpl
+     * @brief getKeyValueStringImpl
      * @param val
      */
-    void dumpImpl(const UNSIGNED_CHARACTER &val)
+    std::string getKeyValueStringImpl(const UNSIGNED_CHARACTER &val)
     {
-      std::cout << std::endl << getString() <<"--->"<< (short)val;
+      std::ostringstream out;
+      out << std::endl << getString() <<"--->"<< (short)val;
+      return out.str();
     }
 
     /**
-     * @brief dumpImpl
+     * @brief getKeyValueStringImpl
      * @param val
      */
-    void dumpImpl(const MapULong &val)
+    std::string getKeyValueStringImpl(const MapULong &val)
     {
-      std::cout <<"========" << std::endl << getString() << "========";
+      std::ostringstream out;
+      out <<"========" << std::endl << getString() << "========";
       for(MapULongIter iter = _Value.begin(); iter != _Value.end(); iter ++)
-        {
-          std::cout << std::endl << iter->first <<"--->"<< iter->second;
-        }
+      {
+        out << std::endl << iter->first <<"--->"<< iter->second;
+      }
+      return out.str();
     }
 
   };
@@ -245,8 +273,8 @@ namespace API2{
   typedef std::vector<BaseType *> BaseTypeVector;
 
   /**
- * @brief The AbstractUserParams class
- */
+   * @brief The AbstractUserParams class
+   */
   class AbstractUserParams
   {
 
@@ -285,12 +313,21 @@ namespace API2{
      */
     BaseTypeVector _Members;
 
-  public:
+    public:
     /**
      * @brief AbstractUserParams
      */
     AbstractUserParams()
     {
+      initialize();
+    }
+
+    /**
+     * @brief initialize
+     */
+    virtual void initialize()
+    { 
+      _Members.clear();
       SET_DERIVED_TYPE( StrategyVersion, 0);
       SET_DERIVED_TYPE( TransactionType, 0);
       SET_DERIVED_TYPE( ClientId, 0);
@@ -298,11 +335,6 @@ namespace API2{
       SET_DERIVED_TYPE( AdminTokenId, 0);
       SET_DERIVED_TYPE( SequenceNumber, 0);
     }
-
-    /**
-     * @brief initialize
-     */
-    virtual void initialize(){}
 
     /**
      * @brief serialize
@@ -318,19 +350,19 @@ namespace API2{
 
       bytes = sizeof(UNSIGNED_SHORT);  // Leave 2 bytes for packet size
       if (isResponse)
-        {
-          Serialization::serialize(cat,buf,bytes);
-        }
+      {
+        Serialization::serialize(cat,buf,bytes);
+      }
       else
-        {
-          Serialization::serialize(comCat,buf,bytes);
-        }
+      {
+        Serialization::serialize(comCat,buf,bytes);
+      }
 
       for( int i=0; i<(int)_Members.size(); i++)
-        {
-          printf("Serializing :%s \n",_Members[i]->getString().c_str());
-          _Members[i]->serializeFun(buf,bytes);
-        }
+      {
+        //printf("Serializing :%s \n",_Members[i]->getString().c_str());
+        _Members[i]->serializeFun(buf,bytes);
+      }
 
       int dummyBytes = 0;
       /**
@@ -351,29 +383,29 @@ namespace API2{
      * @return
      */
     int serializeApi(char *buf,
-                     bool isResponse,
-                     UNSIGNED_CHARACTER cat,
-                     UNSIGNED_CHARACTER comCat,
-                     int apiIndex)
+        bool isResponse,
+        UNSIGNED_CHARACTER cat,
+        UNSIGNED_CHARACTER comCat,
+        int apiIndex)
     {
       int bytes = 0;
 
       bytes = sizeof(UNSIGNED_SHORT);  // Leave 2 bytes for packet size
       if (isResponse)
-        {
-          Serialization::serialize(cat,buf,bytes);
-        }
+      {
+        Serialization::serialize(cat,buf,bytes);
+      }
       else
-        {
-          Serialization::serialize(comCat,buf,bytes);
-        }
+      {
+        Serialization::serialize(comCat,buf,bytes);
+      }
 
       Serialization::serialize(apiIndex,buf,bytes);
       for( int i=0; i<(int)_Members.size(); i++)
-        {
-          printf("Serializing :%s \n",_Members[i]->getString().c_str());
-          _Members[i]->serializeFun(buf,bytes);
-        }
+      {
+        //printf("Serializing :%s \n",_Members[i]->getString().c_str());
+        _Members[i]->serializeFun(buf,bytes);
+      }
 
       int dummyBytes = 0;
       /**
@@ -394,10 +426,10 @@ namespace API2{
       int offset =0;
 
       for( int i=0; i<(int)_Members.size(); i++)
-        {
-          printf("Deserializing :%s  \n",_Members[i]->getString().c_str());
-          _Members[i]->deSerializeFun(buf,offset);
-        }
+      {
+        //printf("Deserializing :%s  \n",_Members[i]->getString().c_str());
+        _Members[i]->deSerializeFun(buf,offset);
+      }
     }
 
     /**
@@ -418,12 +450,47 @@ namespace API2{
       std::cout << std::endl<< "===============================" <<std::endl;
 
       for( int i=0; i<(int)_Members.size(); i++)
-        {
-          _Members[i]->dump();
-        }
+      {
+        _Members[i]->dump();
+      }
 
     }
 
+    std::string getString()
+    {
+      std::ostringstream out;
+      out << std::endl<< "SG_DUMP. Total Params:" <<_Members.size()<<std::endl;
+      out << std::endl<< "===============================" <<std::endl;
+
+      for( int i=0; i<(int)_Members.size(); i++)
+      {
+        out<<_Members[i]->getKeyValueString();
+      }
+      return out.str();
+    }
+
+    void writeToFile(FILE *fp)
+    {
+      char strategyCommandBuffer[MAX_BUF_SIZE];
+      int strategyBytes = serialize((char *)strategyCommandBuffer,false,0,0);
+      fwrite((void*)strategyCommandBuffer,strategyBytes, 1, fp);
+      fflush(fp);
+    }
+    int getSerializeSize()
+    {
+      char strategyCommandBuffer[MAX_BUF_SIZE];
+      int strategyBytes = serialize(strategyCommandBuffer,false,0,0);
+      return strategyBytes;
+    }
+    void deSerializeMemorySize(const char *buff)
+    {
+      UNSIGNED_SHORT tmp1;
+      UNSIGNED_CHARACTER tmp2;
+      int offset = 0;
+      Serialization::deSerialize(tmp1, buff, offset);
+      Serialization::deSerialize(tmp2,buff,offset);
+      deSerialize(buff + offset);
+    }
   };
 
 

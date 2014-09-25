@@ -7,6 +7,7 @@
 #define SYMBOL_SIZE 24
 #define SERIES_SIZE 20
 #define API_REQUEST_SIZE 200
+#define MAX_BUF_SIZE 1024
 
 #define API_COMPILATION 1
 
@@ -26,7 +27,7 @@ typedef MapULong::const_iterator MapULongIter;
 #define stringify( name ) # name
 #define varString(name) stringify(name)<<":"<<name
 
-#define OMM_DUMP_LOGS 1
+#define OMM_DUMP_LOGS 0
 #define MKTDATA_EVENT 0
 #define USE_EXCHANGE_ORDER_ID_FOR_REFERENCE 1
 

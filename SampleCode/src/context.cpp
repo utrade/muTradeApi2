@@ -24,7 +24,7 @@ API2::Context::Context(API2::StrategyParameters *params):
     std::cout
       <<"\n"
       <<e.what();
-    terminateStrategy();
+    reqTerminateStrategy();
     std::cout<<"Terminating strategy\n";
     return ;
   }
@@ -60,28 +60,28 @@ void API2::Context::setInternalParameters(API2::UserParams *futfutParams,
 }
 void API2::Context::registerSymbols()
 {
-  getAddInstrument(_firstLegInstrument,_params._symbolIdFirstLeg,true);
-  getAddInstrument(_secondLegInstrument,_params._symbolIdSecondLeg,true);
+  _firstLegInstrument = createNewInstrument(_params._symbolIdFirstLeg,true);
+  _secondLegInstrument = createNewInstrument(_params._symbolIdSecondLeg,true);
 }
 void API2::Context::createOrderIds()
 {
 }
-void API2::Context::processCurrentState()
+void API2::Context::OnDefaultEvent()
 {
   (*_state)(*this);
 }
-void API2::Context::onDerivedMarketDataEvent(UNSIGNED_LONG symbolid)
+void API2::Context::OnMarketDataEvent(UNSIGNED_LONG symbolid)
 {
   std::cout<<"Symbol id Market Data "
     <<symbolid
     <<std::endl;
-  API2::COMMON::MktData *mkData = getUpdateMktData(symbolid);
+  API2::COMMON::MktData *mkData = reqQryUpdateMarketData(symbolid);
   mkData->dump();
 
   (*_state)(*this);
 
 }
-void API2::Context::onModifyStrategy(API2::AbstractUserParams* obj)
+void API2::Context::onCMDModifyStrategy(API2::AbstractUserParams* obj)
 {
 }
 
@@ -89,8 +89,8 @@ void API2::Context::onModifyStrategy(API2::AbstractUserParams* obj)
 SIGNED_LONG API2::Context::getFirstLegPrice()
 {
   SIGNED_LONG price = 0;
-  API2::COMMON::MktData *mkDataFirstLeg = getUpdateMktData(_params._symbolIdFirstLeg);
-  API2::COMMON::MktData *mkDataSecondLeg = getUpdateMktData(_params._symbolIdSecondLeg);
+  API2::COMMON::MktData *mkDataFirstLeg = reqQryUpdateMarketData(_params._symbolIdFirstLeg);
+  API2::COMMON::MktData *mkDataSecondLeg = reqQryUpdateMarketData(_params._symbolIdSecondLeg);
   
   std::cout<<"_______________\nSecond Leg \n______________"<<std::endl;
   mkDataSecondLeg->dump();
@@ -125,12 +125,12 @@ void API2::Context::waitState(Context &obj)
 }
 
 
-void API2::Context::processOrderConfirmation(API2::OrderConfirmation &confirmation)
+void API2::Context::onProcessOrderConfirmation(API2::OrderConfirmation &confirmation)
 {
   confirmation.dump();
 }
 
-void API2::Context::onNewConfirmed(API2::OrderConfirmation &confirmation,API2::COMMON::InstrumentOrderId *orderId)
+void API2::Context::onNewConfirmed(API2::OrderConfirmation &confirmation,API2::COMMON::OrderId *orderId)
 { 
   if( _firstLegOrder != NULL 
       && confirmation.getClOrderId() == _firstLegOrder->getClOrdId() )
@@ -138,11 +138,11 @@ void API2::Context::onNewConfirmed(API2::OrderConfirmation &confirmation,API2::C
     _state = replaceOrder;
     _currentOrderId = orderId;
   }
-  processCurrentState();
+  onDefaultEvent();
 }
 
 void API2::Context::onCanceled(API2::OrderConfirmation &confirmation, 
-    API2::COMMON::InstrumentOrderId *orderId)
+    API2::COMMON::OrderId *orderId)
 {
   if(confirmation.getOriginalClOrderId() == _firstLegOrder->getClOrdId())
   {
@@ -152,7 +152,7 @@ void API2::Context::onCanceled(API2::OrderConfirmation &confirmation,
     _state = placeFirstLegOrder;
   }
 }
-void API2::Context::onReplaced(API2::OrderConfirmation &confirmation,API2::COMMON::InstrumentOrderId *orderId)
+void API2::Context::onReplaced(API2::OrderConfirmation &confirmation,API2::COMMON::OrderId *orderId)
 { 
   if( _replaceOrder != NULL 
       && confirmation.getClOrderId() == _replaceOrder->getClOrdId() )
@@ -162,15 +162,15 @@ void API2::Context::onReplaced(API2::OrderConfirmation &confirmation,API2::COMMO
     _state = replaceOrder;
     _currentOrderId = orderId;
   }
-  processCurrentState();
+  onDefaultEvent();
 }
 
 void API2::Context::placeFirstLegOrder(Context &obj)
 {
   if(obj._savedQty._firstLegTradedQty >= obj._params._totalQty)
   {
-    obj.setStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_COMPLETED_SUCCESSFULLY);
-    obj.terminateStrategy();
+    obj.reqAddStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_COMPLETED_SUCCESSFULLY);
+    obj.reqTerminateStrategy();
     return;
   }
 
@@ -181,7 +181,13 @@ void API2::Context::placeFirstLegOrder(Context &obj)
   {
 
     API2::DATA_TYPES::RiskStatus riskStatus = API2::CONSTANTS::RSP_RiskStatus_MAX;
-    obj.createNewOrder(obj._firstLegOrder,
+
+    obj._firstLegOrderId = obj.createNewOrderId(obj._firstLegInstrument,
+                                                API2::AccountDetail(),
+                                                obj._params._firstLegOrderMode
+                                                );
+
+    obj._firstLegOrder = obj.createNewOrder(
         obj._firstLegInstrument,
         obj._params._orderQty,
         obj._params._orderQty,
@@ -191,17 +197,18 @@ void API2::Context::placeFirstLegOrder(Context &obj)
         API2::CONSTANTS::CMD_ProductType_DELIVERY,
         price);
 
-    if(!obj.sendNewOrder(
+
+    if(!obj.reqNewSingleOrder(
           riskStatus,
           obj._firstLegInstrument,
           obj._firstLegOrder,
-          NULL)
+          obj._firstLegOrderId)
       )
     {
       std::cout<<"=========Error Placing Order============="<<std::endl;
       std::cout<<"==========Risk Status========="<<riskStatus<<std::endl;
-      obj.setStrategyComment(API2::CONSTANTS::RSP_StrategyComment_RMS_FAILURE);
-      obj.terminateStrategy();
+      obj.reqAddStrategyComment(API2::CONSTANTS::RSP_StrategyComment_RMS_FAILURE);
+      obj.reqTerminateStrategy();
     }
     else
     {
@@ -218,8 +225,8 @@ void API2::Context::replaceOrder(Context &obj)
 {
   if(obj._savedQty._firstLegTradedQty >= obj._params._totalQty)
   {
-    obj.setStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_COMPLETED_SUCCESSFULLY);
-    obj.terminateStrategy();
+    obj.reqAddStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_COMPLETED_SUCCESSFULLY);
+    obj.reqTerminateStrategy();
     return;
   }
 
@@ -231,7 +238,7 @@ void API2::Context::replaceOrder(Context &obj)
 
     API2::DATA_TYPES::RiskStatus riskStatus = API2::CONSTANTS::RSP_RiskStatus_MAX;
     
-    obj.createNewOrder(obj._replaceOrder,
+    obj._replaceOrder = obj.createNewOrder(
         obj._firstLegInstrument,
         obj._params._orderQty,
         obj._params._orderQty,
@@ -245,17 +252,17 @@ void API2::Context::replaceOrder(Context &obj)
     
     obj._replaceOrder->setTransactionType(API2::CONSTANTS::CMD_TransactionType_MODIFY);
     
-    if(!obj.sendReplaceOrder(
+    if(!obj.reqReplaceOrder(
           riskStatus,
           obj._firstLegInstrument,
           obj._replaceOrder,
-          NULL)
+          obj._firstLegOrderId)
       )
     {
       std::cout<<"=========Error Placing Order============="<<std::endl;
       std::cout<<"==========Risk Status========="<<riskStatus<<std::endl;
-      obj.setStrategyComment(API2::CONSTANTS::RSP_StrategyComment_RMS_FAILURE);
-      obj.terminateStrategy();
+      obj.reqAddStrategyComment(API2::CONSTANTS::RSP_StrategyComment_RMS_FAILURE);
+      obj.reqTerminateStrategy();
     }
     else
     {
@@ -283,5 +290,5 @@ void *API2::FutFutDriver(void *params)
   API2::StrategyParameters *sgParams = (API2::StrategyParameters*)params;
   API2::Context context(sgParams);
   std::cout<<"Hey "<<std::endl;
-  return context.startAlgo(true,false);
+  return context.reqStartAlgo(true,false);
 }

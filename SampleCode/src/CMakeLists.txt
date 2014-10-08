@@ -1,6 +1,4 @@
-#add_library(optionBidding STATIC
-
-add_library(futfut MODULE
+add_library(test MODULE
     externalInterface.cpp
     context.cpp
 )

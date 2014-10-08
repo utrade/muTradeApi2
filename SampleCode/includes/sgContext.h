@@ -515,8 +515,10 @@ namespace API2
        * @brief onTradeTickEvent Called if Configured to received Trade Ticks update Event while Running Algo \n
        *  Callback is provided each time the Trade Tick is received through the TBT Server
        *  This event is specific to NSE-TBT Trade Tick currently
+       * @param symbolId SymbolID
+       * @param tradeTick
        */
-    virtual void onTradeTickEvent(COMMON::TradeTick tradeTick);
+    virtual void onTradeTickEvent(API2::DATA_TYPES::SYMBOL_ID, COMMON::TradeTick tradeTick);
 
 
     /**

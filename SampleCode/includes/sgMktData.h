@@ -181,12 +181,17 @@ namespace API2 { namespace COMMON {
       bool updateTbt();
 
 
+
       /**
        * @brief updateMcl
        * @return
        */
       bool updateMcl();
     public:
+
+      UNSIGNED_LONG getSymbolId(){return _symbolId;}
+
+
       /**
        * @brief getOpenPrice
        * @return

@@ -113,10 +113,6 @@ public:
      */
     Context(API2::StrategyParameters *params);
 
-    /**
-     * @brief processCurrentState
-     */
-    void OnDefaultEvent();
 
     /**
      * @brief OnCMDModifyStrategy
@@ -145,7 +141,7 @@ public:
      * @brief OnMarketDataEvent
      * @param symbolId
      */
-    void OnMarketDataEvent(UNSIGNED_LONG symbolId);
+    void onMarketDataEvent(UNSIGNED_LONG symbolId);
 
     /**
      * @brief getFirstLegPrice
@@ -153,10 +149,6 @@ public:
      */
     SIGNED_LONG getFirstLegPrice();
 
-    /**
-     * @brief cancelOrder
-     */
-    void cancelOrder();
 
     /**
      * @brief onProcessOrderConfirmattion
@@ -165,13 +157,11 @@ public:
     void onProcessOrderConfirmation(API2::OrderConfirmation &confirmation);
 
     /**
-     * @brief onNewConfirmed
+     * @brief onConfirmed
      * @param confirmation
      * @param orderId
      */
-    void onNewConfirmed(API2::OrderConfirmation &confirmation,
-                        API2::COMMON::OrderId *orderId);
-
+    void onConfirmed(API2::OrderConfirmation &confirmation, COMMON::OrderId *orderId);
     /**
      * @brief onReplaced
      * @param confirmation
@@ -205,6 +195,7 @@ public:
      */
     static void replaceOrder(Context &obj);
 
+    void onDefaultEvent();
 };
 
 /**

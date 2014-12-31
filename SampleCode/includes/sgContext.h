@@ -70,7 +70,7 @@ namespace API2
        * @throw MarketDataSubscriptionFailedException
        * @return COMMON::Instrument Pointer
        */
-    COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,bool regMktData, bool useSnapShot=true, bool useOhlc=true);
+    COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,bool regMktData, bool useSnapShot=true, bool useOhlc=false);
 
     /**
        * @brief createNewInstrument To add a new Instrument in the strategy \n

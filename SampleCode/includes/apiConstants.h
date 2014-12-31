@@ -670,7 +670,60 @@ namespace API2
        */
     const unsigned short CMD_ExchangeId_CFH = 7;
 
+    /**
+       * @brief CMD_ExchangeId_MAREX
+       */
+    const unsigned short CMD_ExchangeId_MAREX = 9;
 
+    /**
+       * @brief CMD_ExchangeId_MCX
+       */
+    const unsigned short CMD_ExchangeId_MCX = 10;
+
+    /**
+       * @brief CMD_ExchangeId_DGCX
+       */
+    const unsigned short CMD_ExchangeId_DGCX = 11;
+
+    /**
+       * @brief CMD_ExchangeId_TTLME
+       */
+    const unsigned short CMD_ExchangeId_TTLME = 12;
+
+    /**
+       * @brief CMD_ExchangeId_TTCME
+       */
+    const unsigned short CMD_ExchangeId_TTCME = 13;
+
+    /**
+       * @brief CMD_ExchangeId_CTP_CFFEX
+       */
+    const unsigned short CMD_ExchangeId_CTP_CFFEX = 14;
+
+    /**
+       * @brief CMD_ExchangeId_CTP_CZCE
+       */
+    const unsigned short CMD_ExchangeId_CTP_CZCE = 15;
+
+    /**
+       * @brief CMD_ExchangeId_CTP_DCE
+       */
+    const unsigned short CMD_ExchangeId_CTP_DCE = 16;
+
+    /**
+       * @brief CMD_ExchangeId_CTP_SHFE
+       */
+    const unsigned short CMD_ExchangeId_CTP_SHFE = 17;
+
+    /**
+       * @brief CMD_ExchangeId_SGXCUR
+       */
+    const unsigned short CMD_ExchangeId_SGXCUR = 18;
+
+    /**
+       * @brief CMD_ExchangeId_MAX
+       */
+    const unsigned short CMD_ExchangeId_MAX = 19;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -870,6 +923,80 @@ namespace API2
        * @brief CMD_CommandCategory_API2_STRATEGY
        */
     const unsigned short CMD_CommandCategory_API2_STRATEGY = 68;
+
+    /**
+       * @brief CMD_CommandCategory_BSE_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_BSE_DISCONNECTED = 17;
+
+    /**
+       * @brief CMD_CommandCategory_NSECM_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_NSECM_DISCONNECTED = 18;
+    /**
+       * @brief CMD_CommandCategory_NSEFO_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_NSEFO_DISCONNECTED = 19;
+    /**
+       * @brief CMD_CommandCategory_TBTCM_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_TBTCM_DISCONNECTED = 20;
+    /**
+       * @brief CMD_CommandCategory_TBTFO_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_TBTFO_DISCONNECTED = 21;
+    /**
+       * @brief CMD_CommandCategory_TBTCDS_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_TBTCDS_DISCONNECTED = 48;
+    /**
+       * @brief CMD_CommandCategory_NSECDS_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_NSECDS_DISCONNECTED = 49;
+    /**
+       * @brief CMD_CommandCategory_BSEETI_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_BSEETI_DISCONNECTED = 50;
+    /**
+       * @brief CMD_CommandCategory_SGX_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_SGX_DISCONNECTED = 51;
+    /**
+       * @brief CMD_CommandCategory_CFH_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_CFH_DISCONNECTED = 56;
+    /**
+       * @brief CMD_CommandCategory_BSEFO_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_BSEFO_DISCONNECTED = 57;
+    /**
+       * @brief CMD_CommandCategory_CTP_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_CTP_DISCONNECTED = 71;
+    /**
+       * @brief CMD_CommandCategory_CTP_CFFEX_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_CTP_CFFEX_DISCONNECTED = 72;
+    /**
+       * @brief CMD_CommandCategory_CTP_CZCE_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_CTP_CZCE_DISCONNECTED = 73;
+    /**
+       * @brief CMD_CommandCategory_CTP_DCE_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_CTP_DCE_DISCONNECTED = 74;
+    /**
+       * @brief CMD_CommandCategory_CTP_SHFE_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_CTP_SHFE_DISCONNECTED = 75;
+    /**
+       * @brief CMD_CommandCategory_DGCX_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_DGCX_DISCONNECTED = 76;
+    /**
+       * @brief CMD_CommandCategory_MCX_DISCONNECTED
+       */
+    const unsigned short CMD_CommandCategory_MCX_DISCONNECTED = 77;
 
 
 

@@ -60,7 +60,7 @@
   public: UNSIGNED_LONG getBackendStrategyVersion() const { return BACK_END_STRATEGY_VERSION;}
 
 #define DEFINE_CONSTRUCTORS( Cls, Cmd, Response) \
-  Cls::Cls(const char *buf){ deSerialize(buf); }\
+  Cls::Cls(const char *buf){ initialize();deSerialize(buf);}\
   Cls::Cls(){initialize();} \
   int Cls::serialize(char* buf, bool isResponse){ \
   return AbstractUserParams::serialize(buf, \

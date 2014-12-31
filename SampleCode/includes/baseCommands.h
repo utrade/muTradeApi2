@@ -422,7 +422,7 @@ namespace API2{
      */
     void deSerialize(const char* buf)
     {
-      initialize();
+//      initialize();
       int offset =0;
 
       for( int i=0; i<(int)_Members.size(); i++)
@@ -453,7 +453,7 @@ namespace API2{
       {
         _Members[i]->dump();
       }
-
+      std::cout << std::endl;
     }
 
     std::string getString()

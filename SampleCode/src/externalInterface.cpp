@@ -10,10 +10,10 @@ extern "C"
    * @param params
    * @return
    */
-  void * getDriver(void * params)
+  void getDriver(void * params)
   {
     printf("Driver called \n");
-    return API2::FutFutDriver(params);
+    API2::Context::FutFutDriver(params);
   }
 
   /**

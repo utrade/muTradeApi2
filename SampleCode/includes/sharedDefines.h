@@ -8,6 +8,8 @@
 #define SERIES_SIZE 20
 #define API_REQUEST_SIZE 200
 #define MAX_BUF_SIZE 1024
+#define STRATEGY_TYPE_SIZE 3
+#define STRATEGY_TYPE_SQNNO_SIZE 20
 
 #define API_COMPILATION 1
 
@@ -16,6 +18,7 @@ typedef uint16_t UNSIGNED_SHORT;
 typedef uint32_t UNSIGNED_INTEGER;
 typedef uint64_t UNSIGNED_LONG;
 typedef int64_t SIGNED_LONG;
+typedef int32_t SIGNED_INTEGER;
 typedef std::map<UNSIGNED_LONG, UNSIGNED_LONG> MapULong;
 typedef MapULong::const_iterator MapULongIter;
 

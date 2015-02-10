@@ -2,6 +2,7 @@
 #define MYAPI_CONTEXT_H
 #include <sgContext.h>
 #include <api2UserCommands.h>
+#include "orderWrapper.h"
 namespace API2
 {
 
@@ -52,11 +53,6 @@ struct StrategySavedQty
 class Context: public API2::SGContext
 {
     /**
-     * @brief _currentOrderId
-     */
-    API2::COMMON::OrderId *_currentOrderId;
-
-    /**
      * @brief _params
      */
     FrontEndParameters _params;
@@ -77,34 +73,17 @@ class Context: public API2::SGContext
     API2::COMMON::Instrument *_secondLegInstrument;
 
     /**
-     *
+     *@brief _state -> Function Pointer
+     *@param obj (Contex)
      */
     void (*_state)(Context &obj);
 
     /**
-     * @brief _firstLegOrder
+     * @brief _firstLegOrderWrapper
      */
-    API2::SingleOrder *_firstLegOrder;
+    API2::COMMON::OrderWrapper _firstLegOrderWrapper;
 
-    /**
-     * @brief _firstLegOrderId
-     */
-    API2::COMMON::OrderId *_firstLegOrderId;
 
-    /**
-     * @brief _secondLegOrder
-     */
-    API2::SingleOrder *_secondLegOrder;
-
-    /**
-     * @brief _secondLegOrderId
-     */
-    API2::COMMON::OrderId *_secondLegOrderId;
-
-    /**
-     * @brief _replaceOrder
-     */
-    API2::SingleOrder *_replaceOrder;
 public:
 
     /**
@@ -196,12 +175,13 @@ public:
     static void replaceOrder(Context &obj);
 
     void onDefaultEvent();
+
+    /**
+     * @brief Strategy Driver
+     * @param obj
+     */
+    static void FutFutDriver(void *params);
 };
 
-/**
- * @brief Strategy Driver
- * @param obj
- */
-void *FutFutDriver(void *params);
 }
 #endif

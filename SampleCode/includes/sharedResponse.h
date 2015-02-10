@@ -44,6 +44,7 @@ namespace API2
     DATA_TYPES::PRICE  _lastFillPrice2;
     char _exchangeOrderId[EXCHANGE_ORDERID_SIZE];
     char _tradeId[TRADEID_SIZE];
+    char _strategyTypeSqnNo[STRATEGY_TYPE_SQNNO_SIZE];
 
 
   public:
@@ -187,9 +188,33 @@ namespace API2
     DATA_TYPES::TRADER_ID getTraderId() const ;
 
     /**
+     * @brief getStrategyTypeSqnNo
+     * @return
+     */
+    DATA_TYPES::String getStrategyTypeSqnNo() const ;
+
+    /**
+     * @brief setStrategytypeSqnNo
+     * @param strategyTypeSqnNo
+     */
+    void setStrategyTypeSqnNo( char strategyTypeSqnNo[]);
+
+    /**
+     * @brief setStrategytypeSqnNo
+     * @param strategyTypeSqnNo
+     */
+    void setStrategyTypeSqnNo( std::string strategyTypeSqnNo);
+    /**
+     * @brief setStrategytypeSqnNo
+     * @param strategyTypeSqnNo
+     */
+    void setStrategyTypeSqnNo( const char * strategyTypeSqnNo);
+
+    /**
      * @brief setClOrderId
      * @param clOrderId
      */
+
     void setClOrderId(DATA_TYPES::CLORDER_ID clOrderId);
 
     /**

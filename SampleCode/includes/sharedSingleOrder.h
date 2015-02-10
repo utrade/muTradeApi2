@@ -185,6 +185,13 @@ protected:
      */
   DATA_TYPES::ENUM _orderCategory;
 
+  /**
+   * @brief strategy type mainly for MCX
+   */
+
+  char _strategyType[STRATEGY_TYPE_SIZE];
+  
+
 
 
 
@@ -474,6 +481,20 @@ public :
      * @return
      */
   DATA_TYPES::TRADER_ID getTraderId() const;
+
+  /**
+     * @brief getStrategyType
+     * @return
+     */
+ const  char * getStrategyType() const;
+  /**
+     * @brief setStrategyType
+     * @return
+     */
+ void   setStrategyType( char strategyType[]);
+ void   setStrategyType( const char * strategyType);
+ void   setStrategyType( std::string strategyType);
+
 
   /**
      * @brief setClOrdId

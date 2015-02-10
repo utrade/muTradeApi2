@@ -116,6 +116,12 @@ namespace API2
  */
     typedef UNSIGNED_SHORT StrategyComment;
 
+/**
+ * @typedef
+ * @brief TimerMicroSecondInterval
+ */
+    typedef long long TimerMicroSecondInterval;
+
     /**
  * @typedef
  * @brief ResponseType

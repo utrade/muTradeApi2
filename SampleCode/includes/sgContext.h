@@ -25,7 +25,9 @@ namespace API2
  * <p><a href="http://utrade.github.io/muTradeApi2/apiUserManual.pdf">User Manual</a><br/>
  *  <a href="http://utrade.github.io/muTradeApi2/strategyFlow.pdf">Strategy Flow</a><br/>
  *  <a href="https://github.com/utrade/muTradeApi2/tree/master/SampleCode">Sample Strategy</a><br/>
- * <a href="http://utrade.github.io/muTradeApi2/faq.pdf">FAQ</a><br/>
+ *  <a href="http://utrade.github.io/muTradeApi2/faq.pdf">FAQ</a><br/>
+ *  <a href="http://utrade.github.io/muTradeApi2/APIChanges.xlsx">API Changes in 2.0.1</a><br/>
+ *  <a href="https://github.com/utrade/muTradeApi2/tree/master/SampleCode/includes">API Includes</a><br/>
  * </p>
  */
 
@@ -54,7 +56,8 @@ namespace API2
        */
     SGContext(StrategyParameters *params, const std::string sgName);
 
-
+    static void registerStrategy(boost::shared_ptr<SGContext>);
+    SGContextImpl * getSGContextImpl();
     /***********************************************************/
     /************************ Factory Calls ********************/
     /***********************************************************/
@@ -268,6 +271,12 @@ namespace API2
        */
     void reqExitStrategy();
 
+    /**
+      * @brief reqTimerEvent To request for a Timer-Based event, The event to be called back in time duration passed as argument in microseconds
+      * @param timerMicroSecondInterval
+       */
+    void reqTimerEvent(DATA_TYPES::TimerMicroSecondInterval timerMicroSecondInterval);
+
     /***********************************************************/
     /************************ Query Calls ********************/
     /***********************************************************/
@@ -344,7 +353,7 @@ namespace API2
        *        Futures Segment: NSE RELIANCE 20140828
        *        Options Segment: NSE RELIANCE 20140828 980.00 C
       */
-    DATA_TYPES::SYMBOL_ID reqQrySymbolID(std::string instrumentName);
+    static DATA_TYPES::SYMBOL_ID reqQrySymbolID(std::string instrumentName);
 
 
 
@@ -606,6 +615,12 @@ namespace API2
      * @param orderId Pointer to the API2::COMMON::OrderId type
      */
     virtual void onFrozen(API2::OrderConfirmation &confirmation, API2::COMMON::OrderId *orderId){}
+
+    /**
+     * @brief onTimerEvent Call back when an timer set by strategy expires
+     * This would be idle time to reset the timer if needed
+     */
+    virtual void onTimerEvent(){}
 
 
   private:

@@ -348,7 +348,12 @@ namespace API2
     /**
        * @brief RSP_StrategyComment_STRATEGY_END
        */
-    const unsigned short RSP_StrategyComment_MAX = 52;
+    const unsigned short RSP_StrategyComment_OHLC_SUBSCRIPTION_FAILED =52;
+
+    /**
+       * @brief RSP_StrategyComment_STRATEGY_END
+       */
+    const unsigned short RSP_StrategyComment_MAX = 53;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -423,6 +428,12 @@ namespace API2
        * @brief RSP_ResponseType_STRATEGY_API_NOT_FOUND
        */
     const unsigned short RSP_ResponseType_STRATEGY_API_NOT_FOUND = 13;
+
+    /**
+     * @brief RSP_ResponseType_STRATEGY_COMPLETED
+     */
+    const unsigned short RSP_ResponseType_STRATEGY_COMPLETED = 15;
+
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -721,9 +732,14 @@ namespace API2
     const unsigned short CMD_ExchangeId_SGXCUR = 18;
 
     /**
+     * @brief CMD_ExchangeId_DGCXCD
+     */
+    const unsigned short CMD_ExchangeId_DGCXCD = 19;
+
+    /**
        * @brief CMD_ExchangeId_MAX
        */
-    const unsigned short CMD_ExchangeId_MAX = 19;
+    const unsigned short CMD_ExchangeId_MAX = 20;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/

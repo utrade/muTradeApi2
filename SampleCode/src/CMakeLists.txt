@@ -1,8 +1,2 @@
-add_library(test MODULE
-    externalInterface.cpp
-    orderWrapper.cpp
-    context.cpp
-)
-
-
-#include_directories(../sgLib)
+add_subdirectory( test1 )
+add_subdirectory( test2 )

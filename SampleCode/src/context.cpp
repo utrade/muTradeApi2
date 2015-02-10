@@ -87,6 +87,7 @@ void API2::Context::createOrderIds()
    */
   _firstLegOrderWrapper = API2::COMMON::OrderWrapper(_firstLegInstrument,
       _params._firstLegOrderMode,
+      API2::CONSTANTS::CMD_OrderType_LIMIT,
       this);
 }
 
@@ -165,7 +166,6 @@ void API2::Context::onConfirmed(API2::OrderConfirmation &confirmation,API2::COMM
     {
         _state = replaceOrder;
     }
-    onDefaultEvent();
 }
 
 void API2::Context::onCanceled(API2::OrderConfirmation &confirmation, 
@@ -187,7 +187,6 @@ void API2::Context::onReplaced(API2::OrderConfirmation &confirmation,API2::COMMO
         _state = replaceOrder;
 
     }
-    onDefaultEvent();
 }
 
 void API2::Context::placeFirstLegOrder(Context &obj)

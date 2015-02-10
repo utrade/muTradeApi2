@@ -6,7 +6,7 @@ namespace API2 {
 
     void OrderWrapper::reset()
     {
-      _order = _context->createNewOrder(_instrument,0,0,_mode);
+      _order = _context->createNewOrder(_instrument,0,0,_mode,_orderType);
       API2::AccountDetail account;
       _orderId = _context->createNewOrderId(_instrument,account,_mode);
       _isReset = true;

@@ -11,6 +11,7 @@ namespace API2 {
 
     API2::COMMON::Instrument *_instrument;
     API2::DATA_TYPES::OrderMode _mode;
+    API2::DATA_TYPES::OrderType _orderType;
     API2::SingleOrder *_order;
     API2::COMMON::OrderId *_orderId;
     SGContext *_context;
@@ -18,10 +19,11 @@ namespace API2 {
     bool _isPendingNew;
     bool _isPendingReplace;
     bool _isPendingCancel;
-    OrderWrapper(API2::COMMON::Instrument *instrument,const API2::DATA_TYPES::OrderMode &mode, SGContext *context)
+    OrderWrapper(API2::COMMON::Instrument *instrument,const API2::DATA_TYPES::OrderMode &mode,const API2::DATA_TYPES::OrderType &type, SGContext *context)
       :
         _instrument(instrument),
         _mode(mode),
+        _orderType(type),
         _order(NULL),
         _orderId(NULL),
         _context(context),

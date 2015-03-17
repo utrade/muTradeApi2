@@ -8,14 +8,7 @@
 
 #define GET_SCRIP_CODE(symbolId) (symbolId % EXCHANGE_ID_BASE)
 
-#define GET_EXCHANGE_ID(symbolId) ((CMD::ExchangeId)(symbolId/EXCHANGE_ID_BASE))
-
-#define IS_CTP_EXCHANGE(symbolId) \
-  ((GET_EXCHANGE_ID(symbolId) == CMD::ExchangeId_CTP) || \
-  (GET_EXCHANGE_ID(symbolId) == CMD::ExchangeId_CTP_CFFEX) || \
-  (GET_EXCHANGE_ID(symbolId) == CMD::ExchangeId_CTP_CZCE) || \
-  (GET_EXCHANGE_ID(symbolId) == CMD::ExchangeId_CTP_DCE) || \
-  (GET_EXCHANGE_ID(symbolId) == CMD::ExchangeId_CTP_SHFE))
+#define GET_EXCHANGE_ID(symbolId) ((API2::DATA_TYPES::ExchangeId)(symbolId/EXCHANGE_ID_BASE))
 
 
 namespace API2 

@@ -60,9 +60,9 @@ namespace API2 { namespace COMMON {
       DATA_TYPES::PRICE getClosePrice();
 
       /**
-     * @brief getVolume
-     * @return
-     */
+       * @brief getVolume
+       * @return
+       */
     DATA_TYPES::VOLUME getVolume();
     /**
        * @brief getAverageOhlcPrice
@@ -346,5 +346,5 @@ namespace API2 { namespace COMMON {
 
     };
   }
-}
+               }
 #endif

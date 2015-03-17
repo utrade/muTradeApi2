@@ -336,6 +336,35 @@ namespace API2{
       SET_DERIVED_TYPE( SequenceNumber, 0);
     }
 
+    int serializeBase(char *buf, bool isResponse, UNSIGNED_CHARACTER cat, UNSIGNED_CHARACTER comCat)
+    {
+      int bytes = 0;
+
+      bytes = sizeof(UNSIGNED_SHORT);  // Leave 2 bytes for packet size
+      if (isResponse)
+      {
+        Serialization::serialize(cat,buf,bytes);
+      }
+      else
+      {
+        Serialization::serialize(comCat,buf,bytes);
+      }
+      Serialization::serialize(getStrategyVersion(),buf,bytes);
+      Serialization::serialize(getTransactionType(),buf,bytes);
+      Serialization::serialize(getClientId(),buf,bytes);
+      Serialization::serialize(getStrategyId(),buf,bytes);
+      Serialization::serialize(getAdminTokenId(),buf,bytes);
+      Serialization::serialize(getSequenceNumber(),buf,bytes);
+      
+      int dummyBytes = 0;
+      /**
+       *Put size as the first field after deducting 2 bytes reserved for size
+       */
+      Serialization::serialize((UNSIGNED_SHORT)(bytes-sizeof(UNSIGNED_SHORT)),buf,dummyBytes);
+
+      return bytes;
+    }
+    
     /**
      * @brief serialize
      * @param buf
@@ -468,14 +497,26 @@ namespace API2{
       }
       return out.str();
     }
-
-    void writeToFile(FILE *fp)
+    void writeToFileAll(FILE *fp)
     {
       char strategyCommandBuffer[MAX_BUF_SIZE];
       int strategyBytes = serialize((char *)strategyCommandBuffer,false,0,0);
       fwrite((void*)strategyCommandBuffer,strategyBytes, 1, fp);
       fflush(fp);
     }
+    void writeToFileBase(FILE *fp)
+    {
+      char strategyCommandBuffer[MAX_BUF_SIZE];
+      int strategyBytes = serializeBase((char *)strategyCommandBuffer,false,0,0);
+      fwrite((void*)strategyCommandBuffer,strategyBytes, 1, fp);
+      fflush(fp);
+    }
+    
+    virtual void writeToFile(FILE *fp)
+    {
+      writeToFileBase(fp);
+    }
+    
     int getSerializeSize()
     {
       char strategyCommandBuffer[MAX_BUF_SIZE];

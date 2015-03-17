@@ -25,7 +25,7 @@ namespace API2
  * <p><a href="http://utrade.github.io/muTradeApi2/apiUserManual.pdf">User Manual</a><br/>
  *  <a href="http://utrade.github.io/muTradeApi2/strategyFlow.pdf">Strategy Flow</a><br/>
  *  <a href="https://github.com/utrade/muTradeApi2/tree/master/SampleCode">Sample Strategy</a><br/>
- *  <a href="http://utrade.github.io/muTradeApi2/faq.pdf">FAQ</a><br/>
+ * <a href="http://utrade.github.io/muTradeApi2/faq.pdf">FAQ</a><br/>
  *  <a href="http://utrade.github.io/muTradeApi2/APIChanges.xlsx">API Changes in 2.0.1</a><br/>
  *  <a href="https://github.com/utrade/muTradeApi2/tree/master/SampleCode/includes">API Includes</a><br/>
  * </p>
@@ -38,7 +38,6 @@ namespace API2
  */
   class SGContext
   {
-
   public:
 
     /**

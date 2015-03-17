@@ -3,8 +3,8 @@
 #include <exception>
 namespace API2 {
   /**
- * @brief The UnknownTypeException struct
- */
+   * @brief The UnknownTypeException struct
+   */
   struct UnknownTypeException : public std::exception {
 
     /**
@@ -15,8 +15,8 @@ namespace API2 {
   };
 
   /**
- * @brief The DuplicateKeyException struct
- */
+   * @brief The DuplicateKeyException struct
+   */
   struct DuplicateKeyException : public std::exception {
 
     /**
@@ -27,8 +27,8 @@ namespace API2 {
   };
 
   /**
- * @brief The MarketDataSubscriptionFailedException struct
- */
+   * @brief The MarketDataSubscriptionFailedException struct
+   */
   struct MarketDataSubscriptionFailedException : public std::exception {
     /**
      * @brief what

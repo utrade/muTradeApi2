@@ -2,6 +2,7 @@
 #define SG_SYMBOL_DATA_DEFINESH
 #include <string>
 #include <sharedDefines.h>
+#include <apiDataTypes.h>
 namespace API2  {
 
   /**
@@ -249,7 +250,52 @@ namespace API2  {
      * @brief dump
      */
     void dump();
-    static SIGNED_LONG getUnderlyingSymbolIdIV(API2::SymbolStaticData *staticData);
+    
+    /**
+     * @brief getUnderlyingSymbolId function returns future symbol id for index Options
+     * returns stock symbol id for stock options
+     * @param staticData -> symbol static data of option
+     * @return symbol id
+     */
+    static SIGNED_LONG getUnderlyingSymbolId(API2::SymbolStaticData *staticData);
+    
+    /**
+     * @brief getUnderlyingSymbolId function returns future symbol id for index Options
+     * returns stock symbol id for stock options 
+     * @param staticData -> symbol static data of option
+     * @param targetExchange -> returned symbol id will according to target exchange
+     * @return symbol id
+     */
+    static SIGNED_LONG getUnderlyingSymbolId(API2::SymbolStaticData *staticData,
+        const API2::DATA_TYPES::ExchangeId targetExchange);
+    
+    /**
+     * @brief getATMOption returns ATM option symbolId for the given inputs
+     * @param symbolName : symbolName for the option/future
+     * @param lastTradePrice : last trade price for underlying
+     * @param optionMode : CALL|PUT value for the option
+     * @param yearMon : yearMon eg 201502 represents expiry month of option
+     * @param targetExchange : Exchange Id for the option
+     * @return symbol id
+     */
+    static SIGNED_LONG getATMOption(std::string symbolName,
+        SIGNED_LONG lastTradePrice,
+        const API2::DATA_TYPES::OptionMode optionMode,
+        int yearMon,
+        const API2::DATA_TYPES::ExchangeId targetExchange);
+    
+    /**
+     * @brief getSymbolFuture returns future according to given inpus
+     * @param symbolName : symbolName for the option/future
+     * @param yearMon : yearMon eg 201502 represents expiry month of future
+     * @param targetExchange : Exchange Id for the future
+     * @return symbol id
+     */
+    static SIGNED_LONG getSymbolFuture(std::string symbolName,
+        int yearMon,
+        const API2::DATA_TYPES::ExchangeId targetExchange);
+
+
   };
 }
 #endif

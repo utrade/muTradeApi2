@@ -84,6 +84,11 @@ namespace API2
         DATA_TYPES::PRICE LastTradePrice;
 
         /**
+         * @brief AvgTradePrice
+         */
+        DATA_TYPES::PRICE AvgTradePrice;
+
+        /**
          * @brief MarketDepth
          */
         MarketDepthWrapper MarketDepth[CONSTANTS::MarketDepthArraySize];

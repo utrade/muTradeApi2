@@ -36,6 +36,17 @@ namespace API2 {
      */
     const char* what() const throw ();
   };
+
+  /**
+   * @brief The InstrumentNotFoundException struct
+   */
+  struct InstrumentNotFoundException : public std::exception {
+    /**
+     * @brief what
+     * @return
+     */
+    const char* what() const throw ();
+  };
 }
 
 #endif

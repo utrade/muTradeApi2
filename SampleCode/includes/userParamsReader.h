@@ -30,6 +30,8 @@ namespace API2 {
       staticStringConstant(COMBO);
       staticStringConstant(UCHAR);
       staticStringConstant(RADIO);
+      staticStringConstant(STRING);
+
     }
 
 

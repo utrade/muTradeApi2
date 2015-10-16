@@ -3,6 +3,7 @@
 #include <sharedDefines.h> 
 #include <sharedCommands.h>
 #include <sgSymbolDataDefines.h>
+#include <api2Exceptions.h>
 namespace API2
 {
 
@@ -11,29 +12,34 @@ namespace API2
    */
   class SharedUtilities
   {
-  public:
+    public:
 
-    /**
-         * @brief roundPriceToTick
-         * @param price
-         * @param mode
-         * @param symbolData
-         */
-    template<class A,class B>
-    static void roundPriceToTick(A &price ,
-                                 CMD::OrderMode mode,
-                                 const B &symbolData)
-    {
-      UNSIGNED_LONG tickDeviation = price % symbolData.tickSize;
-      if( tickDeviation )
+      /**
+       * @brief roundPriceToTick
+       * @param price
+       * @param mode
+       * @param symbolData
+       */
+      template<class A,class B>
+        static void roundPriceToTick(A &price ,
+            CMD::OrderMode mode,
+            const B &symbolData)
         {
-          if( mode == CMD::OrderMode_BUY)
-            price -= tickDeviation;
-          else
-            price += (symbolData.tickSize - tickDeviation);
-        }
+          if(symbolData.tickSize == 0)
+          {
+            throw UnknownTypeException();
+            return;
+          }
+          UNSIGNED_LONG tickDeviation = price % symbolData.tickSize;
+          if( tickDeviation )
+          {
+            if( mode == CMD::OrderMode_BUY)
+              price -= tickDeviation;
+            else
+              price += (symbolData.tickSize - tickDeviation);
+          }
 
-    }
+        }
   };
 
 

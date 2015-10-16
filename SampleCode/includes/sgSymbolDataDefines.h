@@ -6,8 +6,8 @@
 namespace API2  {
 
   /**
- * @brief The API_SymbolStaticData struct
- */
+   * @brief The API_SymbolStaticData struct
+   */
   struct SymbolStaticData
   {
 
@@ -240,6 +240,14 @@ namespace API2  {
      */
     long long securityId2;
 
+    long        lowTradeExecutionRange;
+    long        highTradeExecutionRange;
+
+    /**
+     * @brief timeElapsedNseSymbol2
+     */
+    long timeElapsedNseSymbol2;
+
 
     /**
      * @brief API_SymbolStaticData
@@ -250,7 +258,7 @@ namespace API2  {
      * @brief dump
      */
     void dump();
-    
+
     /**
      * @brief getUnderlyingSymbolId function returns future symbol id for index Options
      * returns stock symbol id for stock options
@@ -258,7 +266,7 @@ namespace API2  {
      * @return symbol id
      */
     static SIGNED_LONG getUnderlyingSymbolId(API2::SymbolStaticData *staticData);
-    
+
     /**
      * @brief getUnderlyingSymbolId function returns future symbol id for index Options
      * returns stock symbol id for stock options 
@@ -268,7 +276,25 @@ namespace API2  {
      */
     static SIGNED_LONG getUnderlyingSymbolId(API2::SymbolStaticData *staticData,
         const API2::DATA_TYPES::ExchangeId targetExchange);
-    
+
+    /**
+     * @brief getATMOption returns ATM option symbolId for the given inputs
+     * @param symbolName : symbolName for the option/future
+     * @param lastTradePrice : last trade price for underlying
+     * @param optionMode : CALL|PUT value for the option
+     * @param upDown : Up/Down Price should be greater/lower than strikePrice | 0 -> Up and 1 -> Down
+     * @param yearMon : yearMon eg 201502 represents expiry month of option
+     * @param targetExchange : Exchange Id for the option
+     * @return symbol id
+     */
+    static SIGNED_LONG getATMOption(std::string symbolName,
+        SIGNED_LONG lastTradePrice,
+        const API2::DATA_TYPES::OptionMode optionMode,
+        char upDown,
+        int yearMon,
+        const API2::DATA_TYPES::ExchangeId targetExchange);
+
+
     /**
      * @brief getATMOption returns ATM option symbolId for the given inputs
      * @param symbolName : symbolName for the option/future
@@ -283,7 +309,7 @@ namespace API2  {
         const API2::DATA_TYPES::OptionMode optionMode,
         int yearMon,
         const API2::DATA_TYPES::ExchangeId targetExchange);
-    
+
     /**
      * @brief getSymbolFuture returns future according to given inpus
      * @param symbolName : symbolName for the option/future

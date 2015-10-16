@@ -35,7 +35,7 @@ namespace API2
     {
       API2::DATA_TYPES::PRICE price = reqQryMarketData(symbolId)->getBidPrice(1);
       API2::DATA_TYPES::QTY qty = _instrument->getStaticData()->marketLot*100;
-      if(_orderWrapper->getLastPrice() == price)
+      if(_orderWrapper->getLastQuotedPrice() == price)
         return;
 
 #ifdef BENCHMARK_NEW_ORDERS

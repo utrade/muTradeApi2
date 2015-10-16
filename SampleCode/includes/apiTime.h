@@ -1,6 +1,4 @@
-#ifndef API2_TIME_H
-#define API2_TIME_H
-#include <defines.h>
+#pragma once
 #include <vector>
 #include <algorithm>
 #include <time.h>
@@ -47,6 +45,3 @@ namespace API2 {
   }
 
 }
-
-
-

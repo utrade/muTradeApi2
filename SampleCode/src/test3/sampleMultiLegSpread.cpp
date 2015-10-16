@@ -93,6 +93,16 @@ namespace API2{
     }
 
 
+    /**
+     * Logic:
+     * if numLegs = 1 from Frontend, treat it as Spread Order REquest
+     * Leg 1SymbolId, OrderMode, Order Price and Qty are used to sen a spread order.
+     * On confirm , strategy will simple try to send a cancel Order.
+     * on Filled or onCanceled, Strategy will be terminated with Success status
+     *
+     * For numLegs >1 or Less than eq to 3, treat it as Multileg IOC Order
+     * on Cancelled, on Filled, terminate the stategy.
+     */
     bool Context::setInternalParameters(API2::UserParams *params)
     {
       if(params->getValue("Legs",_userParams._numLegs) != API2::UserParamsError_OK)

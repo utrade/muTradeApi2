@@ -26,7 +26,13 @@ namespace API2
       _LNCancelOrderReject.setName("PlaceCancelOrderReject");
 
       HFT_Start_Timer_Define;
-      _orderWrapper  = new COMMON::OrderWrapper(_instrument,API2::CONSTANTS::CMD_OrderMode_BUY,API2::CONSTANTS::CMD_OrderType_LIMIT, this);
+      API2::AccountDetail account;
+      _orderWrapper  = new COMMON::OrderWrapper(
+                       _instrument,
+                       API2::CONSTANTS::CMD_OrderMode_BUY,
+                       this,
+                       account
+                       );
       HFT_Record_Timer(_LNCreateOrder);
     }
 

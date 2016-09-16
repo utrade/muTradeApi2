@@ -85,10 +85,12 @@ void API2::Context::createOrderIds()
   /*
    * Creating Order Wrapper Structure for First Leg
    */
+  API2::AccountDetail account;
   _firstLegOrderWrapper = API2::COMMON::OrderWrapper(_firstLegInstrument,
       _params._firstLegOrderMode,
-      API2::CONSTANTS::CMD_OrderType_LIMIT,
-      this);
+      this,
+      account
+      );
 }
 
 void API2::Context::onMarketDataEvent(UNSIGNED_LONG symbolId)

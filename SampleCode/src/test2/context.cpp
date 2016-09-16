@@ -157,7 +157,13 @@ bool API2::Test2::Context::setInternalParameters(API2::UserParams *params)
   DEBUG_MESSAGE(reqQryDebugLog(),ss.str().c_str());
   try{
     _Instrument = createNewInstrument(_userParams._symbolId,true,true);
-    _orderWrapper = API2::COMMON::OrderWrapper(_Instrument,API2::DATA_TYPES::OrderMode(_userParams._side),API2::CONSTANTS::CMD_OrderType_LIMIT, this);
+    API2::AccountDetail account;
+    _orderWrapper = API2::COMMON::OrderWrapper(
+                    _Instrument,
+                    API2::DATA_TYPES::OrderMode(_userParams._side),
+                    this,
+                    account
+                    );
     return true;
   }
   catch(API2::MarketDataSubscriptionFailedException e)
@@ -183,7 +189,13 @@ bool API2::Test2::Context::setTestParameters()
   DEBUG_MESSAGE(reqQryDebugLog(),ss.str().c_str());
   try{
     _Instrument = createNewInstrument(_userParams._symbolId,true,true);
-    _orderWrapper = API2::COMMON::OrderWrapper(_Instrument,API2::DATA_TYPES::OrderMode(_userParams._side),API2::CONSTANTS::CMD_OrderType_LIMIT, this);
+    API2::AccountDetail account;
+    _orderWrapper = API2::COMMON::OrderWrapper(
+                    _Instrument,
+                    API2::DATA_TYPES::OrderMode(_userParams._side),
+                    this,
+                    account
+                    );
     return true;
   }
   catch(API2::MarketDataSubscriptionFailedException e)

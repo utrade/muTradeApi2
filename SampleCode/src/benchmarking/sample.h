@@ -7,7 +7,6 @@
 #include <apiDataTypes.h>
 #include <sharedSingleOrder.h>
 #include <list>
-#include <unordered_map>
 #include "../common/orderWrapper.h"
 #include <apiTime.h>
 

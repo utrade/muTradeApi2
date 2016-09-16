@@ -2,7 +2,6 @@
 #define API2_COMMON_ORDER_WRAPPER
 
 #include <sgContext.h>
-#include <chrono>
 
 namespace API2 {
   namespace COMMON {
@@ -19,6 +18,7 @@ namespace API2 {
         SIGNED_LONG _productType;
         SIGNED_LONG _totalTradedQty;
         bool _isReset;
+        API2::AccountDetail _account;
 
         LegDetail(
             SGContext *context,
@@ -26,7 +26,8 @@ namespace API2 {
             const DATA_TYPES::OrderMode &mode,
             const DATA_TYPES::OrderType &orderType,
             const DATA_TYPES::OrderValidity &validity,
-            const DATA_TYPES::ProductType &productType
+            const DATA_TYPES::ProductType &productType,
+            const API2::AccountDetail &account
             )
           :
             SGContext::OrderLegData(instrument),
@@ -39,8 +40,10 @@ namespace API2 {
             _orderType(orderType),
             _productType(productType),
             _totalTradedQty(0),
-            _isReset(false)
+            _isReset(false),
+            _account(account)
       {
+        orderId = _context->createNewOrderId(instrument,_account,_mode);
         reset();
       }
 
@@ -72,6 +75,7 @@ namespace API2 {
       OrderWrapper(API2::COMMON::Instrument *instrument,
           const API2::DATA_TYPES::OrderMode &mode,
           SGContext *context,
+          const API2::AccountDetail &account,
           SIGNED_LONG orderValidity= CONSTANTS::CMD_OrderValidity_DAY,
           SIGNED_LONG productType = CONSTANTS::CMD_ProductType_INTRADAY,
           SIGNED_LONG orderType = CONSTANTS::CMD_OrderType_LIMIT,
@@ -92,7 +96,8 @@ namespace API2 {
             mode,
             orderType,
             orderValidity,
-            productType
+            productType,
+            account
             );
         _order = leg.order;
         _orderId = leg.orderId;
@@ -108,6 +113,7 @@ namespace API2 {
           const API2::DATA_TYPES::OrderMode &modeLeg1,
           API2::COMMON::Instrument *instrumentLeg2,
           const API2::DATA_TYPES::OrderMode &modeLeg2,
+          const API2::AccountDetail &account,
           API2::COMMON::Instrument *instrumentLeg3=0,
           const API2::DATA_TYPES::OrderMode &modeLeg3 =CONSTANTS::CMD_OrderMode_MAX
           ):
@@ -125,7 +131,8 @@ namespace API2 {
             modeLeg1,
             orderType,
             CONSTANTS::CMD_OrderValidity_IOC,
-            CONSTANTS::CMD_ProductType_INTRADAY
+            CONSTANTS::CMD_ProductType_INTRADAY,
+            account
             );
         _orderLegData.push_back(
             leg1
@@ -143,7 +150,8 @@ namespace API2 {
               modeLeg2,
               orderType,
               CONSTANTS::CMD_OrderValidity_IOC,
-              CONSTANTS::CMD_ProductType_INTRADAY
+              CONSTANTS::CMD_ProductType_INTRADAY,
+              account
               ));
         if(instrumentLeg3){
           _numLegs++;
@@ -153,7 +161,8 @@ namespace API2 {
                 modeLeg3,
                 orderType,
                 CONSTANTS::CMD_OrderValidity_IOC,
-                CONSTANTS::CMD_ProductType_INTRADAY
+                CONSTANTS::CMD_ProductType_INTRADAY,
+                account
                 ));
         }
       }
@@ -176,7 +185,7 @@ namespace API2 {
 
       LegDetail *getLegOrder(const DATA_TYPES::SYMBOL_ID &symbolId)
       {
-        for(auto iter = _orderLegData.begin(); iter!=_orderLegData.end();iter++)
+        for( std::vector<LegDetail>::iterator iter = _orderLegData.begin(); iter!=_orderLegData.end();iter++)
         {
           LegDetail &leg= *iter;
           if(leg.order->getSymbolId() == symbolId)
@@ -195,8 +204,8 @@ namespace API2 {
         return 0;
       }
       COMMON::OrderId *getLeg3OrderId(){
-        if(_orderLegData.size()>=2)
-          return _orderLegData[3].orderId;
+        if(_orderLegData.size()>=3)
+          return _orderLegData[2].orderId;
         return 0;
       }
 
@@ -244,7 +253,12 @@ namespace API2 {
       {
         if(_orderLegData.size()>1)
           return false;
+
         return !_isPendingNew && !_isPendingReplace && !_isPendingCancel;
+      }
+      inline bool isOrderPending()
+      {
+        return _isPendingNew || _isPendingReplace || _isPendingCancel;
       }
     };
 

@@ -24,19 +24,17 @@ namespace API2 {
         _context->reqTerminateStrategy(true);
       }
       order = _context->createNewOrder(instrument,0,0,_mode,_orderType, _orderValidity, _productType);
-      API2::AccountDetail account;
-      orderId = _context->createNewOrderId(instrument,account,_mode);
       _isReset = true;
-      DEBUG_VARSHOW(_context->reqQryDebugLog(),"Set LegData for SYmbolID: ",instrument->getSymbolId());
     }
 
     void OrderWrapper::reset()
     {
-      for(auto iter = _orderLegData.begin(); iter!=_orderLegData.end();iter++)
+      for(std::vector<LegDetail>::iterator iter = _orderLegData.begin(); iter!=_orderLegData.end();iter++)
       {
         LegDetail &leg = *iter;
         leg.reset();
       }
+      _orderId = getLeg1OrderId();
       _isReset = true;
     }
     bool OrderWrapper::newOrder(
@@ -49,6 +47,8 @@ namespace API2 {
         const API2::DATA_TYPES::QTY &qtyLeg3
         )
     {
+      if(!_instrument)
+        return false;
       _isReset = false;
       _isPendingNew = true;
 
@@ -118,7 +118,7 @@ namespace API2 {
       {
 
         std::vector<SGContext::OrderLegData> legData;
-        for(auto iter = _orderLegData.begin(); iter!= _orderLegData.end();iter++)
+        for(std::vector<LegDetail>::iterator iter = _orderLegData.begin(); iter!= _orderLegData.end();iter++)
         {
           LegDetail legD = *iter;
           SGContext::OrderLegData leg(legD.instrument);
@@ -134,6 +134,8 @@ namespace API2 {
 
     bool OrderWrapper::replaceOrder(DATA_TYPES::RiskStatus &risk, const DATA_TYPES::PRICE &price, const DATA_TYPES::QTY &qty)
     {
+      if(!_instrument)
+        return false;
       if(_orderLegData.size()>1){
         std::cout << "Cannot Modify Multileg Order" << std::endl;
         return false;
@@ -164,7 +166,7 @@ namespace API2 {
 
           if(_context->reqQryOrderStatus(leg1.orderId) != API2::CONSTANTS::RSP_OrderStatus_PENDING){
 
-            if(_context->reqReplaceOrder(risk,leg1.instrument,leg1.order,leg1.orderId))
+            if(_context->reqReplaceOrder(risk,leg1.instrument,order,leg1.orderId))
             {
               return true;
             }
@@ -196,6 +198,8 @@ namespace API2 {
     }
     bool OrderWrapper::cancelOrder(DATA_TYPES::RiskStatus &risk)
     {
+      if(!_instrument)
+        return false;
       if(_orderLegData.size()!=1){
         std::cout << "Cannot delete Multileg Order" << std::endl;
         return false;
@@ -215,13 +219,6 @@ namespace API2 {
       if(confirmation.getOrderStatus() == API2::CONSTANTS::RSP_OrderStatus_CONFIRMED)
         _exchangeOrderId = _context->reqQryExchangeOrderId(legOrder->orderId);
 
-      if(strcmp(confirmation.getExchangeOrderId().c_str(),_exchangeOrderId.c_str()))
-      {
-        DEBUG_MESSAGE(_context->reqQryDebugLog(),"Mismatch in orde id");
-        DEBUG_VARSHOW(_context->reqQryDebugLog(),"confirmation ExchangeOrderId",confirmation.getExchangeOrderId().c_str());
-        DEBUG_VARSHOW(_context->reqQryDebugLog(),"_exchangeOrderId",_exchangeOrderId.c_str());
-        return false;
-      }
       switch(confirmation.getOrderStatus())
       {
         case API2::CONSTANTS::RSP_OrderStatus_CONFIRMED:
@@ -235,6 +232,7 @@ namespace API2 {
           _isPendingReplace = false;break;
 
         case API2::CONSTANTS::RSP_OrderStatus_CANCELED:
+        case API2::CONSTANTS::RSP_OrderStatus_CANCELED_OF_IOC:
           legOrder->resetOrderWrapper();
         case API2::CONSTANTS::RSP_OrderStatus_CANCEL_REJECTED:
           _isPendingCancel = false;break;
@@ -248,6 +246,14 @@ namespace API2 {
           legOrder->resetOrderWrapper();
           break;
 
+      }
+
+      if(strcmp(confirmation.getExchangeOrderId().c_str(),_exchangeOrderId.c_str()))
+      {
+        DEBUG_MESSAGE(_context->reqQryDebugLog(),"Mismatch in order id");
+        DEBUG_VARSHOW(_context->reqQryDebugLog(),"confirmation ExchangeOrderId",confirmation.getExchangeOrderId().c_str());
+        DEBUG_VARSHOW(_context->reqQryDebugLog(),"_exchangeOrderId",_exchangeOrderId.c_str());
+        return false;
       }
       return true;
     }

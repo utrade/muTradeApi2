@@ -65,6 +65,6 @@ extern "C"
 
   std::string getVersion()
   {
-    return "2.1.2";
+    return API2_VERSION_STRING;
   }
 }

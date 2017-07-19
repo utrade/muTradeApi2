@@ -1216,7 +1216,7 @@ namespace API2
     /**
      * @brief CMD_CommandCategory_BSEINX_DISCONNECTED
      */
-    const unsigned short CMD_CommandCategory_BSEINX_DISCONNECTED = 117;
+    const unsigned short CMD_CommandCategory_BSEINX_DISCONNECTED = 118;
     /**
      * @brief CMD_CommandCategory_MSEFO_DISCONNECTED
      */

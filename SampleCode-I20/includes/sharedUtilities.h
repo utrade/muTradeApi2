@@ -33,7 +33,7 @@ namespace API2
       UNSIGNED_LONG tickDeviation = price % symbolData.tickSize;
       if( tickDeviation )
       {
-        if( mode == CMD::OrderMode_BUY)
+        if( mode == API2::CONSTANTS::CMD_OrderMode_BUY)
           price -= tickDeviation;
         else
           price += (symbolData.tickSize - tickDeviation);

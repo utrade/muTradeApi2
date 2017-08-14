@@ -173,6 +173,7 @@ bool API2::Test2::Context::setInternalParameters(API2::UserParams *params)
   }
   DEBUG_FLUSH(reqQryDebugLog());
 
+  return true;
 }
 
 bool API2::Test2::Context::setTestParameters()

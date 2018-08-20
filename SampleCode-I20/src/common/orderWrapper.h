@@ -44,6 +44,7 @@ namespace API2 {
       SIGNED_LONG _lastQuotedPrice;
       SIGNED_LONG _lastFilledQuantity;
       API2::DATA_TYPES::SelfTradeOrderFlag _selfTradeOrderFlag;
+
       OrderWrapper(API2::COMMON::Instrument *instrument,
           const API2::DATA_TYPES::OrderMode &mode,
           SGContext *context,
@@ -97,13 +98,11 @@ namespace API2 {
           _selfTradeOrderFlag(API2::CONSTANTS::CMD_SelfTradeOrderFlag_CANCEL_PASSIVE)
       {}
 
-
       /**
        * @brief reset, reset state of existing order. This should be called before sending every new order
        * @return
        */
       void reset();
-
 
       /**
        * @brief setPrimaryClientCode, To set account detail of an order
@@ -132,7 +131,9 @@ namespace API2 {
        * @return
        */
       SIGNED_LONG getLastFilledQuantity() { return _lastFilledQuantity; }
+
       API2::DATA_TYPES::PRICE getLastPrice(){return _order->getPrice();}
+
       API2::DATA_TYPES::PRICE getLastQty(){return _order->getQuantity();}
       
       /**
@@ -142,22 +143,32 @@ namespace API2 {
       API2::DATA_TYPES::String getExchangeOrderId(){ return _exchangeOrderId;}
 
       /**
+       * @brief getOrderMode : To get order mode of order placed.
+       * @return
+       */
+      API2::DATA_TYPES::OrderMode getOrderMode() { return _order->getOrderMode(); }
+
+      /**
        * @brief newOrder, To place new order in the market
        * @param risk, rms error code if fail due to rms failure
        * @param price, price of an order being placed
        * @param qty, quantity of an order being placed
+       * @param stopPrice : To set stop price for stop limit order's.
        * @return true if success otherwise false
        */
-      bool newOrder(API2::DATA_TYPES::RiskStatus &risk, const API2::DATA_TYPES::PRICE &price, const API2::DATA_TYPES::QTY &qty );
+      bool newOrder(API2::DATA_TYPES::RiskStatus &risk, const API2::DATA_TYPES::PRICE &price, 
+          const API2::DATA_TYPES::QTY &qty ,API2::DATA_TYPES::PRICE stopPrice = 0);
 
       /**
        * @brief replaceOrder, To replace/modify existing order
        * @param risk, rms error code if fail due to rms failure
        * @param price, price of an order being placed
        * @param qty, quantity of an order being placed
+       * @param stopPrice : To set stop price for stop limit order's.
        * @return true if success otherwise false
        */
-      bool replaceOrder(API2::DATA_TYPES::RiskStatus &risk, const API2::DATA_TYPES::PRICE &price=0, const API2::DATA_TYPES::QTY &qty=0);
+      bool replaceOrder(API2::DATA_TYPES::RiskStatus &risk, const API2::DATA_TYPES::PRICE &price=0, 
+          const API2::DATA_TYPES::QTY &qty=0,API2::DATA_TYPES::PRICE stopPrice = 0);
 
       /**
        * @brief cancelOrder, To cancel existing order
@@ -166,8 +177,35 @@ namespace API2 {
        */
       bool cancelOrder(API2::DATA_TYPES::RiskStatus &risk);
 
-
+      /**
+       * @brief updateOrderWrapper
+       * @param qty
+       * @param price
+       * @param lastFilledQty
+       */
       void updateOrderWrapper(SIGNED_LONG qty,SIGNED_LONG price,SIGNED_LONG lastFilledQty);
+
+      /**
+       * @brief addOrderDetails
+       * @param risk
+       * @param price
+       * @param qty
+       * @param stopPrice
+       * @return
+       */
+      bool addOrderDetails(API2::DATA_TYPES::RiskStatus &risk, const API2::DATA_TYPES::PRICE &price,
+          const API2::DATA_TYPES::QTY &qty, API2::DATA_TYPES::PRICE stopPrice = 0);
+
+      /**
+       * @brief placeNewOrder
+       * @param risk
+       * @return
+       */
+      bool placeNewOrder( API2::DATA_TYPES::RiskStatus &risk );
+
+      /**
+       * @brief resetOrderWrapper
+       */
       void resetOrderWrapper();
       
       /**
@@ -183,7 +221,8 @@ namespace API2 {
       bool processConfirmation(API2::OrderConfirmation &confirmation);
 
       /**
-       * @brief isOrderReplaceable, flag to check if order can be replaced or not. No need to check everytime. replaceOrder is taking care of it.
+       * @brief isOrderReplaceable, flag to check if order can be replaced or not. No need to check everytime. 
+       * replaceOrder is taking care of it.
        * @return
        */
       bool isOrderReplaceable()
@@ -199,6 +238,21 @@ namespace API2 {
       {
         return _isPendingReplace || _isPendingNew || _isPendingCancel;
       }
+
+      /**
+       * @brief isOrderOpen
+       * @return true if any order qty is still placed in xchng.
+       */
+      bool isOrderOpen()
+      {
+        return ( isOrderPending() || getLastQuantity() );
+      }
+
+      /**
+       * @brief getClOrderId
+       * @return
+       */
+      long getClOrderId();
     };
 
   }

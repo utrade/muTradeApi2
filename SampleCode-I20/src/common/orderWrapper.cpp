@@ -20,12 +20,14 @@ namespace API2 {
       _lastQuantity = qty;
       _lastFilledQuantity += lastFilledQty;
     }
+
     void OrderWrapper::resetOrderWrapper()
     {
       _lastQuotedPrice = 0;
       _lastQuantity = 0;
       _lastFilledQuantity = 0;
     }
+
     void OrderWrapper::reset()
     {
       //      DEBUG_VARSHOW(_context->reqQryDebugLog(),"PCC: Order Wrapper ", _accountDetail.getPrimaryClientCode());
@@ -35,7 +37,8 @@ namespace API2 {
       _isReset = true;
     }
 
-    bool OrderWrapper::newOrder(DATA_TYPES::RiskStatus &risk, const DATA_TYPES::PRICE &price, const DATA_TYPES::QTY &qty )
+    bool OrderWrapper::newOrder(DATA_TYPES::RiskStatus &risk, const DATA_TYPES::PRICE &price, 
+        const DATA_TYPES::QTY &qty, DATA_TYPES::PRICE stopPrice)
     {
       _isReset = false;
       if(qty==0)
@@ -46,8 +49,15 @@ namespace API2 {
       if(_order)
       {
         _order->setPrice(price);
+        _order->setStopPrice(stopPrice);
         _order->setQuantity(qty);
         _order->setSelfTradeCancelFlag( _selfTradeOrderFlag );
+
+        if( _orderType == API2::CONSTANTS::CMD_OrderType_STOP)
+        {
+          _order->setPrice(0);
+          _order->setStopPrice( price );
+        }
 
         //        DEBUG_MESSAGE(_context->reqQryDebugLog(), _context->getStrOrderId(_orderId).c_str());
         if(_context->reqNewSingleOrder(risk,_instrument,_order,_orderId,_isSpread))
@@ -67,7 +77,47 @@ namespace API2 {
 
     }
 
-    bool OrderWrapper::replaceOrder(DATA_TYPES::RiskStatus &risk, const DATA_TYPES::PRICE &price, const DATA_TYPES::QTY &qty)
+    bool OrderWrapper::addOrderDetails(DATA_TYPES::RiskStatus &risk, const DATA_TYPES::PRICE &price, 
+        const DATA_TYPES::QTY &qty, DATA_TYPES::PRICE stopPrice)
+    {
+      reset();
+      _isReset = false;
+      if(qty==0)
+      {
+        risk = API2::CONSTANTS::RSP_RiskStatus_WRONG_QUANTITY;
+        return false;
+      }
+      if(_order)
+      {
+        _order->setPrice(price);
+        _order->setStopPrice(stopPrice);
+        _order->setQuantity(qty);
+        _order->setSelfTradeCancelFlag( _selfTradeOrderFlag );
+      }
+      else
+      {
+        DEBUG_MESSAGE(_context->reqQryDebugLog(), "Order Wrapper Not Set. Terminating strategy");
+        _context->reqAddStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_ERROR_STATE);
+        _context->reqTerminateStrategy();
+        return false;
+      }
+      return true;
+    }
+
+    bool OrderWrapper::placeNewOrder( DATA_TYPES::RiskStatus &risk )
+    {
+      //addOrderDetails should be used to add price and quantity before call to this func.
+
+      if(_context->reqNewSingleOrder(risk,_instrument,_order,_orderId,_isSpread))
+      {
+        _isPendingNew = true;
+        return true;
+      }
+      return false;
+    }
+
+    bool OrderWrapper::replaceOrder(DATA_TYPES::RiskStatus &risk, const DATA_TYPES::PRICE &price, 
+        const DATA_TYPES::QTY &qty, DATA_TYPES::PRICE stopPrice)
     {
       if(!_orderId){
         DEBUG_MESSAGE(_context->reqQryDebugLog(), "OrderWrapper replace fail OrderId null");
@@ -92,7 +142,7 @@ namespace API2 {
           if(_context->reqQryOrderStatus(_orderId) != API2::CONSTANTS::RSP_OrderStatus_PENDING){
 
             _replaceOrder = order;
-            if(_context->reqReplaceOrder(risk,_instrument,order,_orderId))
+            if(_context->reqReplaceOrder(risk,_instrument,order,_orderId,_isSpread))
             {
               _isPendingReplace = true;
               return true;
@@ -142,8 +192,11 @@ namespace API2 {
       {
         case API2::CONSTANTS::RSP_OrderStatus_CONFIRMED:
           updateOrderWrapper(confirmation.getOrderQuantity(),confirmation.getOrderPrice(),0);
+          _isPendingNew = false;
+          break;
         case API2::CONSTANTS::RSP_OrderStatus_NEW_REJECTED:
-          _isPendingNew = false;break;
+          _isPendingNew = false;
+          return true;
 
         case API2::CONSTANTS::RSP_OrderStatus_REPLACED:
           {
@@ -185,5 +238,13 @@ namespace API2 {
       }
       return true;
     }
+
+    long OrderWrapper::getClOrderId()
+    {
+      if( _order )
+        return _order->getClOrdId();
+      return 0;
+    }
+
   }
 }

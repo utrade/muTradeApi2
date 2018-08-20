@@ -1,7 +1,0 @@
-----------SAMPLE BIDDING ALGO RELEASE NOTES----------
-
-->06-06-2017
-New Sample bidding algo is introduced which is compatible with frontend API
-
-->08-11-2017
-This sample Strategy is currently being used for testing of Invoking Api

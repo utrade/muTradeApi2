@@ -1,0 +1,2 @@
+[SampleAlgo]
+NSE_ALGO_ID=123

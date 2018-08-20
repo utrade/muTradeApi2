@@ -111,7 +111,7 @@ namespace API2
     bool getBestPrice(SIGNED_LONG symbolId,
         DATA_TYPES::OrderMode side,
         SIGNED_LONG &price,
-        OrderWrapper &orderWrapper,
+        CUSTOM_COMMON::OrderWrapper &orderWrapper,
         SGContext *context,
         int tickFactor,
         bool pickOpportunityEnabled,

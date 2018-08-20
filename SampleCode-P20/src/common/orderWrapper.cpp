@@ -61,7 +61,7 @@ namespace API2 {
       if(!_instrument)
         return false;
       _isReset = false;
-      _isPendingNew = true;
+
 
       LegDetail *leg1 =0, *leg2=0, *leg3 =0;
       if(_numLegs>=1)
@@ -113,6 +113,7 @@ namespace API2 {
         if(leg1){
           if(_context->reqNewSingleOrder(risk,leg1->instrument,leg1->order,leg1->orderId,_isSpread,_orderPriority))
           {
+            _isPendingNew = true;
             return true;
           }
         }
@@ -138,7 +139,11 @@ namespace API2 {
           if(leg.order && leg.orderId)
             legData.push_back(legD);
         }
-        return _context->reqNewMultilegOrder(risk,legData);
+        if( _context->reqNewMultilegOrder(risk,legData) )
+        {
+          _isPendingNew = true;
+          return true;
+        }
       }
       return false;
     }
@@ -158,7 +163,7 @@ namespace API2 {
         return false;
       }
       _isReset = false;
-      _isPendingReplace = true;
+
       API2::SingleOrder *order = _context->createNewOrder(leg1.instrument,0,0,leg1._mode,
           leg1._orderType, leg1._orderValidity, leg1._productType);
       if(order)
@@ -179,6 +184,7 @@ namespace API2 {
 
             if(_context->reqReplaceOrder(risk,leg1.instrument,order,leg1.orderId,_orderPriority))
             {
+              _isPendingReplace = true;
               return true;
             }
             else
@@ -216,8 +222,25 @@ namespace API2 {
         return false;
       }
       LegDetail *leg1 = &_orderLegData[0];
-      _isReset = false;      _isPendingCancel = true;
-      return _context->reqCancelOrder(risk,leg1->orderId);
+      _isReset = false;
+
+      if(!leg1->orderId){
+        DEBUG_MESSAGE(_context->reqQryDebugLog(), "OrderWrapper cancel fail OrderId null");
+        return false;
+      }
+
+      if(_context->reqQryOrderStatus(leg1->orderId) == API2::CONSTANTS::RSP_OrderStatus_PENDING)
+      {
+        DEBUG_MESSAGE(_context->reqQryDebugLog(),"Current state of Original Order is Pending");
+        return false;
+      }
+
+      if( _context->reqCancelOrder(risk,leg1->orderId) )
+      {
+        _isPendingCancel = true;
+        return true;
+      }
+      return false;
     }
     bool OrderWrapper::processConfirmation(OrderConfirmation &confirmation)
     {

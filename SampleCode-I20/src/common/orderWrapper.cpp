@@ -131,6 +131,7 @@ namespace API2 {
         if(origOrder)
         {
           order->setPrice(price);
+          order->setStopPrice(stopPrice);
 
           if(qty !=0)
             order->setQuantity(qty);

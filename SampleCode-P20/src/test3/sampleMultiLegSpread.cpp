@@ -214,7 +214,7 @@ namespace API2{
         if(_userParams._numLegs>=3)
           _Instrument3 = createNewInstrument(_userParams._symbolIdLeg3,false,true);
         if(_userParams._numLegs>1)
-          _orderWrapper = API2::COMMON::OrderWrapper(
+          _orderWrapper = API2::CUSTOM_COMMON::OrderWrapper(
               CONSTANTS::CMD_OrderType_LIMIT,
               this,
               _Instrument1,
@@ -226,7 +226,7 @@ namespace API2{
               API2::DATA_TYPES::OrderMode(_userParams._side3)
               );
         else
-          _orderWrapper = API2::COMMON::OrderWrapper(
+          _orderWrapper = API2::CUSTOM_COMMON::OrderWrapper(
               _Instrument1,
               API2::DATA_TYPES::OrderMode(_userParams._side1),
               this,

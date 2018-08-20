@@ -46,8 +46,8 @@ namespace TestStrategy
       FrontEndParameters _userParams;
       FrontEndParameters _modUserParams;
       API2::COMMON::Instrument* _biddingInstrument;
-      API2::COMMON::OrderWrapper _buyOrderWrapper;
-      API2::COMMON::OrderWrapper _sellOrderWrapper;
+      API2::CUSTOM_COMMON::OrderWrapper _buyOrderWrapper;
+      API2::CUSTOM_COMMON::OrderWrapper _sellOrderWrapper;
       API2::DATA_TYPES::RiskStatus _riskStatus;
       TestContext(API2::StrategyParameters * params);
       const API2::DATA_TYPES::OrderMode _buyOrder;
@@ -63,7 +63,7 @@ namespace TestStrategy
       void registerSymbols();
       void setOrderWrapper();
       void placeOrder(const API2::DATA_TYPES::OrderMode &orderMode);
-      void placeCancelOrder( API2::COMMON::OrderWrapper &wrapper );
+      void placeCancelOrder( API2::CUSTOM_COMMON::OrderWrapper &wrapper );
       void dump();
       void processStrategyState();
       void terminateStrategyComment(API2::DATA_TYPES::StrategyComment comment);

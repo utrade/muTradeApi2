@@ -7,7 +7,7 @@
 #define SYMBOL_SIZE 24
 #define SERIES_SIZE 20
 #define API_REQUEST_SIZE 200
-#define MAX_BUF_SIZE 4096
+#define MAX_BUF_SIZE 8192
 #define STRATEGY_TYPE_SIZE 3
 #define STRATEGY_TYPE_SQNNO_SIZE 20
 
@@ -26,7 +26,7 @@ typedef MapULong::const_iterator MapULongIter;
 
 #define ACCOUNT_FIELD_SIZE 12
 #define MARKET_DATA_DEPTH_MAX 11
-
+#define PAN_NUMBER_LENGH 11 
 #define stringify( name ) # name
 #define varString(name) stringify(name)<<":"<<name
 

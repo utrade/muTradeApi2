@@ -81,7 +81,7 @@ class Context: public API2::SGContext
     /**
      * @brief _firstLegOrderWrapper
      */
-    API2::COMMON::OrderWrapper _firstLegOrderWrapper;
+    API2::CUSTOM_COMMON::OrderWrapper _firstLegOrderWrapper;
 
 
 public:

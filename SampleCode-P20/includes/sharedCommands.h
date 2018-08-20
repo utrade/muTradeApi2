@@ -19,6 +19,7 @@ namespace API2
     SIGNED_LONG _TraderId;
     UNSIGNED_LONG _LocationId;
     UNSIGNED_CHARACTER _AccountType;
+    char _PanNumber[PAN_NUMBER_LENGH];
 
     void initialize();
     
@@ -28,23 +29,27 @@ namespace API2
     AccountDetail(const char *account,
         char accountType,
         const UNSIGNED_LONG &locationId,
-        const SIGNED_LONG &traderId
+        const SIGNED_LONG &traderId,
+        const char *panNumber
         );
 
     void initialize(const char *account,
         char accountType,
         const UNSIGNED_LONG &locationId,
-        const SIGNED_LONG &traderId
+        const SIGNED_LONG &traderId,
+        const char *panNumber
         );
     void setAccountId(const char *accountId);
     void setAccountType(char type);
     void setLocationId(UNSIGNED_LONG locationId);
     void setTraderId(SIGNED_LONG traderId);
+    void setPanNumber(const char *panNumber);
 
     const char *getAccountId() const;
     const char getAccountType() const;
     SIGNED_LONG getTraderId() const;
     UNSIGNED_LONG getLocationId() const;
+    const char *getPanNumber() const;
   };
 
 

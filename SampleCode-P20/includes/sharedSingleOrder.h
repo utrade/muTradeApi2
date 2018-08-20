@@ -197,6 +197,10 @@ extern "C"
 
         CREATE_FIELD(bool, Priority);
 
+        /**
+         * @brief _AlgoId
+         **/
+         CREATE_FIELD(DATA_TYPES::AlgoId , AlgoId);
 
       public :
 
@@ -253,6 +257,7 @@ extern "C"
             DATA_TYPES::OrderMode mode, // Buy, Sell
             DATA_TYPES::OrderValidity validity, // GTD, FOK etc.
             DATA_TYPES::TRADER_ID traderId,
+            const DATA_TYPES::AlgoId algoId,
             const AccountDetail &accountDetails=AccountDetail());
 
         /**
@@ -283,6 +288,7 @@ extern "C"
             DATA_TYPES::OrderMode mode, // Buy, Sell
             DATA_TYPES::OrderValidity validity, // GTD, FOK etc.
             DATA_TYPES::TRADER_ID traderId,
+            const DATA_TYPES::AlgoId algoId,
             const AccountDetail &accountDetails= AccountDetail());
 
         /**

@@ -130,14 +130,14 @@ namespace TestStrategy
     DEBUG_METHOD(reqQryDebugLog());
     API2::AccountDetail account;
 
-    _buyOrderWrapper = API2::COMMON::OrderWrapper(
+    _buyOrderWrapper = API2::CUSTOM_COMMON::OrderWrapper(
         _biddingInstrument,
         _buyOrder,
         this,
         account
         );
 
-    _sellOrderWrapper = API2::COMMON::OrderWrapper(
+    _sellOrderWrapper = API2::CUSTOM_COMMON::OrderWrapper(
         _biddingInstrument,
         _sellOrder,
         this,
@@ -342,7 +342,7 @@ namespace TestStrategy
 
     onDefaultEvent();
   }
-  void TestContext::placeCancelOrder(API2::COMMON::OrderWrapper &wrapper)
+  void TestContext::placeCancelOrder(API2::CUSTOM_COMMON::OrderWrapper &wrapper)
   {
     // if order stands , then only we should go for its cancelation
     if( wrapper.getLastQuantity() )

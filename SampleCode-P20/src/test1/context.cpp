@@ -86,7 +86,7 @@ void API2::Context::createOrderIds()
    * Creating Order Wrapper Structure for First Leg
    */
   API2::AccountDetail account;
-  _firstLegOrderWrapper = API2::COMMON::OrderWrapper(_firstLegInstrument,
+  _firstLegOrderWrapper = API2::CUSTOM_COMMON::OrderWrapper(_firstLegInstrument,
       _params._firstLegOrderMode,
       this,
       account

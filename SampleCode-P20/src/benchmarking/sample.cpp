@@ -27,7 +27,7 @@ namespace API2
 
       HFT_Start_Timer_Define;
       API2::AccountDetail account;
-      _orderWrapper  = new COMMON::OrderWrapper(
+      _orderWrapper  = new CUSTOM_COMMON::OrderWrapper(
                        _instrument,
                        API2::CONSTANTS::CMD_OrderMode_BUY,
                        this,

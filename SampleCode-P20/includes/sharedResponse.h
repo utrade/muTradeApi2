@@ -46,6 +46,10 @@ namespace API2
     char _tradeId[TRADEID_SIZE];
     char _strategyTypeSqnNo[STRATEGY_TYPE_SQNNO_SIZE];
 
+    /**
+     * @brief AlgoId
+     **/
+    DATA_TYPES::AlgoId _algoId;
 
   public:
 
@@ -192,6 +196,14 @@ namespace API2
      * @return
      */
     DATA_TYPES::String getStrategyTypeSqnNo() const ;
+
+
+
+    /**
+     * @brief getAlgoId
+     * @return
+     **/
+    API2::DATA_TYPES::AlgoId getAlgoId() const;
 
     /**
      * @brief setStrategytypeSqnNo
@@ -362,6 +374,12 @@ namespace API2
     void setLastFillPrice2(DATA_TYPES::PRICE lastFillPrice2);
 
     /**
+     * @brief setAlgoId
+     * @param algoId
+     **/
+    void setAlgoId(const DATA_TYPES::AlgoId algoId);
+
+    /** 
      * @brief dump
      */
     void dump();
@@ -383,6 +401,65 @@ namespace API2
      * @return
      */
     DATA_TYPES::PRICE getLastFillPrice2() const;
+  };
+
+  class PreTradeConfirmation
+  {
+    DATA_TYPES::CLORDER_ID _clOrderId;
+    std::string _exchangeOrderId;
+    DATA_TYPES::SYMBOL_ID _symbolId;
+    DATA_TYPES::QTY _orderQuantity;
+    DATA_TYPES::PRICE _orderPrice;
+    DATA_TYPES::QTY _lastFillQuantity;
+    DATA_TYPES::PRICE _lastFillPrice;
+    DATA_TYPES::EXCHANGE_TIME _exchangeModifyTime;
+    DATA_TYPES::STRATEGY_ID _strategyId;
+    DATA_TYPES::CLIENT_ID _clientId;
+    UNSIGNED_CHARACTER _orderMode;
+
+    public:
+    PreTradeConfirmation();
+
+    PreTradeConfirmation(
+        const DATA_TYPES::CLORDER_ID& clOrderId,
+        const std::string& exchangeOrderId,
+        const DATA_TYPES::SYMBOL_ID& symbolId,
+        const DATA_TYPES::QTY& orderQuantity,
+        const DATA_TYPES::PRICE& orderPrice,
+        const DATA_TYPES::QTY& lastFillQuantity,
+        const DATA_TYPES::PRICE& lastFillPrice,
+        const DATA_TYPES::EXCHANGE_TIME& exchangeModifyTime,
+        const DATA_TYPES::STRATEGY_ID& strategyId,
+        const DATA_TYPES::CLIENT_ID& clientId,
+        UNSIGNED_CHARACTER orderMode
+        );
+
+    std::string getString();
+
+    void setClOrderId(DATA_TYPES::CLORDER_ID clOrderId);
+    void setExchangeOrderId(const std::string& exchangeOrderId);
+    void setSymbolId(DATA_TYPES::SYMBOL_ID symbolId);
+    void setOrderQuantity(DATA_TYPES::QTY orderQuantity);
+    void setOrderPrice(DATA_TYPES::PRICE orderPrice);
+    void setLastFillQuantity(DATA_TYPES::QTY lastFillQuantity);
+    void setLastFillPrice(DATA_TYPES::PRICE lastFillPrice);
+    void setExchangeModifyTime(DATA_TYPES::EXCHANGE_TIME exchangeModifyTime);
+    void setStrategyId(DATA_TYPES::STRATEGY_ID strategyId);
+    void setClientId(DATA_TYPES::CLIENT_ID clientId);
+    void setOrderMode(UNSIGNED_CHARACTER orderMode);
+
+    DATA_TYPES::CLORDER_ID getClOrderId() const;
+    std::string getExchangeOrderId() const;
+    const std::string& getRefExchangeOrderId() const;
+    DATA_TYPES::SYMBOL_ID getSymbolId() const;
+    DATA_TYPES::QTY getOrderQuantity() const;
+    DATA_TYPES::PRICE getOrderPrice() const;
+    DATA_TYPES::QTY getLastFillQuantity() const;
+    DATA_TYPES::PRICE getLastFillPrice() const;
+    DATA_TYPES::EXCHANGE_TIME getExchangeModifyTime() const;
+    DATA_TYPES::STRATEGY_ID getStrategyId() const;
+    DATA_TYPES::CLIENT_ID getClientId() const;
+    UNSIGNED_CHARACTER getOrderMode() const;
   };
 
 }

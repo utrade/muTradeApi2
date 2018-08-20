@@ -103,7 +103,7 @@ namespace API2
     {
       API2::COMMON::Instrument *_Instrument1, *_Instrument2, *_Instrument3;
       FrontEndParameters _userParams;
-      API2::COMMON::OrderWrapper _orderWrapper;
+      API2::CUSTOM_COMMON::OrderWrapper _orderWrapper;
 
       public:
 

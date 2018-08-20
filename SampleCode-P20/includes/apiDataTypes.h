@@ -218,7 +218,11 @@ namespace API2
      * @brief OrderPriority
      */
     typedef UNSIGNED_SHORT OrderPriority;
-
+ 
+    /**
+    * @brief AlgoId
+    **/
+    typedef SIGNED_LONG  AlgoId;
   }
 }
 #endif

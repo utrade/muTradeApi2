@@ -17,7 +17,7 @@ namespace API2
     class SampleStrategy :public SGContext
      {
 
-       API2::COMMON::OrderWrapper *_orderWrapper;
+       API2::CUSTOM_COMMON::OrderWrapper *_orderWrapper;
        API2::COMMON::Instrument *_instrument;
        API2::COMMON::LatencyNumbers _LNNewOrder, _LNReplaceOrder, _LNCancelOrder ;
        API2::COMMON::LatencyNumbers _LNNewOrderReject, _LNReplaceOrderReject, _LNCancelOrderReject ;

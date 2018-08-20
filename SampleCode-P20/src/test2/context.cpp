@@ -158,7 +158,7 @@ bool API2::Test2::Context::setInternalParameters(API2::UserParams *params)
   try{
     _Instrument = createNewInstrument(_userParams._symbolId,true,true);
     API2::AccountDetail account;
-    _orderWrapper = API2::COMMON::OrderWrapper(
+    _orderWrapper = API2::CUSTOM_COMMON::OrderWrapper(
                     _Instrument,
                     API2::DATA_TYPES::OrderMode(_userParams._side),
                     this,
@@ -190,7 +190,7 @@ bool API2::Test2::Context::setTestParameters()
   try{
     _Instrument = createNewInstrument(_userParams._symbolId,true,true);
     API2::AccountDetail account;
-    _orderWrapper = API2::COMMON::OrderWrapper(
+    _orderWrapper = API2::CUSTOM_COMMON::OrderWrapper(
                     _Instrument,
                     API2::DATA_TYPES::OrderMode(_userParams._side),
                     this,

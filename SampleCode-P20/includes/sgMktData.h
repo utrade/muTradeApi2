@@ -194,6 +194,12 @@ namespace API2 { namespace COMMON {
       CREATE_FIELD( char, PreTradeOrderMode );
 
       /**
+       *@brief PreTradeAveragePrice
+       * For Customized Tbt
+       * */
+      CREATE_FIELD( long, PreTradeAveragePrice );
+
+      /**
        *@brief IsPreTrade
        * For Customized Tbt
        * */
@@ -218,6 +224,16 @@ namespace API2 { namespace COMMON {
      */
     DATA_TYPES::QTY  getQty(const COMMON::MarketDepthWrapper &wrapper,
         const DATA_TYPES::OrderMode & mode);
+
+    /**
+     * @brief getNoOfOrdersInDepth
+     * @param wrapper
+     * @param mode
+     * @return
+     */
+    DATA_TYPES::DEPTH_POSITION getNoOfOrdersInDepth(const COMMON::MarketDepthWrapper &wrapper,
+        const DATA_TYPES::OrderMode &mode);
+
     /**
      * @brief updateTbt
      * @return
@@ -281,17 +297,17 @@ namespace API2 { namespace COMMON {
      */
     DATA_TYPES::PRICE getLastTradePrice();
 
-      /**
-       * @brief getValue
-       * @return
-       */
-      DATA_TYPES::PRICE getValue();
+    /**
+     * @brief getValue
+     * @return
+     */
+    DATA_TYPES::PRICE getValue();
 
-      /**
-       * @brief getAvgTradePrice
-       * @return
-       */
-      DATA_TYPES::VOLUME getAvgTradePrice();
+    /**
+     * @brief getAvgTradePrice
+     * @return
+     */
+    DATA_TYPES::VOLUME getAvgTradePrice();
 
     /**
      * @brief getPrice
@@ -310,6 +326,14 @@ namespace API2 { namespace COMMON {
     DATA_TYPES::QTY getQty(size_t position, const DATA_TYPES::OrderMode & mode);
 
     /**
+     * @brief getNoOfOrdersInDepth
+     * @param position
+     * @param mode
+     * @return
+     */
+    DATA_TYPES::DEPTH_POSITION getNoOfOrdersInDepth(size_t position, const DATA_TYPES::OrderMode &mode);
+
+    /**
      * @brief getBidPrice
      * @param pos
      * @return
@@ -324,6 +348,13 @@ namespace API2 { namespace COMMON {
     DATA_TYPES::QTY getBidQty(size_t pos);
 
     /**
+     * @brief getNoOfBids
+     * @param pos
+     * @return
+     */
+    DATA_TYPES::DEPTH_POSITION getNoOfBids(size_t pos);
+
+    /**
      * @brief getAskPrice
      * @param pos
      * @return
@@ -336,6 +367,13 @@ namespace API2 { namespace COMMON {
      * @return
      */
     DATA_TYPES::QTY getAskQty(size_t pos);
+
+    /**
+     * @brief getNoOfAsks
+     * @param pos
+     * @return
+     */
+    DATA_TYPES::DEPTH_POSITION getNoOfAsks(size_t pos);
 
     /**
      * @brief subscribe
@@ -372,6 +410,12 @@ namespace API2 { namespace COMMON {
      */
     bool updateTbtTradeTicks();
 
+    /*
+     *Check if the counter has been updated for Trade Tick Or Not.
+     * Return true if the latest counter in shared memory is larger than
+     * the one in local else return false;
+     */
+    bool hasTradeBeenProcessed();
 
 #if 0
     /**

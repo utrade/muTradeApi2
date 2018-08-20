@@ -13,7 +13,7 @@
 
 
 namespace API2 {
-  namespace COMMON {
+  namespace CUSTOM_COMMON {
 
     void LegDetail::updateOrderWrapper(SIGNED_LONG qty,SIGNED_LONG price,SIGNED_LONG lastFilledQty)
     {

@@ -67,7 +67,8 @@ namespace API2
        * @param regMktData set True to register for Market Data for the Instrument
        * @param useSnapShot Set True if Snapshot Feed is to be used
        * @param useTbt Set True to use TBT-Feed
-       * both can be registered together
+       * both can be registered together 
+       * if both UseSnapshot and UseTbt are passed false then we will create snapshot marketData by default 
        * @param useOhlc Set True if OHLC Heed is also required
        * @throw MarketDataSubscriptionFailedException
        * @return COMMON::Instrument Pointer
@@ -241,9 +242,10 @@ namespace API2
        * @brief reqStartAlgo function call to Start the Strategy
        * @param marketDataEventRequired Set True to register for call-backs on Market-Data Event on registered Instruments
        * @param tradeTicksEventRequired Set True to register for call-backs on Trade Tick Events on registered Instruments
+       * @param preTradeEventRequired Set True to register for call-backs for pre trade confirmations
        * @return
        */
-      void *reqStartAlgo(bool marketDataEventRequired, bool tradeTicksEventRequired);
+      void *reqStartAlgo(bool marketDataEventRequired, bool tradeTicksEventRequired, bool preTradeEventRequired = false);
 
       /**
        * @brief reqStartOHLCAlgo function call to Start the Strategy listening to OHLC update events
@@ -407,12 +409,41 @@ namespace API2
       COMMON::MktData *reqQryUpdateMarketData(SYMBOL_ID symbolId);
 
       /**
+       * @brief reqQryUpdateTbtMarketData This function call will return the Pointer to API2::COMMON::MktData structure after updating it.\n
+       * Not required if marketDataEventRequired is set to be True while starting the strategy using API2::SGContext::reqStartAlgo()
+       * @param symbolId SymbolId for which MarketData is required
+       * @return will return market data if symbol is registered for Tbt else return NULL
+       */
+      COMMON::MktData *reqQryUpdateTbtMarketData(SYMBOL_ID symbolId);
+
+      /**
+       * @brief reqQryUpdateSnapshotMarketData This function call will return the Pointer to API2::COMMON::MktData structure after updating it.\n
+       * Not required if marketDataEventRequired is set to be True while starting the strategy using API2::SGContext::reqStartAlgo()
+       * @param symbolId SymbolId for which MarketData is required
+       * @return will return market data if symbol is registered for Snapshot else return NULL
+       */
+      COMMON::MktData *reqQryUpdateSnapshotMarketData(SYMBOL_ID symbolId);
+      
+      /**
        * @brief reqQryMarketData This function call will return the Pointer to API2::COMMON::MktData structure \n Here it will contain the last updated Market Snapshot
        * @param symbolId
        * @return
        */
       COMMON::MktData *reqQryMarketData(SYMBOL_ID symbolId);
 
+      /**
+       * @brief reqQrySnapshotMarketData provides last updated snapshot data for requestd symbol 
+       * @param symbolId symbol for which we require market data
+       * @return returns pointer to  API2::COMMON::MktData structure if symbol is registered for snapshot else returns NULL
+       */
+      COMMON::MktData *reqQrySnapshotMarketData(SYMBOL_ID symbolId);
+      
+      /**
+       * @brief reqQryTbtMarketData provides last updated Tbt data for requestd symbol 
+       * @param symbolId symbol for which we require market data
+       * @return returns pointer to  API2::COMMON::MktData structure if symbol is registered for TBT else returns NULL
+       */
+      COMMON::MktData *reqQryTbtMarketData(SYMBOL_ID symbolId);
 
       /**
        * @brief reqQryOHLCQuote
@@ -566,7 +597,14 @@ namespace API2
        * @param orderId
        */
       DATA_TYPES::String getStrOrderId(const COMMON::OrderId *orderId);
-
+     
+      /**
+       * @brief registerAlgoDetail : set AlgoId and AlgoCatagory in SGContextImpl object
+       * @param algoId
+       * @param algoCategory
+       * @return false if algoId,algoCategory are invalid
+       **/
+      bool registerAlgoDetail(const SIGNED_LONG algoId = 0);
 
       /***********************************************************/
       /************************ Command Call-Backs ********************/
@@ -658,6 +696,22 @@ namespace API2
        */
       virtual void onTradeTickEvent(API2::DATA_TYPES::SYMBOL_ID, COMMON::TradeTick tradeTick);
 
+      /**
+       * @brief onTradeTickEvent Called if Configured to received Trade Ticks update Event while Running Algo \n
+       *  Callback is provided each time the Trade Tick is received through the TBT Server.
+       *  This event is specific to NSE-TBT Trade Tick currently.
+       *  To be overridden if trade tick is to be reqd at algo end.
+       * @param symbolId SymbolID for which trade has taken place.
+       */
+      virtual void onTradeTickEvent(API2::DATA_TYPES::SYMBOL_ID );
+
+      /**
+       * @brief onProcessPreTradeConfirmation Call back when trade received at system level but yet to process and pass to whole infra and algo, full confirmation will always follow after pre-trade confirmation \n
+       * Not necessary to override this \n
+       * To be overridden only If any additional Processing is reqd at the algo end
+       * @param confirmation Reference to the API2::PreTradeConfirmation
+       */
+      virtual void onProcessPreTradeConfirmation(API2::PreTradeConfirmation& preTradeConfirmation){}
 
       /**
        * @brief onProcessOrderConfirmation Call back after OrderConfirmation Processing is done \n

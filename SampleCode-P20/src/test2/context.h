@@ -84,7 +84,7 @@ class Context: public API2::SGContext
 {
     API2::COMMON::Instrument *_Instrument;
     FrontEndParameters _userParams;
-    API2::COMMON::OrderWrapper _orderWrapper;
+    API2::CUSTOM_COMMON::OrderWrapper _orderWrapper;
 
 public:
 

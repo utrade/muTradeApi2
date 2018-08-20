@@ -10,6 +10,7 @@ namespace API2
     AbstractSingle();
 
     virtual std::string getString();
+    virtual ~AbstractSingle(){}
   };
 
   template<class T>
@@ -53,7 +54,7 @@ namespace API2
       if(length <=0)
         return;
       int size = sizeof(T);
-      _value = new T[size];
+      _value = new T[_length];
       memcpy(_value,value,size * _length);
     }
     ~ArrayPair()

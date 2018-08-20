@@ -11,7 +11,7 @@ namespace API2
     /**
      * @brief MarketDepthArraySize
      */
-    const size_t MarketDepthArraySize = 5;
+    const size_t MarketDepthArraySize = 10;
 
     /**
      * @brief RSP_OrderStatus_PENDING

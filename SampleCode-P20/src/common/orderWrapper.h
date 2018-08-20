@@ -15,7 +15,7 @@
  */
 
 namespace API2 {
-  namespace COMMON {
+  namespace CUSTOM_COMMON {
 
     class LegDetail :public SGContext::OrderLegData{
       public:

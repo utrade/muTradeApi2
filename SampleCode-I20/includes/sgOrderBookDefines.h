@@ -1,6 +1,8 @@
 #ifndef ORDER_BOOK_DEFINES_H
 #define ORDER_BOOK_DEFINES_H
 #include <boost/unordered_map.hpp>
+#include <apiDataTypes.h>
+
 namespace CMD {
 
   /**
@@ -33,7 +35,7 @@ namespace API2   {
      * @param clOrderId
      * @return
      */
-    CMD::SingleOrder* getOrder(long clOrderId);
+    CMD::SingleOrder* getOrder(DATA_TYPES::CLORDER_ID clOrderId);
 
 
     /**
@@ -41,7 +43,7 @@ namespace API2   {
      * @param clOrderId
      * @return
      */
-    SingleOrder* getApiOrder(long clOrderId);
+    SingleOrder* getApiOrder(DATA_TYPES::CLORDER_ID clOrderId);
 
     /**
      * @brief update
@@ -57,11 +59,12 @@ namespace API2   {
      */
     void alignOrders(CMD::SingleOrder * order);
     // Client order Id to order mapping
-    boost::unordered_map<long, CMD::SingleOrder*> _orderBook;
+    boost::unordered_map<DATA_TYPES::CLORDER_ID, CMD::SingleOrder*> _orderBook;
     //boost::unordered_map<long, CMD::ThreeLegOrder*> _orderBookThreeLeg;
 
     // ExchangeOrderId to TradeId mapping -- used in reconcilation to find duplicate fills
     std::multimap<std::string, std::string> _exchangeOrderIdToTradeId;
+
   };
 
 }

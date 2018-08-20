@@ -47,6 +47,12 @@ namespace API2 {
      */
     const char* what() const throw ();
   };
+
+  struct InvalidInstrumentException : public std::exception {
+
+    const char* what() const throw ();
+  };
+
 }
 
 #endif

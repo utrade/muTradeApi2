@@ -6,7 +6,11 @@
 #include <sharedResponse.h>
 #include <boost/shared_ptr.hpp>
 #include <cmdDefines.h>
+
+#ifndef FRONTEND_COMPILATION 
 #include <money.h>
+#endif 
+
 extern "C"
 {
   namespace API2
@@ -134,7 +138,7 @@ extern "C"
         /**
          * @brief _productType
          */
-        DATA_TYPES::ENUM _productType;
+        DATA_TYPES::ProductType _productType;
 
         /**
          * @brief _orderType
@@ -200,6 +204,19 @@ extern "C"
 
         short _strategyType;
 
+#ifdef FRONTEND_COMPILATION
+
+        /**
+         * @brief book type for trade orders
+         */
+        DATA_TYPES::ENUM _bookType;
+
+        /**
+         * @brief Open Close Flag for trade orders
+         */
+        char _openCloseFlag;
+
+#endif 
 
 #ifdef MULTI_CURRENCY_SUPPORT
         CREATE_FIELD( Currency::Money, PriceCurrency);
@@ -215,6 +232,57 @@ extern "C"
          * @brief : DealerId field, it is a client id will be used in DMA
          * */
         DATA_TYPES::CLIENT_ID _dealerId;
+
+        /*
+         * @brief : Vector of Trading Session Ids
+         * */
+        std::vector<std::string> _vectorTradingSessIds;
+
+        /*
+         * @brief : Is trigger order/not
+         * */
+        CREATE_FIELD( API2::DATA_TYPES::ENUM, IsTriggerOrder );
+        
+        /*
+         * @brief : Is trade capture report/not
+         * */
+        CREATE_FIELD( API2::DATA_TYPES::ENUM, IsTradeCaptureReport );
+
+        /*
+         * @brief : Fix Client OrderId
+         * */
+        CREATE_FIELD( std::string, FixClOrderId );
+       
+        /**
+         * @brief PlatformType
+         */
+        CREATE_FIELD(API2::DATA_TYPES::PlatformType, PlatformType);
+
+#ifndef FRONTEND_COMPILATION   
+        /*
+         * @brief : Price1 and Price2 used in case of Spread Orders
+         * */
+        CREATE_FIELD(SIGNED_INTEGER, Price1);
+        CREATE_FIELD(SIGNED_INTEGER, Price2);
+#endif 
+
+        /** 
+         * @brief  ChildStrategyId - additional Strategy Id Currently being used to identify portfolios and client Ids
+         * in orders placed by uHedge ( Strategy Id : 1 )
+         **/
+        CREATE_FIELD(DATA_TYPES::STRATEGY_ID, ChildStrategyId);
+     
+        /**
+         * @brief ParentStrategyId - strategyId used in case of Invoked strategy
+         */
+        CREATE_FIELD(DATA_TYPES::STRATEGY_ID, ParentStrategyId);
+
+
+        /**
+         * @brief AlgoId , AlgoCategory
+         */
+        CREATE_FIELD(DATA_TYPES::AlgoId,AlgoId);
+        CREATE_FIELD(DATA_TYPES::AlgoCategory,AlgoCategory);
 
       public :
 
@@ -247,6 +315,44 @@ extern "C"
         /**
          * @brief ApiSingleOrder
          * @param symbolId
+         * @param clientOrderId
+         * @param staticData
+         * @param clientId
+         * @param quantity
+         * @param disclosedQuantity
+         * @param price
+         * @param stopPrice
+         * @param type
+         * @param product
+         * @param mode
+         * @param validity
+         * @param parentStrategyId
+         * @param strategyType
+         * @param accountDetail
+         */
+        SingleOrder(
+            const DATA_TYPES::SYMBOL_ID& symbolId,
+            const DATA_TYPES::CLORDER_ID& clientOrderId,
+            const SymbolStaticData &staticData,
+            const DATA_TYPES::CLIENT_ID& clientId,
+            const DATA_TYPES::QTY& quantity,
+            const DATA_TYPES::QTY& disclosedQuantity,
+            const DATA_TYPES::PRICE& price,
+            const DATA_TYPES::PRICE& stopPrice,
+            DATA_TYPES::OrderType type,
+            DATA_TYPES::ProductType product,
+            DATA_TYPES::OrderMode mode,
+            DATA_TYPES::OrderValidity validity,
+            const DATA_TYPES::STRATEGY_ID& parentStrategyId,
+            short strategyType,
+            DATA_TYPES::AlgoId algoId,
+            DATA_TYPES::AlgoCategory algoCategory,
+            const AccountDetail& accountDetails
+            ); 
+
+        /**
+         * @brief ApiSingleOrder
+         * @param symbolId
          * @param staticData
          * @param clientId
          * @param quantity
@@ -271,6 +377,8 @@ extern "C"
             DATA_TYPES::OrderMode mode, // Buy, Sell
             DATA_TYPES::OrderValidity validity, // GTD, FOK etc.
             DATA_TYPES::TRADER_ID traderId,
+            DATA_TYPES::AlgoId algoId,
+            DATA_TYPES::AlgoCategory algoCategory,
             const AccountDetail &accountDetails=AccountDetail());
 
         SingleOrder(const DATA_TYPES::SYMBOL_ID &symbolId,
@@ -279,11 +387,13 @@ extern "C"
             const DATA_TYPES::EXPIRY_DATE &expiryDate,
             const DATA_TYPES::SecurityType &securityType,
             const DATA_TYPES::InstrumentType &instrumentType,
-            DATA_TYPES::TransactionType transactionType);
+            DATA_TYPES::TransactionType transactionType,
+            DATA_TYPES::PlatformType platformType);
 
         /**
          * @brief initialize
          * @param symbolId
+         * @param clientOrderId
          * @param staticData
          * @param clientId
          * @param quantity
@@ -294,10 +404,12 @@ extern "C"
          * @param product
          * @param mode
          * @param validity
-         * @param traderId
+         * @param parentStrategyId
+         * @param strategyType
          * @return
          */
         int  initialize(DATA_TYPES::SYMBOL_ID symbolId,
+            DATA_TYPES::CLORDER_ID clOrdId,
             const SymbolStaticData& staticData,
             DATA_TYPES::CLIENT_ID clientId,
             DATA_TYPES::QTY quantity,
@@ -308,7 +420,10 @@ extern "C"
             DATA_TYPES::ProductType product, // Intraday, Delivery
             DATA_TYPES::OrderMode mode, // Buy, Sell
             DATA_TYPES::OrderValidity validity, // GTD, FOK etc.
-            DATA_TYPES::TRADER_ID traderId,
+            DATA_TYPES::STRATEGY_ID parentStrategyId,
+            short strategyType,
+            DATA_TYPES::AlgoId algoId,
+            DATA_TYPES::AlgoCategory algoCategory,
             const AccountDetail &accountDetails= AccountDetail());
 
         /**
@@ -518,10 +633,6 @@ extern "C"
         DATA_TYPES::TRADER_ID getTraderId() const;
         
         /**
-         * @brief setClOrdId
-         * @param clOrdId
-         */
-        /**
          * @brief getStrategyType
          * @return
          */
@@ -545,7 +656,10 @@ extern "C"
          */
         void   setStrategyType( short );
 
-
+        /**
+         * @brief setClOrdId
+         * @param clOrdId
+         */
         void setClOrdId(DATA_TYPES::CLORDER_ID clOrdId);
 
         /**
@@ -746,6 +860,34 @@ extern "C"
          */
         void setOrderCategory(DATA_TYPES::ENUM orderCategory);
 
+#ifdef FRONTEND_COMPILATION
+
+        /**
+         * @brief getBookType
+         * @return DATA_TYPES::ENUM
+         */
+        DATA_TYPES::ENUM getBookType() const;
+
+        /**
+         * @brief getOpenCloseFlag
+         * @return char
+         */
+        char getOpenCloseFlag() const;
+
+        /**
+         * @brief setBookType
+         * @param bookType
+         */
+        void setBookType(DATA_TYPES::ENUM bookType);
+
+        /**
+         * @brief setOpenCloseFlag
+         * @param openCloseFlag
+         */
+        void setOpenCloseFlag(char openCloseFlag);
+
+#endif 
+
         /**
          * @brief getAccountDetails
          * @return
@@ -775,6 +917,24 @@ extern "C"
          * @return
          * */
         void setDealerId(DATA_TYPES::CLIENT_ID dealerId);
+        
+        /**
+         * @brief insertTradingSessId
+         * @return
+         */
+        void insertTradingSessionId( const std::string tradingSessId );
+
+        /**
+         * @brief deleteTradingSessId
+         * @return
+         */
+        void deleteTradingSessionId( std::string tradingSessId );
+
+        /**
+         * @brief setVectorTradingSessId
+         * @return
+         */
+        void setVectorTradingSessId( const std::vector<std::string>& vecTradingSessId );
 
         /**
          * @brief getLocationId
@@ -787,6 +947,18 @@ extern "C"
          * @return
          */
         DATA_TYPES::ENUM getOrderCategory() const;
+        
+        /**
+         * @brief getVectorTradingSessionIds
+         * @return
+         */
+        std::vector<std::string> getVectorTradingSessionIds() const ;
+        
+        /**
+         * @brief getRefVectorTradingSessionIds
+         * @return
+         */
+        std::vector<std::string>& getRefVectorTradingSessionIds() ;
 
     };
 

@@ -26,10 +26,16 @@ namespace API2
        */
     int getId();
 
+    /**
+     * @brief getInfo, Provides the Strategy Paramete
+     * @return
+     */
+    void* getBaseInfo();
     StrategyParameters():
       _clientId(-1),
       _info(0),
-      _id(-1)
+      _id(-1),
+      _baseInfo(0)
     {}
   protected:
     /**
@@ -45,7 +51,10 @@ namespace API2
        * @brief _id
        */
     int _id;
-
+    /**
+     * @brief _baseInfo
+     */
+    void* _baseInfo;
 
 
   };

@@ -1,7 +1,7 @@
 #ifndef api2_UserParams_h
 #define api2_UserParams_h
 #include <baseCommands.h>
-#define API2_VERSION_STRING "2.1.5"
+#define API2_VERSION_STRING "2.2.3"
 
 namespace API2 {
 
@@ -26,11 +26,21 @@ class UserParams : public AbstractUserParams
      */
     std::map<std::string,BaseType *> _userParams;
 
+
+#ifdef FRONTEND_COMPILATION
+    std::map<std::string,int> _mapVectorStringVectorIndex;
+#endif
+
     /**
      * @brief ApiIndex
      */
     CREATE_FIELD_DERIVED( int, ApiIndex);
-public:
+
+#ifdef FRONTEND_COMPILATION
+    void clone(const UserParams& other);
+#endif
+
+  public:
 
     /**
      * @brief API2_UserParams
@@ -39,6 +49,11 @@ public:
      * @throw DuplicateKeyException
      */
     UserParams(const std::string &frontendDesign,const char *buf = NULL);
+
+#ifdef FRONTEND_COMPILATION
+    UserParams(const UserParams &other);
+    UserParams& operator=(const UserParams& other);
+#endif
 
     /**
      * @brief serialize

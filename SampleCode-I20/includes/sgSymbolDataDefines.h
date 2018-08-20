@@ -1,8 +1,11 @@
 #ifndef SG_SYMBOL_DATA_DEFINESH
 #define SG_SYMBOL_DATA_DEFINESH
 #include <string>
+#include <boost/unordered_map.hpp>
+#include <map>
 #include <sharedDefines.h>
 #include <apiDataTypes.h>
+#include <apiConstants.h>
 namespace API2  {
 
   /**
@@ -25,6 +28,11 @@ namespace API2  {
      * @brief symbol
      */
     std::string symbol;
+
+    /**
+     * @brief baseCurrency
+     */
+    DATA_TYPES::CURRENCY_TYPE baseCurrency;
 
     /**
      * @brief instrumentName
@@ -82,6 +90,7 @@ namespace API2  {
 
     /**
      * @brief strikePrice
+     * Mandatorily zero in case other than Option
      */
     long        strikePrice;
 
@@ -305,11 +314,20 @@ namespace API2  {
 
     std::string brokerSymbol;
     
-    std::string tradingSessionId ; // Newfor MOEX FX
+    std::string tradingSessionId; // Newfor MOEX FX
 
     long tradeValue;
 
     std::string tradeUnit;
+    
+    bool isCurrentFut;
+
+    long currentMonthFutureSecId;
+
+    long futureUnderLyingSecurityId;
+
+    long indexSecurityId;
+
     /**
      * @brief partitionId
      */
@@ -330,13 +348,7 @@ namespace API2  {
      */
     int spreadMaturityDay;
 
-    bool isCurrentFut;
-
-    long currentMonthFutureSecId;
-
-    long futureUnderLyingSecurityId;
-
-    long indexSecurityId;
+    std::map< double, double > _mapMultiTickSize ;
 
     /**
      * @brief priceUnit
@@ -352,6 +364,16 @@ namespace API2  {
      * @brief deliveryUnit
      */
     std::string deliveryUnit;
+
+    /**
+     * @brief scrip_group
+     */
+    std::string scrip_group;
+ 
+    /**
+     * @brief index name for indices symbol
+     */
+    std::string indexName;
     
     /**
      * @brief API_SymbolStaticData
@@ -401,6 +423,30 @@ namespace API2  {
         int yearMon,
         const API2::DATA_TYPES::ExchangeId targetExchange);
 
+    /**
+     * @brief getOption returns ATM option symbolId for the given inputs
+     * @param symbolName : symbolName for the option/future
+     * @param lastTradePrice : last trade price for underlying
+     * @param optionMode : CALL|PUT value for the option
+     * @param upDown : Up/Down Price should be greater/lower than strikePrice | 0 -> Up and 1 -> Down
+     * @param yearMon : yearMon eg 201502 represents expiry month of option
+     * @param day : day 25 represents date of the expiry
+     * @param targetExchange : Exchange Id for the option
+     * @param Source : Source or broker id. default value is DEFAULT
+     * @return symbol id
+     */
+
+
+    static SIGNED_LONG getOption(
+        std::string symbolName,
+        SIGNED_LONG lastTradePrice,
+        const API2::DATA_TYPES::OptionMode optionMode,
+        char upDown,
+        int yearMon,
+        int day,
+        const API2::DATA_TYPES::ExchangeId targetExchange,
+        const API2::DATA_TYPES::SourceId source = API2::CONSTANTS::CMD_SourceId_DEFAULT);
+
 
     /**
      * @brief getATMOption returns ATM option symbolId for the given inputs
@@ -430,6 +476,8 @@ namespace API2  {
         const API2::DATA_TYPES::ExchangeId targetExchange,
         int yearMon2 = 0);
 
+    double getTickSizeForPrice( double price ) ;
+    void insertTickSizeForPrice( double price, double tickSize ) ;
 
   };
     /**
@@ -480,5 +528,8 @@ namespace API2  {
      * @return 0 on sucess and -1 when unsuccessful
      * */
   int getStaticData(const std::string& symbolKey, API2::SymbolStaticData& sd);
+  
+  double getTickSizeForPrice( double price ) ;
+  void insertTickSizeForPrice( double price, double tickSize ) ;
 }
 #endif

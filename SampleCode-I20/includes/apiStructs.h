@@ -35,6 +35,16 @@ namespace API2
         DATA_TYPES::QTY AskQty;
 
         /**
+         * @brief NoOfBids
+         */
+        DATA_TYPES::DEPTH_POSITION NoOfBids;
+
+        /**
+         * @brief NoOfAsks
+         */
+        DATA_TYPES::DEPTH_POSITION NoOfAsks;
+
+        /**
          * @brief toString will return formated Bid Ask Price Qty for debug purpose
          * @return
          */
@@ -84,6 +94,21 @@ namespace API2
         DATA_TYPES::PRICE LastTradePrice;
 
         /**
+         * @brief LastTradeTime
+         */
+        DATA_TYPES::LAST_TRADE_TIME LastTradeTime;
+
+        /**
+         * @brief Value
+         */
+        DATA_TYPES::PRICE Value;
+
+        /**
+         * @brief AvgTradePrice
+         */
+        DATA_TYPES::PRICE AvgTradePrice;
+
+        /**
          * @brief MarketDepth
          */
         MarketDepthWrapper MarketDepth[CONSTANTS::MarketDepthArraySize];
@@ -98,6 +123,11 @@ namespace API2
          * @return
          */
         std::string toString();
+
+        /**
+         * @brief Reset will set value of its member variables to zero
+         */
+        void reset(const size_t &size); 
 
         /**
          * @brief operator ==

@@ -82,19 +82,94 @@ namespace API2
     const unsigned short  RSP_OrderStatus_RMS_REJECT = 13;
 
     /**
-     * @brief OrderStatus_TRADE_CANCEL
+     * @brief RSP_OrderStatus_TRADE_CANCEL
      */
     const unsigned short  RSP_OrderStatus_TRADE_CANCEL = 14;
 
     /**
-     * @brief OrderStatus_TRADE_CORRECT
+     * @brief RSP_OrderStatus_TRADE_CORRECT
      */
     const unsigned short  RSP_OrderStatus_TRADE_CORRECT = 15;
 
-
+    /**
+     * @brief RSP_OrderStatus_TRADE_MODIFICATION
+     */
     const unsigned short  RSP_OrderStatus_TRADE_MODIFICATION = 16;
 
-    const unsigned short  RSP_OrderStatus_MAX = 17;
+    /**
+     * @brief RSP_OrderStatus_RELAYED_TRADE
+     */
+    const unsigned short  RSP_OrderStatus_RELAYED_TRADE = 17;
+
+    /**
+     * @brief RSP_OrderStatus_RELAYED_MODIFIED_TRADE
+     */
+    const unsigned short  RSP_OrderStatus_RELAYED_MODIFIED_TRADE = 18;
+
+    /**
+     * @brief RSP_OrderStatus_GIVEUP_UPDATE
+     */
+    const unsigned short  RSP_OrderStatus_GIVEUP_UPDATE = 19;
+
+    /**
+     * @brief RSP_OrderStatus_PENDING_NEW
+     */
+    const unsigned short  RSP_OrderStatus_PENDING_NEW = 20;
+
+    /**
+     * @brief RSP_OrderStatus_PENDING_REPLACE
+     */
+    const unsigned short  RSP_OrderStatus_PENDING_REPLACE = 21;
+
+    /**
+     * @brief RSP_OrderStatus_PENDING_CANCEL
+     */
+    const unsigned short  RSP_OrderStatus_PENDING_CANCEL = 22;
+
+    /**
+     * @brief RSP_OrderStatus_FILEREPLAYER_TRADE
+     */
+    const unsigned short  RSP_OrderStatus_FILEREPLAYER_TRADE = 23;
+
+    /**
+     * @brief RSP_OrderStatus_FILEREPLAYER_MODIFIED_TRADE
+     */
+    const unsigned short  RSP_OrderStatus_FILEREPLAYER_MODIFIED_TRADE = 24;
+
+    /**
+     * @brief RSP_OrderStatus_BOD_POSITION
+     */
+    const unsigned short  RSP_OrderStatus_BOD_POSITION = 25;
+
+    /**
+     * @brief RSP_OrderStatus_SUSPENDED_CONFIRMED
+     */
+    const unsigned short  RSP_OrderStatus_SUSPENDED_CONFIRMED = 26;
+
+    /**
+     * @brief RSP_OrderStatus_SUSPENDED_REPLACED
+     */
+    const unsigned short  RSP_OrderStatus_SUSPENDED_REPLACED = 27;
+
+    /**
+     * @brief RSP_OrderStatus_RESTATED
+     */
+    const unsigned short  RSP_OrderStatus_RESTATED = 28;
+
+    /**
+     * @brief RSP_OrderStatus_FILLED_WITHOUT_POSITIONS
+     */
+    const unsigned short  RSP_OrderStatus_FILLED_WITHOUT_POSITIONS = 29;
+
+    /**
+     * @brief RSP_OrderStatus_TRADE_MODIFICATION_PENDING  - pending confirmation for trade modify
+     */
+    const unsigned short  RSP_OrderStatus_TRADE_MODIFICATION_PENDING = 30;
+
+    /**
+     * @brief OrderStatus_MAX
+     */
+    const unsigned short  RSP_OrderStatus_MAX = 31;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -361,7 +436,7 @@ namespace API2
     const unsigned short RSP_StrategyComment_STRATEGY_API_NOT_FOUND = 51;
 
     /**
-     * @brief RSP_StrategyComment_STRATEGY_END
+     * @brief RSP_StrategyComment_OHLC_SUBSCRIPTION_FAILED
      */
     const unsigned short RSP_StrategyComment_OHLC_SUBSCRIPTION_FAILED =52;
 
@@ -386,9 +461,19 @@ namespace API2
     const unsigned short RSP_StrategyComment_REJECT_COUNTER_BREACHED = 56;
 
     /**
+     * @brief RSP_StrategyComment_ITM_LTP_BREACHED
+     */
+    const unsigned short RSP_StrategyComment_ITM_LTP_BREACHED = 57;
+ 
+    /**
+     * @brief RSP_StrategyComment_TBTIFSC_DISCONNECTED
+     */
+    const unsigned short RSP_StrategyComment_TBTIFSC_DISCONNECTED = 58;
+
+    /**
      * @brief RSP_StrategyComment_STRATEGY_END
      */
-    const unsigned short RSP_StrategyComment_MAX = 57;
+    const unsigned short RSP_StrategyComment_MAX = 59;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -469,7 +554,9 @@ namespace API2
      */
     const unsigned short RSP_ResponseType_STRATEGY_COMPLETED = 15;
 
-    const unsigned short RSP_ResponseType_MAX = 16;
+    const unsigned short RSP_ResponseType_STRATEGY_WAIT = 16;
+
+    const unsigned short RSP_ResponseType_MAX = 17;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -652,17 +739,30 @@ namespace API2
     const unsigned short RSP_RiskStatus_THROTTLE_LIMIT_BREACHED = 48;
     const unsigned short RSP_RiskStatus_IV_CHECK_FAILED = 49;
     const unsigned short RSP_RiskStatus_QUANTITY_FREEZE_LIMIT_BREACHED = 50;
+    
+    /**
+     * @brief RSP_RiskStatus_CLIENT_MARGIN_INSUFFICIENT
+     */
+    const unsigned short RSP_RiskStatus_CLIENT_MARGIN_INSUFFICIENT = 51;
+
+    /**
+     * @brief RSP_RiskStatus_CURRENCY_CONVERSION_FACTOR_NOT_FOUND
+     */
+    const unsigned short RSP_RiskStatus_CURRENCY_CONVERSION_FACTOR_NOT_FOUND = 52;
+
+    /**
+     * @brief RSP_RiskStatus_RMS_INTERNAL_REJECT
+     */
+    const unsigned short RSP_RiskStatus_RMS_INTERNAL_REJECT = 53;
 
     /**
      * @brief RSP_RiskStatus_MAX
      */
-    const unsigned short RSP_RiskStatus_MAX = 51;
+    const unsigned short RSP_RiskStatus_MAX = 54;
 
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
-
-
 
     /**
      * @brief RSP_ResponseCategory_API2_REQUEST
@@ -674,7 +774,10 @@ namespace API2
      */
     const unsigned short RSP_ResponseCategory_API2_STRATEGY = 48;
 
-
+    /**
+     * @brief RSP_ResponseCategory_PROTO_RESPONSE_MESSAGE
+     */
+    const unsigned short RSP_ResponseCategory_PROTO_RESPONSE_MESSAGE = 6000;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -708,7 +811,13 @@ namespace API2
     const unsigned short CMD_ExchangeId_BSEFO = 2;
     const unsigned short CMD_ExchangeId_NSECM = 3;
     const unsigned short CMD_ExchangeId_NSEFO = 4;
+
+#ifdef FRONTEND_COMPILATION
+    const unsigned short CMD_ExchangeId_ESM = 5;
+#else
     const unsigned short CMD_ExchangeId_ESMNSE = 5;
+#endif
+
     const unsigned short CMD_ExchangeId_NSECDS = 6;
     const unsigned short CMD_ExchangeId_BSECDS = 7;
     const unsigned short CMD_ExchangeId_SGX = 8;
@@ -771,14 +880,19 @@ namespace API2
     const unsigned short CMD_ExchangeId_MOEX = 65;
     const unsigned short CMD_ExchangeId_IFLL = 66;
     const unsigned short CMD_ExchangeId_CBT = 67;
-    const unsigned short CMD_ExchangeId_PLUS = 68;
-    const unsigned short CMD_ExchangeId_NCDEX = 69;
-    const unsigned short CMD_ExchangeId_COMEX= 70;
-    const unsigned short CMD_ExchangeId_BSEINX= 71;
-    const unsigned short CMD_ExchangeId_MSEFO = 72;
-    const unsigned short CMD_ExchangeId_MSECD = 73;
-    const unsigned short CMD_ExchangeId_EGM = 74;
-    const unsigned short CMD_ExchangeId_MAX=75;
+    const unsigned short CMD_ExchangeId_FXALL = 68;
+    const unsigned short CMD_ExchangeId_PLUS = 69;
+    const unsigned short CMD_ExchangeId_NCDEX = 70;
+    const unsigned short CMD_ExchangeId_COMEX = 71;
+    const unsigned short CMD_ExchangeId_BSEINX = 72;
+    const unsigned short CMD_ExchangeId_MSEFO = 73;
+    const unsigned short CMD_ExchangeId_MSECD = 74;
+    const unsigned short CMD_ExchangeId_BIST = 75;
+    const unsigned short CMD_ExchangeId_PXM = 76;
+    const unsigned short CMD_ExchangeId_NYBOT = 77;
+    const unsigned short CMD_ExchangeId_NYSELIFFE = 78;
+    const unsigned short CMD_ExchangeId_NSEIFSC = 79;
+    const unsigned short CMD_ExchangeId_MAX = 80;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -863,6 +977,7 @@ namespace API2
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
+
     /**
      * @brief CMD_OrderType_LIMIT
      */
@@ -882,6 +997,56 @@ namespace API2
      * @brief CMD_OrderType_STOP
      */
     const unsigned short CMD_OrderType_STOP = 3;
+
+    /**
+     * @brief CMD_OrderType_BestPrice
+     */
+    const unsigned short CMD_OrderType_BestPrice = 4;
+
+    /**
+     * @brief CMD_OrderType_Ask1
+     */
+    const unsigned short CMD_OrderType_Ask1 = 5;
+
+    /**
+     * @brief CMD_OrderType_Bid1
+     */
+    const unsigned short CMD_OrderType_Bid1 = 6;
+
+    /**
+     * @brief CMD_OrderType_Ask1P1
+     */
+    const unsigned short CMD_OrderType_Ask1P1 = 7;
+
+    /**
+     * @brief CMD_OrderType_Ask1P2
+     */
+    const unsigned short CMD_OrderType_Ask1P2 = 8;
+
+    /**
+     * @brief CMD_OrderType_Ask1P3
+     */
+    const unsigned short CMD_OrderType_Ask1P3 = 9;
+
+    /**
+     * @brief CMD_OrderType_Bid1P1
+     */
+    const unsigned short CMD_OrderType_Bid1P1 = 10;
+
+    /**
+     * @brief CMD_OrderType_Bid1P2
+     */
+    const unsigned short CMD_OrderType_Bid1P2 = 11;
+
+    /**
+     * @brief CMD_OrderType_Bid1P3
+     */
+    const unsigned short CMD_OrderType_Bid1P3 = 12;
+
+    /**
+     * @brief CMD_OrderType_MAX
+     */
+    const unsigned short CMD_OrderType_MAX = 13;
 
 
 
@@ -1022,10 +1187,12 @@ namespace API2
      */
     const unsigned short CMD_TransactionType_CANCEL = 2;
 
+    const unsigned short CMD_TransactionType_WAIT = 3;
+
     /**
      * @brief CMD_TransactionType_MAX
      */
-    const unsigned short CMD_TransactionType_MAX = 3;
+    const unsigned short CMD_TransactionType_MAX = 4;
 
 
 
@@ -1140,7 +1307,7 @@ namespace API2
      * @brief CMD_CommandCategory_MSECM_DISCONNECTED
      */
     const unsigned short CMD_CommandCategory_MSECM_DISCONNECTED = 94;
-   /**
+    /**
      * @brief CMD_CommandCategory_MOEXFO_DISCONNECTED
      */
     const unsigned short CMD_CommandCategory_MOEXFO_DISCONNECTED = 95;
@@ -1148,6 +1315,12 @@ namespace API2
      * @brief CMD_CommandCategory_MOEX_DISCONNECTED
      */
     const unsigned short CMD_CommandCategory_MOEX_DISCONNECTED = 96;
+    /**
+     * @brief CMD_CommandCategory_BANNED_EXPIRY
+     */
+    const unsigned short CMD_CommandCategory_BANNED_EXPIRY = 97;
+
+
     /**
      * @brief CMD_CommandCategory_ESM_DISCONNECTED
      */
@@ -1157,7 +1330,7 @@ namespace API2
      */
     const unsigned short CMD_CommandCategory_SGX_MCL_DISCONNECTED=102;
 
-   /**
+    /**
      * @brief CMD_CommandCategory_OT_DISCONNECTED
      */
     const unsigned short CMD_CommandCategory_OT_DISCONNECTED = 103;
@@ -1234,14 +1407,50 @@ namespace API2
      */
     const unsigned short CMD_CommandCategory_TT_NASDAQ_DISCONNECTED=122;
     /**
-     * @brief CMD_CommandCategory_EGM_DISCONNECTED
+     * @brief CMD_CommandCategory_PXM_DISCONNECTED
      */
-    const unsigned short CMD_CommandCategory_EGM_DISCONNECTED=123;
+    const unsigned short CMD_CommandCategory_PXM_DISCONNECTED=123;
 
+    /**
+     * @brief CMD_CommandCategory_MARKET_MAKING_STRATEGY_GENERIC
+     */
+    const unsigned short CMD_CommandCategory_MARKET_MAKING_STRATEGY_GENERIC = 124;
+
+    /**
+     * * @brief CMD_CommandCategory_NSEIFSC_DISCONNECTED
+     * */
+    const unsigned short CMD_CommandCategory_NSEIFSC_DISCONNECTED=127;
+
+    /**
+     * * @brief CMD_CommandCategory_TBTIFSC_DISCONNECTED
+     * */
+    const unsigned short CMD_CommandCategory_TBTIFSC_DISCONNECTED = 128;
+
+    /**
+     * @brief CMD_CommandCategory_BIST_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_BIST_DISCONNECTED = 129;
+
+    /**
+     * @brief CMD_CommandCategory_TERMINATE_STRATEGY
+     */
+    const unsigned int CMD_CommandCategory_TERMINATE_STRATEGY = 7; 
+
+    /**
+     * @brief CMD_CommandCategory_MAX
+     */
+    const unsigned int CMD_CommandCategory_MAX = 6001;
 
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
+
+    const unsigned short CMD_OrderCateGory_SINGLE = 0;
+    const unsigned short CMD_OrderCateGory_SPREAD = 1;
+    const unsigned short CMD_OrderCateGory_PAIRED = 2;
+    const unsigned short CMD_OrderCateGory_STRADDLE = 3;
+    const unsigned short CMD_OrderCateGory_MULTILEG = 4;
+    const unsigned short CMD_OrderCateGory_MAX = 5;
 
     /**
      * @brief CMD_ContractType_NORMAL
@@ -1308,6 +1517,7 @@ namespace API2
      * @brief RSP_ErrorCode_SELF_TRADE Error Code For MCX 
      * */
     const short RSP_ErrorCode_SELF_TRADE_MCX = 103;
+
     /**
      * @brief RSP_ErrorCode_SELF_TRADE Error Code For BSEINX
      * */
@@ -1324,6 +1534,11 @@ namespace API2
     const short RSP_ErrorCode_THROTTLE_BREACH = 48;
 
     /**
+     * @brief RSP_ErrorCode_BSE_VALIDATION_ERROR
+     */
+    const short RSP_ErrorCode_BSE_VALIDATION_ERROR = 210;
+
+    /**
      * @brief RSP_ErrorCode_TRADING_SYSTEM_NOT_AVAILABLE_FOR_TRADING
      * */
     const short RSP_ErrorCode_TRADING_SYSTEM_NOT_AVAILABLE_FOR_TRADING = 16000;
@@ -1338,15 +1553,65 @@ namespace API2
      * */
     const short RSP_ErrorCode_ORDER_NOT_ALLOWED_IN_PREOPEN = 16447;
 
-     /**
+    /**
+     * @brief RSP_ErrorCode_SPREAD_ORDER_ALLOWED_ONLY_WHEN_MARKET_IS_OPEN
+     * */
+    const short RSP_ErrorCode_SPREAD_ORDER_ALLOWED_ONLY_WHEN_MARKET_IS_OPEN = 16608;
+
+    /**
+     * @brief RSP_ErrorCode_SECURITY_IS_NOT_ALLOWED_TO_TRADE_IN_THIS_MARKET
+     * */
+    const short RSP_ErrorCode_SECURITY_IS_NOT_ALLOWED_TO_TRADE_IN_THIS_MARKET = 16387;
+
+    /**
      * @brief RSP_ErrorCode_SELF_TRADE_MSE_PASSIVE Error Code For MSE (passive)
      * */
     const short RSP_ErrorCode_SELF_TRADE_MSE_PASSIVE = 104;
 
-     /**
+    /**
      * @brief RSP_ErrorCode_SELF_TRADE_MSE_ACTIVE Error Code For  MSE (active)
      * */
     const short RSP_ErrorCode_SELF_TRADE_MSE_ACTIVE = 103;
+
+    /**
+     * @brief RSP_ErrorCode_USER_TRD_MOD_DISABLED
+     */
+    const short RSP_ErrorCode_USER_TRD_MOD_DISABLED = 17048;
+
+    /**
+     * @brief RSP_ErrorCode_INVALID_PARTICIPANT_NSEFO
+     */
+    const short RSP_ErrorCode_INVALID_PARTICIPANT_NSEFO = 16541;
+
+    /**
+     * @brief RSP_ErrorCode_PARTICIPANT_AND_VOLUME_CHANGED_NSEFO
+     */
+    const short RSP_ErrorCode_PARTICIPANT_AND_VOLUME_CHANGED_NSEFO = 16577;
+
+    /**
+     * @brief RSP_ErrorCode_INVALID_PARTICIPANT_NSECDS
+     */
+    const short RSP_ErrorCode_INVALID_PARTICIPANT_NSECDS = 16541;
+
+    /**
+     * @brief RSP_ErrorCode_PARTICIPANT_AND_VOLUME_CHANGED_NSECDS
+     */
+    const short RSP_ErrorCode_PARTICIPANT_AND_VOLUME_CHANGED_NSECDS = 16577;
+
+    /**
+     * @brief RSP_ErrorCode_USER_TRD_MOD_DISABLED_NSECDS
+     */
+    const short RSP_ErrorCode_USER_TRD_MOD_DISABLED_NSECDS = 17048;
+
+    /**
+     * @brief RSP_ErrorCode_USER_TYPE_TRD_MOD_DISABLED_NSECDS
+     */
+    const short RSP_ErrorCode_USER_TYPE_TRD_MOD_DISABLED_NSECDS= 17046;
+
+    /**
+     * @brief RSP_ErrorCode_TM_TRD_MOD_DISABLED_NSECDS
+     */
+    const short RSP_ErrorCode_TM_TRD_MOD_DISABLED_NSECDS = 17047;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1358,6 +1623,20 @@ namespace API2
     const short CMD_CONT_HEDGING_MODE_BOTH_SIDE = 1;
     const short CMD_CONT_HEDGING_MODE_MAX = 2;
 
+    /**
+     * @brief CMD_CONFIRMATION_TYPE_EXCH  - for exchange confirmation
+     */
+    const short CMD_CONFIRMATION_TYPE_EXCH = 0;
+
+    /**
+     * @brief CMD_CONFIRMATION_TYPE_SELF  - for hold orders confirmations
+     */
+    const short CMD_CONFIRMATION_TYPE_SELF = 1;
+
+    /**
+     * @brief CMD_CONFIRMATION_TYPE_MAX - invalid confirmation type
+     */
+    const short CMD_CONFIRMATION_TYPE_MAX = 2;
   }
 }
 #endif

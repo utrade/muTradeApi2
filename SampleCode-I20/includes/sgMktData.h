@@ -15,7 +15,10 @@ namespace TBTDATA {
 }
 
 
-namespace API2 { namespace COMMON {
+namespace API2 
+{ 
+  namespace COMMON 
+  {
 
   enum UpdateType{
     UpdateType_TBT,
@@ -162,19 +165,51 @@ namespace API2 { namespace COMMON {
       /**
        * @brief _LatestIndexCounter
        */
-      volatile unsigned long _LatestIndexCounter;
+      volatile UNSIGNED_LONG _LatestIndexCounter;
 
       /**
        * @brief _LatestTick
        */
       int _LatestTickIndex;
 
-    UpdateType _LastUpdateType;
+      UpdateType _LastUpdateType;
 
       /**
        * @brief _marketDataNotFound
        */
       bool _marketDataNotFound;
+
+      /**
+       * @brief PreTradeDepthCount
+       * For Customized Tbt
+       * */
+      CREATE_FIELD( int, PreTradeDepthCount );
+
+      /**
+       * @brief PreTradeOrderQty
+       * For Customized Tbt
+       * */
+      CREATE_FIELD( int, PreTradeOrderQty );
+
+      /**
+       * @brief PreTradeOrderMode
+       * For Customized Tbt
+       * */
+      CREATE_FIELD( char, PreTradeOrderMode );
+
+      /**
+       * @brief PreTradeAveragePrice
+       * For Customized Tbt
+       * */
+      CREATE_FIELD( long, PreTradeAveragePrice );
+
+      /**
+       * @brief IsPreTrade
+       * For Customized Tbt
+       * */
+      CREATE_FIELD( bool, IsPreTrade );
+
+
     private:
 
       Currency::CurrencyType _currencyType;
@@ -197,6 +232,16 @@ namespace API2 { namespace COMMON {
        */
       DATA_TYPES::QTY  getQty(const COMMON::MarketDepthWrapper &wrapper,
                               const DATA_TYPES::OrderMode & mode);
+
+      /**
+       * @brief getNoOfOrdersInDepth
+       * @param wrapper
+       * @param mode
+       * @return
+       */
+      DATA_TYPES::DEPTH_POSITION  getNoOfOrdersInDepth(const COMMON::MarketDepthWrapper &wrapper,
+                              const DATA_TYPES::OrderMode & mode);
+
       /**
        * @brief updateTbt
        * @return
@@ -212,15 +257,18 @@ namespace API2 { namespace COMMON {
       bool updateMcl();
     public:
 
-
-
-
     UpdateType getLastUpdateType(){return _LastUpdateType;}
 
-      UNSIGNED_LONG getSymbolId(){return _symbolId;}
+    UNSIGNED_LONG getSymbolId(){return _symbolId;}
 
     bool getIsSnapShot(){return _IsSnapShot;}
     bool getIsTbt(){return _IsTbt;}
+      
+    /**
+     * @brief getLatestIndexCounter
+     * @return
+     */
+    UNSIGNED_LONG getLatestIndexCounter();
 
       /**
        * @brief getOpenPrice
@@ -257,12 +305,32 @@ namespace API2 { namespace COMMON {
        * @return
        */
       DATA_TYPES::QTY getLastTradeQty();
-
+      
       /**
        * @brief getLastTradePrice
        * @return
        */
       DATA_TYPES::PRICE getLastTradePrice();
+
+      /**
+       * @brief getLastTradeTime
+       * @return
+       * In TBT Trade time in millisecond from 01 Jan 1980  00:00:00
+       * To convert in Normal time : (lastTradeTime / 1000) + SECS_1980_1970
+       */
+      DATA_TYPES::LAST_TRADE_TIME getLastTradeTime();
+
+      /**
+       * @brief getValue
+       * @return
+       */
+      DATA_TYPES::PRICE getValue();
+
+      /**
+       * @brief getAvgTradePrice
+       * @return
+       */
+      DATA_TYPES::VOLUME getAvgTradePrice();
 
       /**
        * @brief getPrice
@@ -281,6 +349,14 @@ namespace API2 { namespace COMMON {
       DATA_TYPES::QTY getQty(size_t position, const DATA_TYPES::OrderMode & mode);
 
       /**
+       * @brief getNoOfOrdersInDepth
+       * @param position
+       * @param mode
+       * @return
+       */
+      DATA_TYPES::DEPTH_POSITION getNoOfOrdersInDepth(size_t position, const DATA_TYPES::OrderMode & mode);
+
+      /**
        * @brief getBidPrice
        * @param pos
        * @return
@@ -295,6 +371,13 @@ namespace API2 { namespace COMMON {
       DATA_TYPES::QTY getBidQty(size_t pos);
 
       /**
+       * @brief getNoOfBids
+       * @param pos
+       * @return
+       */
+      DATA_TYPES::DEPTH_POSITION getNoOfBids(size_t pos);
+
+      /**
        * @brief getAskPrice
        * @param pos
        * @return
@@ -307,6 +390,13 @@ namespace API2 { namespace COMMON {
        * @return
        */
       DATA_TYPES::QTY getAskQty(size_t pos);
+
+      /**
+       * @brief getNoOfAsks
+       * @param pos
+       * @return
+       */
+      DATA_TYPES::DEPTH_POSITION getNoOfAsks(size_t pos);
 
       /**
        * @brief subscribe
@@ -343,6 +433,13 @@ namespace API2 { namespace COMMON {
        */
       bool updateTbtTradeTicks();
 
+      /**
+       *Check if the counter has been updated for Trade Tick Or Not.
+       * Return true if the latest counter in shared memory is larger than
+       * the one in local else return false;
+       *@brief Returns true if trade has occured.
+       */
+      bool hasTradeBeenProcessed();
 
 #if 0
       /**
@@ -368,9 +465,14 @@ namespace API2 { namespace COMMON {
        * @brief dump
        */
       void dump();
+      
+      /**
+       * @brief dump
+       * @param debugObject
+       */
       void dump(API2::DebugLog *debugObject);
 
     };
-  }
-               }
+}
+}
 #endif

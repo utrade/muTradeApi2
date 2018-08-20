@@ -83,7 +83,7 @@ namespace API2
       if(length <=0)
         return;
       int size = sizeof(T);
-      _value = new T[size];
+      _value = new T[_length];
       memcpy(_value,value,size * _length);
     }
     ~ArrayPair()
@@ -102,10 +102,24 @@ namespace API2
     }
   };
 
+ struct ConfirmationPrintData
+  {
+    CREATE_FIELD( DATA_TYPES::CLORDER_ID, ClOrderId );  
+    CREATE_FIELD( DATA_TYPES::SYMBOL_ID, SymbolId ); 
+    CREATE_FIELD( DATA_TYPES::QTY, LastFillQuantity ); 
+    CREATE_FIELD( DATA_TYPES::PRICE, LastFillPrice ); 
+    CREATE_FIELD( DATA_TYPES::OrderStatus, OrderStatus ); 
+    CREATE_FIELD( DATA_TYPES::OrderMode, OrderMode ); 
+    CREATE_FIELD( DATA_TYPES::QTY, OrderQuantity ); 
+    CREATE_FIELD( DATA_TYPES::PRICE, OrderPrice ); 
+    CREATE_FIELD( DATA_TYPES::QTY, IOCCanceledQuantity );
+    public:
+    ConfirmationPrintData(const API2::OrderConfirmation& conf );
+  };
+
   class Logs_Single : public  AbstractSingle
   {
-
-    const API2::OrderConfirmation& _confirmation;
+    const ConfirmationPrintData _confirmationPrint;
     public:
     Logs_Single(const API2::OrderConfirmation& conf); 
     std::string getString();
@@ -130,6 +144,10 @@ namespace API2
     bool _printOnExit;
     DebugLog *_file;
     std::queue<AbstractSingle *> logs;
+
+    volatile int _spinLock;
+    bool _useSpinLock;
+
     void print();
     public:
     Logs();
@@ -140,7 +158,8 @@ namespace API2
     void intialize(const bool &printDepth,
         const bool &flushLogs,
         const bool &printOnExit ,
-        API2::DebugLog *file);
+        API2::DebugLog *file,
+        const bool useLocksWhilePushingLogs = false);
 
     void push(const API2::OrderConfirmation &confirmation);
 
@@ -190,13 +209,30 @@ namespace API2
     struct timeval ttime;
     Logs _bufferedLogs;
     bool _useBufferedLogs;
-    bool _silientMode ;
+    bool _silentMode ;
     public:
 
     /**
      * @brief DebugLog
      */
     DebugLog();
+
+    /**
+     * @brief DebugLog
+     * @param fileName
+     * @param silientMode
+     * @param useBufferedLogs
+     * @param printDepthOnConfirmation
+     * @param flushLogs
+     * @param printLogsOnExit
+     */
+    DebugLog(
+        const std::string &fileName,
+        const bool &silientMode = false,
+        const bool &useBufferedLogs = false,
+        const bool &printDepthOnConfirmation = false,
+        const bool &flushLogs = false,
+        const bool &printLogsOnExit = false);
 
     ~DebugLog();
 
@@ -218,6 +254,14 @@ namespace API2
         const bool &flushLogs = false,
         const bool &printOnExit = false);
 
+    void openDebugLogFile(
+        std::ostringstream &filename,
+        const bool &silentMode = false,
+        const bool &useBufferedLogs = false,
+        const bool &printDepthOnConfirmation = false,
+        const bool &flushLogs = false,
+        const bool &printOnExit = false);
+
     /**
      * @brief timeStamp
      */
@@ -229,11 +273,13 @@ namespace API2
      */
     void message(const char* debug_message);
 
+    void message(const std::string &debugMessage);
+
     void messageSkipBuffLogs(const char* debug_message);
 
     void flushLogBuffLogs();
 
-    void flushLog();
+    void flushLog(bool printNextLine = true);
 
     /**
      * @brief value_of
@@ -242,7 +288,7 @@ namespace API2
      */
     template<class T> void value_of(const std::string& name, const T& value)
     {
-      if(_silientMode)
+      if(_silentMode)
         return;
       if(_useBufferedLogs == false)
       { 
@@ -262,7 +308,7 @@ namespace API2
      */
     template<class T> void printToLog(const char* debug_message,const T& debug_var)
     {
-      if(_silientMode)
+      if(_silentMode)
         return;
       if(_useBufferedLogs == false)
       {
@@ -276,9 +322,15 @@ namespace API2
       }
     }
 
+    /**
+     * @brief printToLog2
+     * @param debug_message
+     * @param debug_var1
+     * @param debug_var2
+     */
     template<class T> void printToLog2(const char* debug_message,const char* debug_var1, const T& debug_var2)
     {
-      if(_silientMode)
+      if(_silentMode)
         return;
       if(_useBufferedLogs == false)
       {
@@ -290,9 +342,16 @@ namespace API2
         _bufferedLogs.push(debug_message,std::string(debug_var1),debug_var2); 
       }
     }
+    
+    /**
+     * @brief printToLog2
+     * @param debug_message
+     * @param debug_var1
+     * @param debug_var2
+     */
     template<class T,class K>  void printToLog2(const char* debug_message,const T& debug_var1, const K& debug_var2)
     {
-      if(_silientMode)
+      if(_silentMode)
         return;
       if(_useBufferedLogs == false)
       {
@@ -314,7 +373,7 @@ namespace API2
      */
     template<class T> void printToLogArr(const char* debug_message,const T debug_var[],int index)
     {
-      if(_silientMode)
+      if(_silentMode)
         return;
       if(_useBufferedLogs == false)
       {
@@ -344,6 +403,9 @@ namespace API2
 #define DEBUG_MESSAGE(DEBUG_OBJECT,debug_message) {  DEBUG_OBJECT->message(debug_message); }  
 #define DEBUG_VALUE_OF(DEBUG_OBJECT,variable) { DEBUG_OBJECT->value_of(#variable, variable); }
 #define DEBUG_VARSHOW(DEBUG_OBJECT,debug_message,var) { DEBUG_OBJECT->printToLog(debug_message,var); }
+#define COND_DEBUG_VARSHOW(isShow, dbgLog, msg, data)\
+if( isShow )\
+  DEBUG_VARSHOW(dbgLog, msg, data);
 #define DEBUG_VARSHOW2(DEBUG_OBJECT,debug_message,var1, var2) { DEBUG_OBJECT->printToLog2(debug_message,var1, var2); }
 #define DEBUG_ARRAYSHOW(DEBUG_OBJECT,debug_message,var,var2) { DEBUG_OBJECT->printToLogArr(debug_message,var,var2); }
 #define DEBUG_FLUSH(DEBUG_OBJECT) { DEBUG_OBJECT->flushLog(); }

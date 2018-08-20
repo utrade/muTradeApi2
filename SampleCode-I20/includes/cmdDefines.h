@@ -1,7 +1,6 @@
 #ifndef API2_CMD_DEFINES_H
 #define API2_CMD_DEFINES_H
 
-
 #define CREATE_FIELD_DECLARATION( TYPE, NAME ) \
   public : TYPE get##NAME() const ; \
 public : TYPE &getRef##NAME() ; \
@@ -34,11 +33,14 @@ private : TYPE _##NAME
 #define CREATE_FIELD_CHAR(NAME , SIZE) \
   public : const char *get##NAME() const {  return _##NAME; } \
 public : char * getRef##NAME() {  return _##NAME; } \
-public : void set##NAME(const std::string &value ) { safeStringCpy(_##NAME, value.c_str(), SIZE);} \
-public : void set##NAME(const char * value ) { safeStringCpy(_##NAME, value, SIZE);} \
+public : void set##NAME(const std::string &value ) { strncpy(_##NAME, value.c_str(), SIZE);} \
+public : void set##NAME(const char * value ) { strncpy(_##NAME, value, SIZE);} \
 private : char _##NAME[SIZE]
 
-
+#define CREATE_REF_FIELD( TYPE, NAME ) \
+  public : TYPE &getRef##NAME() {  return _##NAME ; } \
+public : const TYPE &getRef##NAME() const{  return _##NAME ; } \
+private : TYPE &_##NAME
 
 #define CONVERT_TO_STRING(x) #x
 
@@ -47,7 +49,7 @@ private : char _##NAME[SIZE]
   public : TYPE get##NAME() const {  return _##NAME.getValue() ; } \
 public : TYPE &getRef##NAME() {  return _##NAME.getRefValue() ; } \
 public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
-private : API2::DerivedType<TYPE> _##NAME
+protected : API2::DerivedType<TYPE> _##NAME
 
 #define CREATE_FIELD_PTR( TYPE, NAME ) \
   public : TYPE* get##NAME() {  return _##NAME ; } \
@@ -75,8 +77,7 @@ public:     Cls(const char *buf) {    deSerialize(buf);} \
 public:     Cls(){initialize();} \
 public: int serialize(char* buf, bool isResponse = false){ \
           return AbstractUserParams::serialize(buf, \
-              isResponse, (UNSIGNED_CHARACTER)Response, \
-              (UNSIGNED_CHARACTER)Command);}
+              isResponse, Response, Command);}
 
 #define DECLARE_CONSTRUCTORS( Cls, VERSION) \
   public:     static const UNSIGNED_LONG BACK_END_STRATEGY_VERSION = VERSION; \
@@ -92,8 +93,7 @@ public: UNSIGNED_LONG getBackendStrategyVersion() const { return BACK_END_STRATE
 Cls::Cls(){initialize();} \
 int Cls::serialize(char* buf, bool isResponse){ \
   return AbstractUserParams::serialize(buf, \
-      isResponse, (UNSIGNED_CHARACTER)Response, \
-      (UNSIGNED_CHARACTER)Cmd);}
+      isResponse, Response,Cmd);}
 
 
 
@@ -113,8 +113,8 @@ set##NAME(VALUE); \
 set##NAME(VALUE); \
 addType(&_##NAME);
 
-#define DELETE_PTR(param) if(param) { \
-  delete param; \
+#define DELETE_PTR(param) if(param) {\
+    delete param;\
   param =0; }
 
 #define DEBUG_METHOD(DEBUG_OBJECT) { DEBUG_OBJECT->message(__FUNCTION__); }

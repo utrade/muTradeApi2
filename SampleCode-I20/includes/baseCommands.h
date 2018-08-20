@@ -10,7 +10,87 @@
 #include <stdio.h>
 #include <typeinfo>
 #include <sstream>
+
+#ifndef FRONTEND_COMPILATION
 #include <DBConverter.h>
+#if API_COMPILATION == 0
+#include <soci.h>
+#endif
+#endif
+
+namespace CMD{
+
+  /**
+   * @brief The BaseStrategyParamCommmand class
+   *
+   *The class is inherited to all the Strategy Parameters Commands
+   *All the common parameters of strategies should be a member of
+   *this class.
+   *
+   *As of now only uhedge Portfolio Id is in this class.
+   *As of now only parentStrategyId is added which is used in Invoking API
+   *
+   */
+  class BaseStrategyParamCommmand
+  {
+
+    CREATE_FIELD(UNSIGNED_INTEGER, PortfolioId);
+    CREATE_FIELD(UNSIGNED_INTEGER, ParentStrategyId);
+
+    public:
+    BaseStrategyParamCommmand()
+    {
+      initialize();
+    }
+
+    /**
+     * @brief initialize initialize the members of the class.
+     */
+    void initialize()
+    {
+      _PortfolioId = 0;
+      _ParentStrategyId = 0;
+    }
+
+    /**
+     * @brief serializeMembers - serialize the members of this class without command category
+     * @param buff
+     * @return
+     */
+    void serializeMembers(char * buff, int &bytes)
+    {
+      API2::Serialization::serialize( getPortfolioId() , buff, bytes);
+    }
+
+    /**
+     * @brief deSerializeMembers - deSerialize the members of this class
+     * @param buff
+     * @return
+     */
+    void deSerializeMembers(const char * buff, int &offset)
+    {
+      UNSIGNED_INTEGER temp;
+      API2::Serialization::deSerialize( temp , buff, offset);
+      setPortfolioId(temp);
+    }
+
+    /**
+     * @brief getString
+     * @return
+     */
+    std::string getString()
+    {
+      std::stringstream ss;
+
+      ss << "\n getPortfolioId() : " << getPortfolioId() << std::endl;
+
+      return ss.str();
+    }
+  };
+
+
+}//namespace CMD
+
 namespace API2{
 
   using namespace Serialization;
@@ -49,6 +129,12 @@ namespace API2{
      */
     virtual std::string getKeyValueString() const =0;
     virtual std::string getDBValueString() const =0;
+
+#if API_COMPILATION == 0
+#ifndef FRONTEND_COMPILATION
+    virtual void setSociData(const soci::row &r,size_t index) = 0;
+#endif
+#endif
 
 
     /**
@@ -136,7 +222,6 @@ namespace API2{
     {
       deSerialize(_Value, buf, offset);
     }
-#if 1
 
     /**
      * @brief serialize
@@ -149,7 +234,6 @@ namespace API2{
         char *buf,
         int &bytes) const
     {
-      UNSIGNED_LONG tmpLong = 0;
       for(MapULongIter i= mapULong.begin(); i!= mapULong.end(); i++)
       {
         Serialization::serialize(i->first,buf,bytes);
@@ -167,8 +251,7 @@ namespace API2{
      */
     void deSerialize(MapULong &val, const char *buf, int &offset)
     {
-      UNSIGNED_LONG tmp1,tmp2= 0;
-      for(int i=0; i<getCount();i++)
+      for(unsigned int i=0; i <getCount();i++)
       {
         UNSIGNED_LONG key;
         UNSIGNED_LONG value;
@@ -203,7 +286,6 @@ namespace API2{
       {
         Serialization::deSerialize(val,buf,offset);
       }
-#endif
 
     /**
      * @brief dump
@@ -222,8 +304,21 @@ namespace API2{
 
     std::string getDBValueString() const 
     {
+#ifndef FRONTEND_COMPILATION
       return API2::DBConverter::getDBString(_Value);
+#endif
+      return "";
     }
+
+#if API_COMPILATION == 0
+#ifndef FRONTEND_COMPILATION
+    void setSociData(const soci::row &r,size_t index)
+    {
+      return API2::DBConverter::setSociData(r,index,_Value);
+    }
+#endif
+#endif
+
     /**
      * @brief getKeyValueStringImpl
      * @param val
@@ -235,6 +330,7 @@ namespace API2{
         out << std::endl << getString() <<"--->"<< val;
         return out.str();
       }
+
     std::string getKeyValueStringImpl(const API2::AccountDetail &val) const
     {
       std::ostringstream out;
@@ -288,7 +384,7 @@ namespace API2{
   /**
    * @brief The AbstractUserParams class
    */
-  class AbstractUserParams
+  class AbstractUserParams : public CMD::BaseStrategyParamCommmand
   {
 
     /**
@@ -327,6 +423,7 @@ namespace API2{
     BaseTypeVector _Members;
 
     CREATE_FIELD(bool, DataOnlyFlag);
+
     public:
     /**
      * @brief AbstractUserParams
@@ -336,8 +433,9 @@ namespace API2{
         _DataOnlyFlag(dataOnlyFlag)
     {
       initialize();
+      BaseStrategyParamCommmand::initialize();
     }
-    
+
     /**
      * @brief ~AbstractUserParams
      */
@@ -357,31 +455,31 @@ namespace API2{
       SET_DERIVED_TYPE_API2( SequenceNumber, 0);
     }
 
-    int serializeBase(char *buf, bool isResponse, UNSIGNED_CHARACTER cat, UNSIGNED_CHARACTER comCat)
+    int serializeBase(char *buf, bool isResponse, COMMAND_CATEGORY_TYPE cat, COMMAND_CATEGORY_TYPE comCat)
     {
       int bytes = 0;
 
-      bytes = sizeof(UNSIGNED_SHORT);  // Leave 2 bytes for packet size
       if (isResponse)
       {
-        Serialization::serialize(cat,buf,bytes);
+        Serialization::serializeCommand(cat, buf, bytes);
       }
       else
       {
-        Serialization::serialize(comCat,buf,bytes);
+        Serialization::serializeCommand(comCat, buf, bytes);
       }
+
       Serialization::serialize(getStrategyVersion(),buf,bytes);
       Serialization::serialize(getTransactionType(),buf,bytes);
       Serialization::serialize(getClientId(),buf,bytes);
       Serialization::serialize(getStrategyId(),buf,bytes);
       Serialization::serialize(getAdminTokenId(),buf,bytes);
       Serialization::serialize(getSequenceNumber(),buf,bytes);
+      CMD::BaseStrategyParamCommmand::serializeMembers(buf, bytes);
 
-      int dummyBytes = 0;
       /**
        *Put size as the first field after deducting 2 bytes reserved for size
        */
-      Serialization::serialize((UNSIGNED_SHORT)(bytes-sizeof(UNSIGNED_SHORT)),buf,dummyBytes);
+      Serialization::serializePacketLength(bytes, buf);
 
       return bytes;
     }
@@ -394,18 +492,17 @@ namespace API2{
      * @param comCat
      * @return
      */
-    int serialize(char *buf, bool isResponse, UNSIGNED_CHARACTER cat, UNSIGNED_CHARACTER comCat)
+    int serialize(char *buf, bool isResponse, COMMAND_CATEGORY_TYPE cat, COMMAND_CATEGORY_TYPE comCat)
     {
       int bytes = 0;
 
-      bytes = sizeof(UNSIGNED_SHORT);  // Leave 2 bytes for packet size
       if (isResponse)
       {
-        Serialization::serialize(cat,buf,bytes);
+        Serialization::serializeCommand(cat, buf, bytes);
       }
       else
       {
-        Serialization::serialize(comCat,buf,bytes);
+        Serialization::serializeCommand(comCat, buf, bytes);
       }
 
       for( int i=0; i<(int)_Members.size(); i++)
@@ -414,11 +511,12 @@ namespace API2{
         _Members[i]->serializeFun(buf,bytes);
       }
 
-      int dummyBytes = 0;
+      CMD::BaseStrategyParamCommmand::serializeMembers(buf, bytes);
+
       /**
        *Put size as the first field after deducting 2 bytes reserved for size
        */
-      Serialization::serialize((UNSIGNED_SHORT)(bytes-sizeof(UNSIGNED_SHORT)),buf,dummyBytes);
+      Serialization::serializePacketLength(bytes, buf);
 
       return bytes;
     }
@@ -434,20 +532,19 @@ namespace API2{
      */
     int serializeApi(char *buf,
         bool isResponse,
-        UNSIGNED_CHARACTER cat,
-        UNSIGNED_CHARACTER comCat,
+        COMMAND_CATEGORY_TYPE cat,
+        COMMAND_CATEGORY_TYPE comCat,
         int apiIndex)
     {
       int bytes = 0;
 
-      bytes = sizeof(UNSIGNED_SHORT);  // Leave 2 bytes for packet size
       if (isResponse)
       {
-        Serialization::serialize(cat,buf,bytes);
+        Serialization::serializeCommand(cat, buf, bytes);
       }
       else
       {
-        Serialization::serialize(comCat,buf,bytes);
+        Serialization::serializeCommand(comCat, buf, bytes);
       }
 
       Serialization::serialize(apiIndex,buf,bytes);
@@ -457,11 +554,12 @@ namespace API2{
         _Members[i]->serializeFun(buf,bytes);
       }
 
-      int dummyBytes = 0;
+      CMD::BaseStrategyParamCommmand::serializeMembers(buf, bytes);
+
       /**
        *Put size as the first field after deducting 2 bytes reserved for size
        */
-      Serialization::serialize((UNSIGNED_SHORT)(bytes-sizeof(UNSIGNED_SHORT)),buf,dummyBytes);
+      Serialization::serializePacketLength(bytes, buf);
 
       return bytes;
     }
@@ -470,7 +568,7 @@ namespace API2{
      * @brief deSerialize
      * @param buf
      */
-    void deSerialize(const char* buf)
+    int deSerialize(const char* buf)
     {
       //      initialize();
       int offset =0;
@@ -480,6 +578,10 @@ namespace API2{
         //printf("Deserializing :%s  \n",_Members[i]->getString().c_str());
         _Members[i]->deSerializeFun(buf,offset);
       }
+
+      CMD::BaseStrategyParamCommmand::deSerializeMembers(buf, offset);
+
+      return offset;
     }
 
     /**
@@ -503,6 +605,7 @@ namespace API2{
       {
         _Members[i]->dump();
       }
+      std::cout<< CMD::BaseStrategyParamCommmand::getString()<<std::endl;
       std::cout << std::endl;
     }
 
@@ -520,14 +623,14 @@ namespace API2{
     }
     void writeToFileAll(FILE *fp)
     {
-      char strategyCommandBuffer[MAX_BUF_SIZE];
+      char strategyCommandBuffer[MAX_BUF_SIZE] = {0};
       int strategyBytes = serialize((char *)strategyCommandBuffer,false,0,0);
       fwrite((void*)strategyCommandBuffer,strategyBytes, 1, fp);
       fflush(fp);
     }
     void writeToFileBase(FILE *fp)
     {
-      char strategyCommandBuffer[MAX_BUF_SIZE];
+      char strategyCommandBuffer[MAX_BUF_SIZE] = {0};
       int strategyBytes = serializeBase((char *)strategyCommandBuffer,false,0,0);
       fwrite((void*)strategyCommandBuffer,strategyBytes, 1, fp);
       fflush(fp);
@@ -540,18 +643,38 @@ namespace API2{
 
     int getSerializeSize()
     {
-      char strategyCommandBuffer[MAX_BUF_SIZE];
+      char strategyCommandBuffer[MAX_BUF_SIZE] = {0};
       int strategyBytes = serialize(strategyCommandBuffer,false,0,0);
       return strategyBytes;
     }
     void deSerializeMemorySize(const char *buff)
     {
-      UNSIGNED_SHORT tmp1;
-      UNSIGNED_CHARACTER tmp2;
+      COMMAND_CATEGORY_TYPE tmp1;
+      PACKET_LENGTH_TYPE tmp2;
       int offset = 0;
-      Serialization::deSerialize(tmp1, buff, offset);
-      Serialization::deSerialize(tmp2,buff,offset);
+
+      Serialization::deSerializeCommand(tmp1, buff, offset);
+      Serialization::deSerializePacketLength(tmp2,buff,offset);
       deSerialize(buff + offset);
+    }
+
+    /**
+     * @brief serializeMembers - serialize only members of class not response category
+     * @param buf
+     * @param bytes
+     * @return
+     */
+    int serializeMembers(char * buf, int bytes)
+    {
+      for( int i=0; i<(int)_Members.size(); i++)
+      {
+        _Members[i]->serializeFun(buf,bytes);
+      }
+
+      CMD::BaseStrategyParamCommmand::serializeMembers(buf, bytes);
+
+      return bytes;
+
     }
   };
 

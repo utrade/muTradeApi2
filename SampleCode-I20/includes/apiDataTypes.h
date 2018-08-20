@@ -9,6 +9,11 @@ namespace API2
 
     /**
      * @typedef
+     * @brief CURRENCY_TYPE
+     */
+    typedef std::string CURRENCY_TYPE;
+    /**
+     * @typedef
      * @brief PRICE
      */
     typedef SIGNED_LONG PRICE;
@@ -30,7 +35,13 @@ namespace API2
      * @brief SYMBOL_ID
      */
     typedef SIGNED_LONG SYMBOL_ID;
-
+    
+    
+    /**
+     * @typedef
+     * @brief LAST_TRADE_TIME
+     */
+    typedef int64_t LAST_TRADE_TIME;
 
     /**
      * @typedef
@@ -116,10 +127,10 @@ namespace API2
      */
     typedef UNSIGNED_SHORT StrategyComment;
 
-/**
- * @typedef
- * @brief TimerMicroSecondInterval
- */
+    /**
+     * @typedef
+     * @brief TimerMicroSecondInterval
+     */
     typedef long long TimerMicroSecondInterval;
 
     /**
@@ -146,6 +157,12 @@ namespace API2
      * @brief OrderMode
      */
     typedef UNSIGNED_SHORT OrderMode;
+    
+    /**
+     * @typedef
+     * @brief SourceId
+     */
+    typedef UNSIGNED_SHORT SourceId;
 
     /**
      * @typedef
@@ -171,7 +188,7 @@ namespace API2
      */
     typedef UNSIGNED_SHORT OrderValidity;
 
-     /**
+    /**
      * @typedef
      * @brief SelfTradeOrderFlag
      */
@@ -214,17 +231,49 @@ namespace API2
     typedef UNSIGNED_SHORT CommandCategory;
 
     /**
+     * enum
+     *
+     * @brief AccountType - customer for normal clients trading, firm for direct broker trading
+     */
+    enum AccountType
+    {
+      AccountType_CUSTOMER,
+      AccountType_FIRM,
+      AccountType_SPLCLIENT,
+      AccountType_INST,
+      AccountType_MAX
+    };
+
+    /**
+     * enum
+     *
+     * @brief ClientSegmentType - CM for cash segment, FO for future / option segment
+     */
+    enum ClientSegmentType
+    {
+      ClientSegmentType_CM,
+      ClientSegmentType_FO,
+      ClientSegmentType_MAX
+    };
+
+    /**
      * @typedef
      * @brief String
      */
     typedef std::string String;
 
     /**
+     * @typedef
+     * @brief OrderPriority
+     */
+    typedef UNSIGNED_SHORT OrderPriority;
+
+    /**
       * @typedef
       * @brief GTC_GTD_Date
       */
     typedef UNSIGNED_LONG GTD_Date;
-  
+
     /**
      * @typedef
      * @brief UCHAR
@@ -260,6 +309,161 @@ namespace API2
      * @brief INTEGER64
      */
     typedef SIGNED_LONG INTEGER64;
+
+    /**
+     * @typedef
+     * @brief PlatformType
+     */
+    typedef UNSIGNED_SHORT PlatformType;
+
+    /**
+     * @typedef
+     * @brief ConfirmationType
+     */
+    typedef UNSIGNED_SHORT ConfirmationType;
+
+    /**
+     * @typedef
+     * @brief TradeReportId
+     */
+    typedef UNSIGNED_LONG TRADE_REPORT_ID;
+
+    /**
+     * @typedef
+     * @brief TradeMatchId 
+     */
+    typedef std::string TRADE_MATCH_ID ;
+
+    /**
+     * @typedef
+     * @brief TradeId 
+     */
+    typedef std::string TRADE_ID ;
+
+    /**
+     * @typedef
+     * @brief PreviouslyReported flag
+     */
+    typedef bool PREVIOUSLY_REPORTED;
+
+    /**
+     * @typedef
+     * @brief TradeDate
+     */
+    typedef UNSIGNED_LONG TRADE_DATE ;
+
+    /**
+     * @typedef
+     * @brief TransactTime
+     */
+    typedef UNSIGNED_LONG TRANSACT_TIME ;
+
+    /**
+     * @typedef
+     * @brief PartyId 
+     */
+    typedef std::string PARTY_ID ;
+
+    /**
+     * @typedef
+     * @brief AllocId 
+     */
+    typedef std::string ALLOC_ID ;
+    
+    /**
+     * @typedef
+     * @brief CopyIndicator
+     */
+    typedef bool COPY_INDICATOR ;
+
+    /**
+     * @typedef
+     * @brief TradeType 
+     */
+    typedef int TRD_TYPE ;
+    
+    /**
+     * @typedef
+     * @brief AggressorIndicator
+     */
+    typedef bool AGGRESSOR_INDICATOR ;
+
+    /**
+     * @typedef
+     * @brief AllocationAccount
+     */
+    typedef std::string ALLOC_ACCOUNT ;
+
+    /**
+     * @typedef
+     * @brief IndividualAllocId 
+     */
+    typedef std::string INDIVIDUAL_ALLOC_ID ;
+
+    /**
+     * @typedef
+     * @brief AMT
+     */
+    typedef UNSIGNED_LONG AMT ;
+
+    /**
+     * @typedef
+     * @brief TradeFeeType
+     */
+    typedef std::string TRADE_FEE_TYPE ;
+
+    /**
+     * @typedef
+     * @brief Text
+     */
+    typedef std::string TEXT ;
+
+    /**
+     * @typedef
+     * @brief OrderReference
+     */
+    typedef std::string ORDER_REFERENCE ;
+
+    /**
+     * @typedef
+     * @brief DealNumber
+     */
+    typedef SIGNED_INTEGER DEAL_NUMBER ;
+
+    /*
+     * @typedef
+     * @brief Delivery Unit
+     * */
+    typedef SIGNED_INTEGER DELIVERY_UNIT ;
+
+    /*
+     * @typedef
+     * @brief Side Num
+     * */
+    typedef int SIDE_NUM ;
+    
+    /*
+     * @typedef
+     * @brief Account
+     * */
+    typedef std::string ACCOUNT ;
+
+    /**
+     * @typedef
+     * @brief OrderCategory
+     */
+    typedef UNSIGNED_SHORT OrderCategory;
+
+    /**
+     * @brief AlgoId
+     */
+    typedef SIGNED_LONG  AlgoId;
+
+    /**
+     * @brief AlgoCategory
+     */
+    typedef short  AlgoCategory;
+
   }
 }
 #endif

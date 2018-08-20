@@ -1,5 +1,6 @@
 #ifndef API2_TIME_H
 #define API2_TIME_H
+#include <sharedDefines.h>
 #include <vector>
 #include <algorithm>
 #include <time.h>
@@ -23,6 +24,14 @@
 #define HFT_Record_Timer(histogram)
 #endif
 
+namespace ut
+{
+  ///
+  /// \brief spinlock_t
+  ///
+  typedef volatile int spinlock_t;
+}
+
 namespace API2 {
 
   namespace COMMON {
@@ -31,7 +40,13 @@ namespace API2 {
 
     struct timespec diff(struct timespec start, struct timespec end);
 
-    struct LatencyNumbers{
+    struct LatencyNumbers
+    {
+      /**
+       * @brief _lock - used to synchronize the usage of _values and _outFile when used in multiple threads
+       */
+      ut::spinlock_t _lock;
+
       std::string _dataSetName;
       std::vector<UNSIGNED_LONG> _values;
       void record(UNSIGNED_LONG value);

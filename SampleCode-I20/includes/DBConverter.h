@@ -20,6 +20,7 @@ namespace API2
     std::string getDBString(const UNSIGNED_SHORT );
     std::string getDBString(const short );
     std::string getDBString(const AccountDetail &);
+    std::string getDBString(const StringList &);
   }
 }
 #endif

@@ -100,6 +100,7 @@ namespace API2 {
      * @param bytes start index of char, auto adjusted according to size of val after serialization
      */
     void serialize(const std::string &val, char *buf, int &bytes);
+    void serialize(const std::string &val, char *buf, long &bytes);
 
     void serialize(const char *val, size_t size,char *buf, int &bytes);
 
@@ -231,6 +232,7 @@ namespace API2 {
      * @param offset start index of char, auto adjusted according to size of val after deserialization
      */
     void deSerialize(std::string &val, const char *buf, int &offset);
+    void deSerialize(std::string &val, const char *buf, long &offset);
     void deSerialize(char *val, size_t size,const char *buf, int &offset);
 
     /**

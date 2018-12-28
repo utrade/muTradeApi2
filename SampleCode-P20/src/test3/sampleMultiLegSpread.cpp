@@ -342,7 +342,7 @@ namespace API2{
 
     API2::DATA_TYPES::PRICE Context::getPrice()
     {
-
+      return _userParams._price1;
     }
 
     void TestDriver(void *params)

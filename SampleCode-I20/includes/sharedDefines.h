@@ -74,7 +74,6 @@ typedef MapULong::const_iterator MapULongIter;
 #define USE_EXCHANGE_ORDER_ID_FOR_REFERENCE 1
 
 #ifdef FRONTEND_COMPILATION
-#define RMS_DUMP_LOGS 0
 /**
  *usede to copy data from a string to other string
  **/

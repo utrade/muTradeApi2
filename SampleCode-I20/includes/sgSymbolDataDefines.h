@@ -8,6 +8,8 @@
 #include <apiConstants.h>
 namespace API2  {
 
+  typedef std::map< long, long > MultiTickMap ;
+
   /**
  * @brief The API_SymbolStaticData struct
  */
@@ -348,7 +350,7 @@ namespace API2  {
      */
     int spreadMaturityDay;
 
-    std::map< double, double > _mapMultiTickSize ;
+    MultiTickMap _mapMultiTickSize ;
 
     /**
      * @brief priceUnit
@@ -476,8 +478,10 @@ namespace API2  {
         const API2::DATA_TYPES::ExchangeId targetExchange,
         int yearMon2 = 0);
 
-    double getTickSizeForPrice( double price ) ;
-    void insertTickSizeForPrice( double price, double tickSize ) ;
+    bool tickComparer( MultiTickMap::value_type &a,
+        MultiTickMap::value_type &b) ;
+    long getTickSizeForPrice( long price ) const;
+    void insertTickSizeForPrice( long price, long tickSize ) ;
 
   };
     /**
@@ -519,7 +523,7 @@ namespace API2  {
      * @param SymbolStaticData : static data object by reference
      * @return 0 on sucess and -1 when unsuccessful
      * */
-  int getStaticData(long symbolId, API2::SymbolStaticData& sd);
+  int getStaticData(SIGNED_LONG symbolId, API2::SymbolStaticData& sd);
     
     /**
      * @brief getStaticData is for gettng scrip detail of a symbol

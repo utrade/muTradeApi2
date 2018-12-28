@@ -142,13 +142,20 @@ namespace API2
        */
       CREATE_FIELD( COMMON::MarketDataWrapper, Quote);
 
+      /**
+       * @brief Temp Quote for internal processing
+       */
+      CREATE_FIELD( COMMON::MarketDataWrapper, TempQuote);
 
       /**
        * @brief IsSnapShot, If Set true, will provide Snapshot Data, else Tick-By-Tick Data
        */
-    bool _IsSnapShot;
+      bool _IsSnapShot;
 
-    bool _IsTbt;
+      /**
+       * @brief _IsTbt, If Set true, will provide Tbt feed
+       */
+      bool _IsTbt;
 
       /**
        * @brief multiplier
@@ -209,8 +216,13 @@ namespace API2
        * */
       CREATE_FIELD( bool, IsPreTrade );
 
+      /**
+       * @brief DepthSize
+       * Max depth to process
+       * */
+      const size_t _depthSize;
 
-    private:
+      private:
 
       Currency::CurrencyType _currencyType;
       int _precision;
@@ -316,7 +328,7 @@ namespace API2
        * @brief getLastTradeTime
        * @return
        * In TBT Trade time in millisecond from 01 Jan 1980  00:00:00
-       * To convert in Normal time : (lastTradeTime / 1000) + SECS_1980_1970
+       * To convert in Normal time : (lastTradeTime / NANO_MULTIPLIER) + SECS_1980_1970
        */
       DATA_TYPES::LAST_TRADE_TIME getLastTradeTime();
 
@@ -404,7 +416,7 @@ namespace API2
        * @param isSnapshot
        * @return
        */
-    bool subscribe(DATA_TYPES::SYMBOL_ID symbol, bool isSnapshot, bool isTbt);
+      bool subscribe(DATA_TYPES::SYMBOL_ID symbol, bool isSnapshot, bool isTbt);
 
       /**
        * @brief unsubscribe
@@ -415,8 +427,10 @@ namespace API2
        * @brief MktData
        * @param symbolId
        * @param isSnapshot
+       * @param isTbt
+       * @param depthSize
        */
-    MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true, bool isTbt = false);
+      MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true, bool isTbt = false,size_t depthSize = CONSTANTS::MarketDepthArraySize);
 
       //MktData();
       ~MktData();

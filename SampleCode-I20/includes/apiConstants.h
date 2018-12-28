@@ -1,6 +1,8 @@
 #ifndef API_CONSTANTS
 #define API_CONSTANTS
 #include <stddef.h>
+#include "apiDataTypes.h"
+
 namespace API2
 {
   namespace CONSTANTS
@@ -9,7 +11,7 @@ namespace API2
     /**
      * @brief MarketDepthArraySize
      */
-    const size_t MarketDepthArraySize = 20;
+    const size_t MarketDepthArraySize = 10;
 
     /**
      * @brief RSP_OrderStatus_PENDING
@@ -892,7 +894,9 @@ namespace API2
     const unsigned short CMD_ExchangeId_NYBOT = 77;
     const unsigned short CMD_ExchangeId_NYSELIFFE = 78;
     const unsigned short CMD_ExchangeId_NSEIFSC = 79;
-    const unsigned short CMD_ExchangeId_MAX = 80;
+    const unsigned short CMD_ExchangeId_NSECOM = 80;
+    const unsigned short CMD_ExchangeId_BSECOM = 81;
+    const unsigned short CMD_ExchangeId_MAX = 82;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1166,6 +1170,35 @@ namespace API2
      */
     const unsigned short CMD_InstrumentType_IVX = 4; // NSE new instrument type
 
+    /**
+     * @brief CMD_InstrumentType_ENERGY
+     */
+    const unsigned short CMD_InstrumentType_ENERGY = 5;
+
+    /**
+     * @brief CMD_InstrumentType_METAL
+     */
+    const unsigned short CMD_InstrumentType_METAL = 6;
+
+    /**
+     * @brief CMD_InstrumentType_BULLION
+     */
+    const unsigned short CMD_InstrumentType_BULLION = 7;
+
+    /**
+     * @brief CMD_InstrumentType_BASE_METAL
+     */
+    const unsigned short CMD_InstrumentType_BASE_METAL = 8;
+
+    /**
+     * @brief InstrumentType_PRECIOUS_METAL
+     */
+    const unsigned short CMD_InstrumentType_PRECIOUS_METAL = 9;
+
+    /**
+     * @brief CMD_InstrumentType_COMMODITY
+     */
+    const unsigned short CMD_InstrumentType_COMMODITY = 10;
 
 
     /************************************************************************************************************************/
@@ -1437,6 +1470,41 @@ namespace API2
     const unsigned int CMD_CommandCategory_TERMINATE_STRATEGY = 7; 
 
     /**
+     * @brief CMD_CommandCategory_NSECOM_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_NSECOM_DISCONNECTED = 149;
+   
+    /**
+     * @brief CMD_CommandCategory_NSECM_MarketSession_PREOPEN
+     */
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_PREOPEN = 151;
+
+    /**
+     * @brief CMD_CommandCategory_NSECM_MarketSession_OPEN
+     */
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_OPEN = 152;
+
+    /**
+     * @brief CMD_CommandCategory_NSECM_MarketSession_PREOPEN_CLOSED
+     */
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_PREOPEN_CLOSED=153;
+
+    /**
+     * @brief CMD_CommandCategory_NSECM_MarketSession_POST_CLOSED
+     */
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_POST_CLOSED=154;
+
+    /**
+     * @brief CMD_CommandCategory_NSEFO_MarketSession_OPEN
+     */
+    const unsigned short CMD_CommandCategory_NSEFO_MARKETSESSION_OPEN=155;
+
+    /**
+     * @brief CMD_CommandCategory_NSECDS_MarketSession_OPEN
+     */
+    const unsigned short CMD_CommandCategory_NSECDS_MARKETSESSION_OPEN=156;
+
+    /**
      * @brief CMD_CommandCategory_MAX
      */
     const unsigned int CMD_CommandCategory_MAX = 6001;
@@ -1637,6 +1705,12 @@ namespace API2
      * @brief CMD_CONFIRMATION_TYPE_MAX - invalid confirmation type
      */
     const short CMD_CONFIRMATION_TYPE_MAX = 2;
+
+    /**
+     * @brief RSP_ErrorCode_ORDER_CANNOT_BE_MODIFIED_NSE
+     * Comes If Some Parameter is wrong while sending an order
+     */
+    const DATA_TYPES::ERROR_CODE RSP_ErrorCode_ORDER_CANNOT_BE_MODIFIED_NSE = 16346;
   }
 }
 #endif

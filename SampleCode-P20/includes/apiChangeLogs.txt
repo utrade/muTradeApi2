@@ -1,0 +1,62 @@
+07 Sep, 2018
+- API version increased from 2.1.9 to 2.1.10
+- Signature of createNewInstrument and reqRegisterMarketData (file : sgContext.h) changed. It contains a new argument named depthSize which is having default value MarketDepthArraySize (value = 10, refer apiConstants.h) which indicated that upto which level of depth need to be processed by algo at base level. Existing users will not get impacted and there is no need to change in code. If user want some optimisations for data processing in api base infra, it can be reduced to desirable value. Same applies for MktData class constructor (file : sgMktData.h) signature.
+
+// CONSTANTS::MarketDepthArraySize is 10 in P2
+
+COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,
+                                        boolregMktData, 
+                                        bool useSnapShot=true, 
+                                        bool useTbt=false, 
+                                        bool useOhlc=false,
+                                        size_t depthSize = CONSTANTS::MarketDepthArraySize);
+
+==============================================================================
+//Snapshot
+COMMON::Instrument* instrument = createNewInstrument(symbolId,true,true,false,false,5); // last param can be from 1-10
+//TBT
+COMMON::Instrument* instrument = createNewInstrument(symbolId,true,false,true,false,5); // last param can be from 1-10
+//Both Snapshot and TBT
+COMMON::Instrument* instrument = createNewInstrument(symbolId,true,true,true,false,5); // last param can be from 1-10
+===============================================================================
+
+//MktData class object
+MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true,bool isTbt = false, size_t depthSize = CONSTANTS::MarketDepthArraySize);
+
+===============================================================================
+//Snapshot
+MktData* mkData = new MktData(symbolId, true, false, 5); // last param can be from 1-10
+//TBT
+MktData* mkData = new MktData(symbolId, false, true, 5); // last param can be from 1-10
+//Both Snapshot and TBT
+MktData* mkData = new MktData(symbolId, true, true, 5); // last param can be from 1-10
+===============================================================================
+
+//reqRegisterMarketData
+bool reqRegisterMarketData( 
+    DATA_TYPES::SYMBOL_ID symbolId,
+    bool isSnapshot = true,
+    bool isTbt = false,
+    bool isOhlc = false,
+    size_t depthSize = CONSTANTS::MarketDepthArraySize);
+
+===============================================================================
+//Snapshot
+reqRegisterMarketData(symbolId, true, false, false, 5); // last param can be from 1-10
+//TBT
+reqRegisterMarketData(symbolId, false, true, false, 5); // last param can be from 1-10
+//Both Snapshot and TBT
+reqRegisterMarketData(symbolId, true, true, false, 5); // last param can be from 1-10
+===============================================================================
+
+- Added a TempQuote object in MktData class which is being used internally by base infra. depthSize constant member is also added in same class which indicates maximum depth level to process for each algo.
+- dump method which takes debugObject as an argument, exposed in MktData class.
+- Some methods exposed in AccountDetail class along with custom copy constructor, copy assignment operator and destructor.
+- Exposed order priority param in Single Order class to make it compatible with internal structure.
+- Optimisations in market data processing, state manager and some other minor optimisations in overall api flow.
+- DEBUG_FLUSH which flushes logs into respective file was there during confirmation processing at base level. It is removed in current version. User need to take care of this at their algo level.
+- MarketData subscription behaviour changed in this version. Previously, if user was passing snapshot flag false, it was considered tbt flag true internally. Athough signature was accepting different flag for tbt and snapshot. Now it is made mandatory to pass appropriate flag while subscribing.
+Files : sgMktData.h, sgContext.h
+Methods : 
+        bool subscribe(DATA_TYPES::SYMBOL_ID symbolId, bool isSnapshot, bool isTbt)
+        MktData(DATA_TYPES::SYMBOL_ID symbolId, bool isSnapshot, bool isTbt, size_t depthSize)

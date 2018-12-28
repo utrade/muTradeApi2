@@ -74,10 +74,16 @@ namespace API2
        * both can be registered together 
        * if both UseSnapshot and UseTbt are passed false then we will create snapshot marketData by default 
        * @param useOhlc Set True if OHLC Heed is also required
+       * @param depthSize depth which need to be processed during algo execution
        * @throw MarketDataSubscriptionFailedException
        * @return COMMON::Instrument Pointer
        */
-      COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,bool regMktData, bool useSnapShot=true, bool useTbt=false, bool useOhlc=false);
+      COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,
+                                              bool regMktData, 
+                                              bool useSnapShot=true, 
+                                              bool useTbt=false, 
+                                              bool useOhlc=false,
+                                              const size_t depthSize = CONSTANTS::MarketDepthArraySize);
 
     /**
        * @brief createNewInstrument To add a new Instrument in the strategy \n
@@ -117,12 +123,18 @@ namespace API2
        * @param useTbt Set True to use TBT-Feed
        * both can be registered together
        * @param useOhlc Set True if OHLC Heed is also required
+       * @param depthSize depth which need to be processed during algo exxecution
        * @return COMMON::Instrument Pointer
        * @throw MarketDataSubscriptionFailedException
        *
        * DEFAULT source will be replaced with TT, IB, OT etc (whichever applicable) if connecting through different broker
        */
-      COMMON::Instrument * createNewInstrument(const std::string &instrumentName, bool regMktData=false, bool useSnapShot=true, bool useTbt=false, bool useOhlc=false);
+      COMMON::Instrument * createNewInstrument(const std::string &instrumentName,
+                                               bool regMktData=false, 
+                                               bool useSnapShot=true, 
+                                               bool useTbt=false, 
+                                               bool useOhlc=false,
+                                               const size_t depthSize = CONSTANTS:: MarketDepthArraySize);
 
     /**
        * @brief createNewOrder To create a New Order for an instrument
@@ -382,13 +394,15 @@ namespace API2
        * @param isSnapshot
        * @param isTbt
        * @param isOhlc
+       * @param depthSize Max depth to process
        * @return
        */
       bool reqRegisterMarketData(
           DATA_TYPES::SYMBOL_ID symbolId,
           bool isSnapshot = true,
           bool isTbt = false,
-          bool isOhlc = false
+          bool isOhlc = false,
+          const size_t depthSize = CONSTANTS::MarketDepthArraySize
           );
 
       /**
@@ -428,13 +442,15 @@ namespace API2
        * @param isTbt
        * Both Can be subscribed simultaneously
        * @param isOhlc
+       * @param depthSize Max depth to process
        * @return
        */
       bool reqRegisterMarketData(
           const std::string &instrumentName,
           bool isSnapshot = true,
           bool isTbt = false,
-          bool isOhlc = false
+          bool isOhlc = false,
+          const size_t depthSize = CONSTANTS::MarketDepthArraySize
           );
 
     /**
@@ -750,6 +766,12 @@ namespace API2
        */
     virtual void onCMDAdminCommand(DATA_TYPES::CommandCategory command){}
 
+    /**
+     * @brief onCMDInternalMessage 
+     * This method is being used for internal command handling. User need not overload this in their algo.
+     * @param command
+     */
+    virtual void onCMDInternalMessage(const DATA_TYPES:: CommandCategory &command){}
 
     /***NOTE ** Disconnection type to be created inside Data_TYPES and constants to be added */
     /**

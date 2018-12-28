@@ -114,15 +114,15 @@ namespace API2
         MarketDataWrapper();
 
         /**
+         * @brief reset will set the value of all its member variables to zero
+         */
+        void reset(const size_t &size); 
+
+        /**
          * @brief toString will return formatted Market Picture for debug purpose
          * @return
          */
         std::string toString();
-
-        /**
-         * @brief Reset will set value of its member variables to zero
-         */
-        void reset(const size_t &size); 
 
         /**
          * @brief operator ==

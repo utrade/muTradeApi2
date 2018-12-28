@@ -2,7 +2,7 @@
 #define api2_UserParams_h
 #include <baseCommands.h>
 
-#define API2_VERSION_STRING "2.1.9"
+#define API2_VERSION_STRING "2.1.10"
 
 namespace API2 {
 

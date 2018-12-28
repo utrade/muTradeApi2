@@ -464,6 +464,12 @@ namespace API2
      */
     typedef short  AlgoCategory;
 
+    /**
+     * @typedef
+     * @brief ERROR_CODE
+     */
+    typedef UNSIGNED_LONG ERROR_CODE;
+
   }
 }
 #endif

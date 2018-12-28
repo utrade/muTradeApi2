@@ -1,0 +1,69 @@
+19 Sep, 2018
+- DEBUG_FLUSH which flushes logs into respective file was there during confirmation processing at base level. It is removed in current version. User need to take care of this at their algo level.
+
+25 Oct, 2018
+-Added new field amount(price*qty) in struct InstrumentPosition.
+
+29 Oct, 2018
+-Added new Instrument types in apiconstants
+
+9 Nov, 2018
+- API version increased from 2.2.6 to 2.2.7
+- Signature of createNewInstrument and reqRegisterMarketData (file : sgContext. h) changed. It contains a new argument named depthSize which is having default value MarketDepthArraySize (value = 20, refer apiConstants.h) which indicated that upto which level of depth need to be processed by algo at base level.Existing users will not get impacted and there is no need to change in code.If user want some optimisations for data processing in api base infra, it can be reduced to desirable value. Same applies for MktData class constructor (file : sgMktData.h) signature.
+
+// CONSTANTS::MarketDepthArraySize is 10
+
+COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,
+                                        boolregMktData, 
+                                        bool useSnapShot=true, 
+                                        bool useTbt=false, 
+                                        bool useOhlc=false,
+                                        size_t depthSize = CONSTANTS::MarketDepthArraySize);
+
+==============================================================================
+//Snapshot
+COMMON::Instrument* instrument = createNewInstrument(symbolId,true,true,false,false,5); // last param can be from 1-10
+//TBT
+COMMON::Instrument* instrument = createNewInstrument(symbolId,true,false,true,false,5); // last param can be from 1-10
+//Both Snapshot and TBT
+COMMON::Instrument* instrument = createNewInstrument(symbolId,true,true,true,false,5); // last param can be from 1-10
+===============================================================================
+
+//MktData class object
+MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true,bool isTbt = false, size_t depthSize = CONSTANTS::MarketDepthArraySize);
+
+===============================================================================
+//Snapshot
+MktData* mkData = new MktData(symbolId, true, false, 5); // last param can be from 1-10
+//TBT
+MktData* mkData = new MktData(symbolId, false, true, 5); // last param can be from 1-10
+//Both Snapshot and TBT
+MktData* mkData = new MktData(symbolId, true, true, 5); // last param can be from 1-10
+===============================================================================
+
+//reqRegisterMarketData
+bool reqRegisterMarketData( 
+    DATA_TYPES::SYMBOL_ID symbolId,
+    bool isSnapshot = true,
+    bool isTbt = false,
+    bool isOhlc = false,
+    size_t depthSize = CONSTANTS::MarketDepthArraySize);
+
+===============================================================================
+//Snapshot
+reqRegisterMarketData(symbolId, true, false, false, 5); // last param can be from 1-10
+//TBT
+reqRegisterMarketData(symbolId, false, true, false, 5); // last param can be from 1-10
+//Both Snapshot and TBT
+reqRegisterMarketData(symbolId, true, true, false, 5); // last param can be from 1-10
+===============================================================================
+
+- Added a TempQuote object in MktData class which is being used internally by base infra. depthSize constant member is also added in same class which indicates maximum depth level to process for each algo.
+- Optimisations in market data processing, state manager and some other minor optimisations in overall api flow.
+
+15 Nov, 2018
+Added new function "resetPosition" in class InstrumentPosition which is used to reset intrument positions to zero.
+
+22 Nov, 2018
+- API version increased from 2.2.7 to 2.2.8
+- CONSTANTS::MarketDepthArraySize configurable param's default value changed to 10. Previously, it was 20.  

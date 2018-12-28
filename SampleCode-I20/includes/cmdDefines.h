@@ -51,6 +51,10 @@ public : TYPE &getRef##NAME() {  return _##NAME.getRefValue() ; } \
 public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
 protected : API2::DerivedType<TYPE> _##NAME
 
+#define CREATE_FIELD_DERIVED_WITHOUT_GETTERS( TYPE, NAME ) \
+public : void set##NAME(const TYPE &value ) { _##NAME.setValue(value); } \
+protected : API2::DerivedType<TYPE> _##NAME
+
 #define CREATE_FIELD_PTR( TYPE, NAME ) \
   public : TYPE* get##NAME() {  return _##NAME ; } \
 public : TYPE* &getRef##NAME() {  return _##NAME ; } \

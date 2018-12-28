@@ -20,8 +20,15 @@ extern "C"
      */
     class SingleOrder
     {
+       public:
+         enum OrderPriority{
+           NoPriority,
+           LowPriority,
+           HighPriority,
+           MaxPriority
+         };
 
-      protected:
+       protected:
 
         //    SingleOrderImpl *pimpl;
 
@@ -197,6 +204,8 @@ extern "C"
 
         CREATE_FIELD(bool, Priority);
 
+        CREATE_FIELD(OrderPriority, SingleOrderPriority);
+        
         /**
          * @brief _AlgoId
          **/
@@ -719,7 +728,7 @@ extern "C"
          * @brief setAccountDetails
          * @param detail
          */
-        void setAccountDetails(AccountDetail detail);
+        void setAccountDetails(const AccountDetail& detail);
 
         /**
          * @brief getLocationId

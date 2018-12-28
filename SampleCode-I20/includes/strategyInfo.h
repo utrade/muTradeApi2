@@ -18,7 +18,7 @@ namespace INVOKING
        * @param orderMode
        * @return returns Position
        */
-      Position* getPosition( long symbolId, UNSIGNED_SHORT orderMode );
+      Position* getPosition( SIGNED_LONG symbolId, UNSIGNED_SHORT orderMode );
 
       /**
        * @brief getExSpread gets the execution spread of child strategy

@@ -39,6 +39,11 @@ namespace API2
         const SIGNED_LONG &traderId,
         const char *panNumber
         );
+
+    AccountDetail(const AccountDetail& other);
+    AccountDetail& operator=(const AccountDetail& other);
+    ~AccountDetail();
+
     void setAccountId(const char *accountId);
     void setAccountType(char type);
     void setLocationId(UNSIGNED_LONG locationId);
@@ -50,6 +55,9 @@ namespace API2
     SIGNED_LONG getTraderId() const;
     UNSIGNED_LONG getLocationId() const;
     const char *getPanNumber() const;
+    
+    char *getRefAccountId();
+    SIGNED_LONG& getRefTraderId();
   };
 
 

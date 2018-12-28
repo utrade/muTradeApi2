@@ -73,11 +73,23 @@ namespace API2{
       DATA_TYPES::PRICE getAvgPrice(const DATA_TYPES::OrderMode &mode);
 
       /**
+       ** @brief getAmount, Get amount(price*qty) of requested order mode
+       ** @param mode
+       ** @return returns total amount traded uptill now of requested order mode
+       **/
+      UNSIGNED_LONG getAmount(const DATA_TYPES::OrderMode mode);
+      
+      /**
        * @brief getPendingQty, To get Quantity Pending (or not filled)
        * @param mode
        * @return
        */
       UNSIGNED_LONG getPendingQty(const DATA_TYPES::OrderMode &mode);
+
+      /**
+       * @brief resetPosition, reset all position to zero
+       */
+      void resetPosition();
 
 #if API_COMPILATION == 0
 #include <sgInstrumentPosition.ph> 
@@ -129,8 +141,9 @@ namespace API2{
        * Format: Buy Qty <delimeter> Sell Qty <delimeter> Buy Avg Price <delimeter> Sell Avg Price
        * @param positionString
        * @param delimiter
+       * @param updateFromAmount set true when position is to be updated using amount
        */
-      void updatePositionFromString(const std::string &positionString,const char *delimiter="|");
+      void updatePositionFromString(const std::string &positionString,const char *delimiter="|", const bool updateFromAmount = false);
 
       /**
        * @brief getPositionString

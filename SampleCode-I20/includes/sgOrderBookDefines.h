@@ -58,6 +58,14 @@ namespace API2   {
      * @param order
      */
     void alignOrders(CMD::SingleOrder * order);
+    
+    /**
+     * @brief isCancelOrderPending checks if an cancel order is in pending state or not
+     * param cancelOrderId
+     * return true if order is in pending state else return false
+     */
+    bool isCancelOrderPending( const UNSIGNED_LONG cancelOrderId );
+
     // Client order Id to order mapping
     boost::unordered_map<DATA_TYPES::CLORDER_ID, CMD::SingleOrder*> _orderBook;
     //boost::unordered_map<long, CMD::ThreeLegOrder*> _orderBookThreeLeg;

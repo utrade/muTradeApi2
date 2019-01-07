@@ -1,5 +1,5 @@
-add_library(Iceberg MODULE
+add_library(Sniper MODULE
   externalInterface.cpp
   ../../common/orderWrapper.cpp
-  icebergStrategy.cpp
+  sniperStrategy.cpp
   )

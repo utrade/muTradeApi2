@@ -293,6 +293,7 @@ void Icebergui::updateSymbolIdsDetail(int row, bool isUpdateAll)
 
 bool Icebergui::buildCommandFromUi(API2::PORTFOLIO_STATE state)
 {
+    qlonglong defaultSymbolId = 0;
     _iceBergParams->_adminTokenId->setValue(0);
     _iceBergParams->_clientId->setValue(getBaseWrapper()->getUserId());
     _iceBergParams->_strategyId->setValue(0);
@@ -751,6 +752,7 @@ void Icebergui::updateTrades(const RSP::OrderConfirmation &orderConfirmation)
 {
     qlonglong totalQty = 0;
     qlonglong tradedQty = 0;
+    qlonglong previousTradedQuantiy = 0;
     QSqlQuery query;
     query.prepare("SELECT " + _iceBergParams->_symbolIdOne->getParamName() + ", " + _iceBergParams->_adminTokenId->getParamName() + ", " + _iceBergParams->_portfolioId->getParamName() + " FROM " +getBaseWrapper()->getstrategyName() + " WHERE " + _iceBergParams->_strategyId->getParamName() + " =:" + _iceBergParams->_strategyId->getParamName() + " order by "+_iceBergParams->_adminTokenId->getParamName() + " desc");
     query.bindValue(":"+_iceBergParams->_strategyId->getParamName(),orderConfirmation.getStrategyId());
@@ -1028,6 +1030,8 @@ void Icebergui::receiveCustomResponse(API2::API2_CustomResponse &apiCustomRespon
     std::cout<<_iceBergParams->_tradedQtyLegOne->getParamName().toStdString().c_str()<<std::endl;
 #endif
     //UPDATE TRADED QUANTITY IN DATABASE
+    qlonglong symbolId = getBaseWrapper()->getLegsSymbolId(API2::FIRST_LEG);
+    const API2:: SymbolDetail &sd = getBaseWrapper()->getSymbolIdDetail(symbolId);
     QSqlQuery sqlQuery;
     sqlQuery.prepare("UPDATE "+getBaseWrapper()->getstrategyName() +" SET " + _iceBergParams->_tradedQtyLegOne->getParamName() + " = :" + _iceBergParams->_tradedQtyLegOne->getParamName() + " WHERE " + _iceBergParams->_adminTokenId->getParamName() + " = :" + _iceBergParams->_adminTokenId->getParamName());
     sqlQuery.bindValue(":" +  _iceBergParams->_tradedQtyLegOne->getParamName(),_tradedQuantity);

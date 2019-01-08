@@ -36,6 +36,7 @@ SET(LIBRARY_OUTPUT_PATH ${muTrade_SOURCE_DIR}/bin)
 
 add_subdirectory( Iceberg )
 add_subdirectory( Sniper )
+add_subdirectory( BracketOrder )
 
 set(CPACK_COMPONENTS_ALL applications)
 set(CPACK_GENERATOR "STGZ")

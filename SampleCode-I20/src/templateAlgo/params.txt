@@ -1,0 +1,10 @@
+[SYMBOL]
+SYMBOL LEG1=UINT64:C:1:Symbol Leg1
+Order Mode 1=UCHAR:0:1
+Acc Detail 1=ACCOUNT
+
+[STRATEGY_PARAMS]
+TotalQuantity=UINT64:SPINBOX:0:9999999:0:Q:Quantity:1:0:0
+OrderQuantity=UINT64:SPINBOX:0:9999999:0:Q:Quantity:1:0:0
+
+[OTHER]

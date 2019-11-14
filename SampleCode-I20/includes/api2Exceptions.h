@@ -48,10 +48,26 @@ namespace API2 {
     const char* what() const throw ();
   };
 
+  /**
+   * @brief If security type is not valid
+   * @return
+   */
   struct InvalidInstrumentException : public std::exception {
 
     const char* what() const throw ();
   };
+
+  /**
+   * @brief The writeToDatabaseFailed struct
+   */
+  struct writeToDatabaseFailedException : public std::exception {
+    /**
+     * @brief what
+     * @return
+     */
+    const char* what() const throw() ;
+  };
+
 
 }
 

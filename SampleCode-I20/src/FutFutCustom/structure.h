@@ -1,10 +1,10 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
 
-#include "../api_includes/sgContext.h"
+#include <sgContext.h>
 #include "../common/common.h"
-#include "../api_includes/sgMktData.h"
-#include "../api_includes/sgDebugLogDefines.h"
+#include <sgMktData.h>
+#include <sgDebugLogDefines.h>
 
 namespace SampleFutFutArbitrage{
 

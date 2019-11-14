@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sharedResponse.h>
 #include <queue>
+
 namespace API2
 {
 
@@ -143,10 +144,50 @@ namespace API2
     bool _active;
     bool _printOnExit;
     DebugLog *_file;
-    std::queue<AbstractSingle *> logs;
 
+    /**
+     * @brief _logs -   queue to store log objects
+     * @note            this is used when single thread is being used to push logs and pop them and dump in ofstream
+     */
+    std::queue<AbstractSingle *> _logs;
+
+    /////////////   Locked logs ////////////
+
+    //  The below structures are used when logging is done in multiple threads
+    //  single thread will add to logs
+    //  and multiple threads may pop the logs and dump in ofstream
+    //  _logVector1, _logVector2 : one of these will be used for pushing the logs and the other will be dumped
+
+    /**
+     * @brief _useLocksWhilePoppingLogsAndFileDumping   -   access logs in multiple threads or not
+     */
+    bool _useLocksWhilePoppingLogsAndFileDumping;
+
+    /**
+     * @brief _spinLockForFileLogging   -   spin lock on _file logging
+     */
+    volatile int _spinLockForFileLogging;
+
+    /**
+     * @brief _spinLock -   lock over the log vectors
+     */
     volatile int _spinLock;
-    bool _useSpinLock;
+
+    /**
+     * @brief _logVector1   -   vector to store logs
+     */
+    std::vector<AbstractSingle *> _logVector1;
+    /**
+     * @brief _logVector2   -   vector to store logs
+     */
+    std::vector<AbstractSingle *> _logVector2;
+
+    /**
+     * @brief _logVector    -   reference to vector on which next log will be pushed and from which logs need to be popped and dumped
+     */
+    std::vector<AbstractSingle *> *_logVector;
+
+    //////////////  Locked logs end ////////////
 
     void print();
     public:
@@ -155,19 +196,58 @@ namespace API2
     void releaseResources();
     void forcePrintLogs();
 
-    void intialize(const bool &printDepth,
+    /**
+     * @brief intialize     -   initialize the object
+     * @param printDepth    -   unused for now
+     * @param flushLogs     -   if logs need to be flushed in print
+     * @param printOnExit   -   if false, logs will be dumped to ofstream in printLogs
+     * @param file          -   debug log file handle
+     * @param useLocksWhilePoppingLogsAndFileDumping    -   use multiple threads when accessing logs
+     */
+    void intialize(
+        const bool &printDepth,
         const bool &flushLogs,
         const bool &printOnExit ,
         API2::DebugLog *file,
-        const bool useLocksWhilePushingLogs = false);
+        const bool useLocksWhilePoppingLogsAndFileDumping = false);
 
     void push(const API2::OrderConfirmation &confirmation);
+
+    /**
+     * @brief takeLock  -   take lock on _logVector
+     */
+    void takeLock();
+
+    /**
+     * @brief releaseLock   -   release lock on _logVector
+     */
+    void releaseLock();
+
+    /**
+     * @brief pushToLogs  -   push to logs vector or queue depending on configuration
+     * @param value
+     */
+    template<class T>
+      void pushToLogs(const T &value)
+      {
+        if(_useLocksWhilePoppingLogsAndFileDumping)
+        {
+          takeLock();
+          _logVector->push_back(value);
+          releaseLock();
+        }
+        else
+        {
+          _logs.push(value);
+        }
+      }
 
     template<class T>
       void push(const char *name,const T &value)
       {
         VariablePair<T> * obj = new VariablePair<T>(name,value);
-        logs.push(obj);
+
+        pushToLogs(obj);
       }
 
     void push(const char *name);
@@ -176,14 +256,16 @@ namespace API2
       void push(const char *name,const T *value,const int &size)
       {
         ArrayPair<T> *obj = new ArrayPair<T>(name,value,size);
-        logs.push(obj);
+
+        pushToLogs(obj);
       }
 
     template<class T,class V>
       void push(const char *name,const T &value1,const V &value2)
       {
         VariablePair2<T,V> * obj = new VariablePair2<T,V>(name,value1,value2);
-        logs.push(obj);
+
+        pushToLogs(obj);
       }
 
     void push(const char * name,const char * value);
@@ -243,24 +325,45 @@ namespace API2
     DebugLog(int strategyId, int);
 
     /**
-     * @brief openDebugLogFile
-     * @param strategyId
-     * @param clientId
+     * @brief openDebugLogFile  -   open debug log file
+     * @param strategyId        -   strategy id : used to create file name
+     * @param clientId          -   dealer id : used to create file name
+     * @param silientMode       -   configurable logging on / off
+     * @param useBufferedLogs   -   use internal queuing instead of direct writing to ofstream
+     * @param printDepthOnConfirmation  -   print depth with confirmation log dumping
+     * @param flushLogs -   if logs need to be flushed by buffered logs
+     * @param printOnExit
+     * @param useLocksWhilePoppingLogsAndFileDumping    -   use locking and multiple threads for log dumping
      */
-    void openDebugLogFile(int strategyId, int clientId, const char *,
+    void openDebugLogFile(
+        int strategyId,
+        int clientId,
+        const char *,
         const bool &silientMode = false,
         const bool &useBufferedLogs = false,
         const bool &printDepthOnConfirmation = false,
         const bool &flushLogs = false,
-        const bool &printOnExit = false);
+        const bool &printOnExit = false,
+        const bool useLocksWhilePoppingLogsAndFileDumping = false);
 
+    /**
+     * @brief openDebugLogFile  -   open debug log file
+     * @param filename          -   file name
+     * @param silientMode       -   configurable logging on / off
+     * @param useBufferedLogs   -   use internal queuing instead of direct writing to ofstream
+     * @param printDepthOnConfirmation  -   print depth with confirmation log dumping
+     * @param flushLogs -   if logs need to be flushed by buffered logs
+     * @param printOnExit
+     * @param useLocksWhilePoppingLogsAndFileDumping    -   use locking and multiple threads for log dumping
+     */
     void openDebugLogFile(
         std::ostringstream &filename,
         const bool &silentMode = false,
         const bool &useBufferedLogs = false,
         const bool &printDepthOnConfirmation = false,
         const bool &flushLogs = false,
-        const bool &printOnExit = false);
+        const bool &printOnExit = false,
+        const bool useLocksWhilePoppingLogsAndFileDumping = false);
 
     /**
      * @brief timeStamp

@@ -2,10 +2,10 @@
 #define FUTFUTNEW_H
 
 #include "../common/common.h"
-#include "../api_includes/api2UserCommands.h"
-#include "../api_includes/api2Exceptions.h"
-#include "../api_includes/sgContext.h"
-#include "../api_includes/cmdDefines.h"
+#include <api2UserCommands.h>
+#include <api2Exceptions.h>
+#include <sgContext.h>
+#include <cmdDefines.h>
 #include "structure.h"
 #include "price.h"
 #include "hedging.h"

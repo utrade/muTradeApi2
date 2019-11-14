@@ -77,6 +77,8 @@ namespace API2
        * @param depthSize depth which need to be processed during algo execution
        * @throw MarketDataSubscriptionFailedException
        * @return COMMON::Instrument Pointer
+       *
+       * NOTE: In case of Indices,by default it will read data from snapshot whether strategy is running on tbt or on snapshot.
        */
       COMMON::Instrument *createNewInstrument(UNSIGNED_LONG symbolId,
                                               bool regMktData, 
@@ -128,6 +130,16 @@ namespace API2
        * @throw MarketDataSubscriptionFailedException
        *
        * DEFAULT source will be replaced with TT, IB, OT etc (whichever applicable) if connecting through different broker
+       *
+       * NOTE: In case of Indices,by default it will read data from snapshot whether strategy is running on tbt or on snapshot.
+       *
+       * For esm, use ESMNSE as exchange
+       * Example: DEFAULT ESMNSE RELIANCE EQ
+       * NOTE:
+       * There's a difference in esm and normal exchanges for cash contracts,
+       * In case of ESMNSE, group name always required to be added when subscribing or getting unique id
+       * In NSECM, for EQ contracts, 'EQ' will not be added in end
+       * In BSECM, for A contracts, 'A' will not be added in end
        */
       COMMON::Instrument * createNewInstrument(const std::string &instrumentName,
                                                bool regMktData=false, 
@@ -181,18 +193,36 @@ namespace API2
     /***********************************************************/
 
     /**
-       * @brief reqNewSingleOrder To Send a new Order
-       * @param riskStatus
-       * @param instrument
-       * @param order
-       * @param orderId
-       * @return
-       */
+     * @brief reqNewSingleOrder To Send a new Order
+     * @param riskStatus  - returns risk status : contains info on which rms check failed
+     * @param instrument  - instrument containing symbol info on which to send order
+     * @param order       - single order
+     * @param orderId     - order id
+     * @param isSpreadOrder - true if spread order, false otherwise
+     * @param validateAccountDetail - true if account detail validation required in rms, false otherwise
+     * @return
+     */
     bool reqNewSingleOrder(DATA_TYPES::RiskStatus &riskStatus,
         COMMON::Instrument *instrument,
         SingleOrder *&order,
         COMMON::OrderId *orderId,
-        bool isSpreadOrder=false);
+        bool isSpreadOrder = false,
+        const bool validateAccountDetail = true);
+
+    /**
+     * @brief validateAccountDetail               - validate account detail for dealer and client code present in exchangeAdapterDetails,
+     *                                              also populate exchangeAdapterDetails with other details if required
+     * @param accountDetail                       - account detail corresponding to which exchange adapter detail required
+     * @param staticData                          - static data of the leg for which getting the details
+     * @param dealerId                            - dealer id
+     * @param exchangeAdapterDetailsToBeReturned  - adapter details to be returned
+     * @return                                    - whether validation is successful
+     */
+    const bool validateAccountDetail(
+        const API2::AccountDetail& accountDetail,
+        const API2::SymbolStaticData& staticData,
+        const int dealerId,
+        const API2::ExchangeAdapterDetails*& exchangeAdapterDetailsToBeReturned);
 
     /**
      *@brief onPendingNewOrder
@@ -270,8 +300,11 @@ namespace API2
      * @param updateQuantity
      * @param orderId
      * @param isSpreadOrder
-       * @return
-       */
+     * @return true if order is replaced sucessfully
+     *         else false(Also it return false if order type is IOC because there is no sense to cancel/replace IOC order)
+     * Note: If modification of IOC order is requested, then false is returned without any processing.
+     *       As there is no meaning to modify IOC order
+     **/
     bool reqReplaceOrder(DATA_TYPES::RiskStatus &riskStatus,
                           COMMON::Instrument *instrument,
                           SingleOrder *&order,
@@ -282,9 +315,13 @@ namespace API2
        * @brief reqCancelOrder To Cancel Order
        * @param riskStatus passed by reference This is the risk status for sending Canceled Order
        * @param orderId
-       * @return
+       * @param ignorePendingState : send cancel request to exchange even if order is in panding state.
+       * @return true if order is cancelled sucessfully
+       *              else false (Also it return false if order type is IOC because there is no sense to cancel/replace IOC order)
+       * Note: If cancellation of IOC order is requested, then false is returned without any processing.
+       *       As there is no meaning to cancel IOC order.
        */
-    bool reqCancelOrder(DATA_TYPES::RiskStatus &riskStatus, COMMON::OrderId *orderId);
+    bool reqCancelOrder(DATA_TYPES::RiskStatus &riskStatus, COMMON::OrderId *orderId, const bool ignorePendingState = false);
 
 
     /**
@@ -314,11 +351,12 @@ namespace API2
 
     /**
        * @brief reqForceTerminateStrategy Called to Terminate Strategy\n
+       * @param isWait - whether strategy will wait untill all the orders gets cancelled before terminating.
        * Default behaviour: \n
        * 1) Cancel All Pending Orders \n
        * 2) Terminate the strategy \n
        */
-    void reqForceTerminateStrategy();
+    void reqForceTerminateStrategy( const bool isWait = true );
 
     /**
      * @brief reqStartAlgo function call to Start the Strategy
@@ -396,6 +434,8 @@ namespace API2
        * @param isOhlc
        * @param depthSize Max depth to process
        * @return
+       *
+       * NOTE: In case of Indices,it can read data only from snapshot,so register index instrument for snapshot.
        */
       bool reqRegisterMarketData(
           DATA_TYPES::SYMBOL_ID symbolId,
@@ -415,28 +455,28 @@ namespace API2
        *        [SOURCE] [EXCHANGE] [Symbol] [Expiry(YYYYMMDD)] [StrikePrice] [C/P(For Call/Put)]
        *        Example:
        *        Cash Segment: 
-       *            for NSE EQ -> NSECM RELIANCE
-       *            Other than EQ say IL -> NSECM RELIANCE IL
-       *            for BSE A -> BSECM RELIANCE
-       *            Other than A say BE -> BSECM RELIANCE BE
+       *            for NSE EQ -> DEFAULT NSECM RELIANCE
+       *            Other than EQ say IL -> DEFAULT NSECM RELIANCE IL
+       *            for BSE A -> DEFAULT BSECM RELIANCE
+       *            Other than A say BE -> DEFAULT BSECM RELIANCE BE
        *            For all other exchages, it will be "EXCH SYMBOL GR"
-       *        Futures Segment: NSEFO RELIANCE 20140828
-       *        Options Segment: NSEFO RELIANCE 20140828 98000 C
+       *        Futures Segment: DEFAULT NSEFO RELIANCE 20140828
+       *        Options Segment: DEFAULT NSEFO RELIANCE 20140828 98000 C
        *
        * 				Spread Contracts
        * 				[SOURCE] [EXCHANGE] [SYMBOL] [Expiry1(YYYYMMDD)] [Expiry2(YYYYMMDD)]
        * 				Example:
-       * 				BSEFO RELIANCE 20151126 20151231
+       * 				DEFAULT BSEFO RELIANCE 20151126 20151231
        *
        * 				Pair, Straddle Contracts
        * 				[SOURCE] [EXCHANGE] [SYMBOL] [Expiry1(YYYYMMDD)] [Expiry2(YYYYMMDD)] [StrikePrice] [C/P(For Call/Put)]
        * 				Example:
-       * 				BSEFO RELIANCE 20151126 20151231 98000 C
+       * 				DEFAULT BSEFO RELIANCE 20151126 20151231 98000 C
        *
        * 				For Indices
        *        [SOURCE] [EXCHANGE] [IndexSymbolName]
        * 				Example:
-       * 				NSECM CNX Nifty, NSECM BANK Nifty, BSECM BSE100
+       * 				DEFAULT NSECM CNX Nifty, NSECM BANK Nifty, BSECM BSE100
        *
        * @param isSnapshot
        * @param isTbt
@@ -444,7 +484,20 @@ namespace API2
        * @param isOhlc
        * @param depthSize Max depth to process
        * @return
+       *
+       * DEFAULT source will be replaced with TT, IB, OT etc (whichever applicable) if connecting through different broker
+       *
+       * NOTE: In case of Indices,it can read data only from snapshot,so register index instrument for snapshot.
+       *
+       * For esm, use ESMNSE as exchange
+       * Example: DEFAULT ESMNSE RELIANCE EQ
+       * NOTE:
+       * There's a difference in esm and normal exchanges for cash contracts,
+       * In case of ESMNSE, group name always required to be added when subscribing or getting unique id
+       * In NSECM, for EQ contracts, 'EQ' will not be added in end
+       * In BSECM, for A contracts, 'A' will not be added in end
        */
+
       bool reqRegisterMarketData(
           const std::string &instrumentName,
           bool isSnapshot = true,
@@ -468,7 +521,8 @@ namespace API2
     void reqSendStrategyResponse(
         DATA_TYPES::ResponseType responseType,
         DATA_TYPES::RiskStatus riskStatus,
-        DATA_TYPES::StrategyComment strategyComment = CONSTANTS::RSP_StrategyComment_MAX
+        DATA_TYPES::StrategyComment strategyComment = CONSTANTS::RSP_StrategyComment_MAX,
+        bool isTerminatedFromFrontEnd = false
         );
 
     /**
@@ -592,30 +646,40 @@ namespace API2
        *        [SOURCE] [EXCHANGE] [Symbol] [Expiry(YYYYMMDD)] [StrikePrice] [C/P(For Call/Put)]
        *        Example:
        *        Cash Segment: 
-       *            for NSE EQ -> NSECM RELIANCE
-       *            Other than EQ say IL -> NSECM RELIANCE IL
-       *            for BSE A -> BSECM RELIANCE
-       *            Other than A say BE -> BSECM RELIANCE BE
+       *            for NSE EQ -> DEFAULT NSECM RELIANCE
+       *            Other than EQ say IL -> DEFAULT NSECM RELIANCE IL
+       *            for BSE A -> DEFAULT BSECM RELIANCE
+       *            Other than A say BE -> DEFAULT BSECM RELIANCE BE
        *            For all other exchages, it will be "EXCH SYMBOL GR"
-       *        Futures Segment: NSEFO RELIANCE 20140828
-       *        Options Segment: NSEFO RELIANCE 20140828 98000 C
+       *        Futures Segment: DEFAULT NSEFO RELIANCE 20140828
+       *        Options Segment: DEFAULT NSEFO RELIANCE 20140828 98000 C
        *
        * 				Spread Contracts
        * 				[SOURCE] [EXCHANGE] [SYMBOL] [Expiry1(YYYYMMDD)] [Expiry2(YYYYMMDD)]
        * 				Example:
-       * 				BSEFO RELIANCE 20151126 20151231
+       * 				DEFAULT BSEFO RELIANCE 20151126 20151231
        *
        * 				Pair, Straddle Contracts
        * 				[SOURCE] [EXCHANGE] [SYMBOL] [Expiry1(YYYYMMDD)] [Expiry2(YYYYMMDD)] [StrikePrice] [C/P(For Call/Put)]
        * 				Example:
-       * 				BSEFO RELIANCE 20151126 20151231 98000 C
+       * 				DEFAULT BSEFO RELIANCE 20151126 20151231 98000 C
        *
        * 				For Indices
        *        [SOURCE] [EXCHANGE] [IndexSymbolName]
        * 				Example:
-       * 				NSECM CNX Nifty, NSECM BANK Nifty, BSECM BSE100
+       * 				DEFAULT NSECM CNX Nifty, DEFAULT NSECM BANK Nifty, DEFAULT BSECM BSE100
        *
+       * DEFAULT source will be replaced with TT, IB, OT etc (whichever applicable) if connecting through different broker
+       *
+       * For esm, use ESMNSE as exchange
+       * Example: DEFAULT ESMNSE RELIANCE EQ
+       * NOTE:
+       * There's a difference in esm and normal exchanges for cash contracts,
+       * In case of ESMNSE, group name always required to be added when subscribing or getting unique id
+       * In NSECM, for EQ contracts, 'EQ' will not be added in end
+       * In BSECM, for A contracts, 'A' will not be added in end
       */
+     
     static DATA_TYPES::SYMBOL_ID reqQrySymbolID(std::string instrumentName);
 
 
@@ -771,7 +835,7 @@ namespace API2
      * This method is being used for internal command handling. User need not overload this in their algo.
      * @param command
      */
-    virtual void onCMDInternalMessage(const DATA_TYPES:: CommandCategory &command){}
+    virtual void onCMDInternalMessage(const DATA_TYPES:: CommandCategory &command);
 
     /***NOTE ** Disconnection type to be created inside Data_TYPES and constants to be added */
     /**
@@ -991,8 +1055,20 @@ namespace API2
      * @param exchangeId - NSEFO, NSECM
      * @param securityType - future, stock
      * @param groupName - BE, EQ
+     * @param staticData
      */
-    SIGNED_LONG getFreezeQty( const std::string symbol, const DATA_TYPES::ExchangeId exchangeId, const char securityType, const std::string groupName = " "  );
+    SIGNED_LONG getFreezeQty(const std::string symbol,
+        const DATA_TYPES::ExchangeId exchangeId,
+        const char securityType,
+        const std::string groupName = " ",
+        const API2::SymbolStaticData *const staticData = nullptr );
+
+    /**
+     * @brief getMaxOrderQtyFromFreezeQty
+     * @param staticData
+     * @return return max single order qty allowed from exchange.
+     */
+    SIGNED_LONG getMaxOrderQtyFromFreezeQty(const API2::SymbolStaticData *const staticData);
 
     /**
      * @brief getApiPositionBySymbolId This function will be used for getting the positions for multiple symbol ids.
@@ -1052,17 +1128,78 @@ namespace API2
         const std::vector< SIGNED_INTEGER >& dealerIdVec = std::vector< SIGNED_INTEGER >(),
         const boost::unordered_set< SIGNED_LONG >& symbolIdSet = boost::unordered_set< SIGNED_LONG >() );
 
-
+    
+    /**
+     * @brief readConfForAlgoid - read AlgoId from conf file.
+     * @param blockName - specify the strategy blockName
+     * @param fileName - specify the fileName from where function reads the algoId 
+     * @param strategy - specify the key from where algoId has to be taken
+     * @param useExchName - strategyName will be prefixed with exchange 
+     * @param useExchNameWithSegment - strategyName will be prefixed with exchange and segment
+     *
+     * Example : 
+     *
+     * Parameters passed ::
+     *
+     * blockName = OrderOnTime
+     * strategy = _ALGO_ID
+     * useExchName is true and useExchNameWithSegment is false
+     * then exchangeName = NSE
+     *
+     * Corresponding block in file ::
+     *
+     * [OrderOnTime] 
+     * NSE_ALGO_ID = 12345
+     *
+     * Example :
+     *
+     * Parameters passed ::
+     *
+     * blockName = FUT-FUT-RATIO
+     * strategy = _FUT_FUT_RATIO_ALGO_ID
+     * useExchName is true and useExchNameWithSegment is true
+     * then exchangeName = NSEFO
+     *
+     * Corresponding block in file ::
+     *
+     * [FUT-FUT-RATIO] 
+     * NSEFO_FUT_FUT_RATIO_ALGO_ID = 12345
+     *
+     * NOTE : useExchNameWithSegment will work if useExchName is true
+     */
     void readConfForAlgoid(
         const std::string &blockName,
         const std::string &fileName,
         const std::string strategy = "_ALGO_ID",
-        bool useExchName = true);
+        bool useExchName = true,
+        bool useExchNameWithSegment = false); 
 
-
+    /**
+     * @brief Used to make exchange name segment independent
+     */
     std::string getExchNameSegmentIndependent(const std::string &exchangeName);
-    
+
+    /**
+     * @brief reqSessionTimer - This function will return session time ( i.e Preopen, Open, PostClose )
+     * @param marketId
+     * @param session
+     * Exchanges supported : NSECM, NSEFO, NSECDS, MCX
+     * It will return 0 if not supported {exchange,session} pair is passed.
+     */
+    const DATA_TYPES::MicroTimeStamp reqSessionTimer(const DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::TimerType timerType ) const ;
+
     std::unordered_set< std::string > _algoIdSet;
+
+    /**
+     * @brief setStrategyType -set the StrategyType in ImplStrategyType in of SGContextImpl
+     * @description - take 2 arguments(vendorCode, isByPassNNFID) append and set to ImplStrategyType.
+     * @param vendorCode
+     * @param ByPassNNFID with default BYPASS_NNFID_DISABLED (It tell to bypass 13th digit of location id with '4' in case of NSE)
+     * @return bool - If VendorCode is greater than 2 digits return false
+     *              - or if ByPassNNFID is greater or equal to BYPASS_NNFID_MAX then return false.
+     */
+    bool setStrategyType(const short vendorCode, const API2::DATA_TYPES::BYPASS_NNFID byPassNNFID = API2::DATA_TYPES::BYPASS_NNFID_DISABLED );
 
   private:
 

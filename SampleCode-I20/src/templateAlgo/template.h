@@ -2,11 +2,11 @@
 #define TEMPLATE_H
 
 #include "../common/common.h"
-#include "../api_includes/api2UserCommands.h"
-#include "../api_includes/api2Exceptions.h"
-#include "../api_includes/orderWrapperAPI.h"
-#include "../api_includes/sgContext.h"
-#include "../api_includes/cmdDefines.h"
+#include <api2UserCommands.h>
+#include <api2Exceptions.h>
+#include <orderWrapperAPI.h>
+#include <sgContext.h>
+#include <cmdDefines.h>
 
 namespace SampleTemplate{
 

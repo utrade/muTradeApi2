@@ -1,9 +1,9 @@
 #ifndef PRICE_H
 #define PRICE_H
 #include <ctime>
-#include "../api_includes/sharedUtilities.h"
+#include <sharedUtilities.h>
 #include "structure.h"
-#include "../api_includes/timer.h"
+#include <timer.h>
 
 namespace SampleFutFutArbitrage{
 class FutFutArbitrage;

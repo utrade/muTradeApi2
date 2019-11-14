@@ -1,6 +1,7 @@
 #ifndef API_CONSTANTS
 #define API_CONSTANTS
 #include <stddef.h>
+#include <string>
 #include "apiDataTypes.h"
 
 namespace API2
@@ -169,9 +170,44 @@ namespace API2
     const unsigned short  RSP_OrderStatus_TRADE_MODIFICATION_PENDING = 30;
 
     /**
+     * @brief RSP_OrderStatus_TRADE_MODIFICATION_REJECTED trade modification request rejection.
+     */
+    const unsigned short RSP_OrderStatus_TRADE_MODIFICATION_REJECTED = 31;
+
+    /**
+     * @brief RSP_OrderStatus_AMO_CONFIRMED After Market Order Confirmed.
+     */
+    const unsigned short RSP_OrderStatus_AMO_CONFIRMED = 32;
+
+    /**
+     * @brief RSP_OrderStatus_AMO_MODIFIED After Market Order Modified.
+     */
+    const unsigned short RSP_OrderStatus_AMO_MODIFIED = 33;
+
+    /**
+     * @brief RSP_OrderStatus_AMO_CANCELED After Market Order Canceled.
+     */
+    const unsigned short RSP_OrderStatus_AMO_CANCELED = 34;
+
+    /**
+     * @brief RSP_OrderStatus_AMO_REJECTED After Market Order Rejection.
+     */
+    const unsigned short RSP_OrderStatus_AMO_REJECTED = 35;
+
+    /**
+     * @brief RSP_OrderStatus_AMO_EXCHANGE_PUSHED After Market Order pushed to exchange.
+     */
+    const unsigned short RSP_OrderStatus_AMO_EXCHANGE_PUSHED = 36;
+
+    /**
+     * @brief RSP_OrderStatus_CONVERTED_ORDER_STRATEGY_TO_MANUAL strategy order moved to manual order.
+     */
+    const unsigned short RSP_OrderStatus_CONVERTED_ORDER_STRATEGY_TO_MANUAL = 37;
+
+    /**
      * @brief OrderStatus_MAX
      */
-    const unsigned short  RSP_OrderStatus_MAX = 31;
+    const unsigned short  RSP_OrderStatus_MAX = 38;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -473,9 +509,55 @@ namespace API2
     const unsigned short RSP_StrategyComment_TBTIFSC_DISCONNECTED = 58;
 
     /**
+     * @brief RSP_StrategyComment_IOC_COUNTER_BREACHED
+     */
+    const unsigned short RSP_StrategyComment_IOC_COUNTER_BREACHED = 59;
+
+    /**
+     * @brief RSP_StrategyComment_NO_OPEN_POSITIONS_EXIST_IN_CURRENT_ITERATION
+     */
+    const unsigned short RSP_StrategyComment_NO_OPEN_POSITIONS_EXIST_IN_CURRENT_ITERATION = 60;
+
+    /**
+     * @brief RSP_StrategyComment_INVALID_ALGO_ID_RECEIVED
+     */
+    const unsigned short RSP_StrategyComment_INVALID_ALGO_ID_RECEIVED = 61;
+
+    /**
+     * @brief RSP_StrategyComment_SELF_TRADE_ORDER_NOT_FILLED_OPEN_POSITIONS_CLOSED
+     */
+    const unsigned short RSP_StrategyComment_SELF_TRADE_ORDER_NOT_FILLED_OPEN_POSITIONS_CLOSED = 62;
+
+    /**
+     * @brief RSP_StrategyComment_SELF_TRADE_ORDER_NOT_FILLED_OPEN_POSITIONS_EXIST
+     */
+    const unsigned short RSP_StrategyComment_SELF_TRADE_ORDER_NOT_FILLED_OPEN_POSITIONS_EXIST = 63;
+
+    /**
+     * @brief RSP_StrategyComment_SELF_TRADE_NO_OPEN_POSITIONS_EXIST_IN_CURRENT_ITERATION
+     */
+
+    const unsigned short RSP_StrategyComment_SELF_TRADE_NO_OPEN_POSITIONS_EXIST_IN_CURRENT_ITERATION = 64;
+
+    /**
+     * @brief RSP_StrategyComment_MCX_ERROR_FILE_NOT_CONFIGURED
+     */
+    const unsigned short RSP_StrategyComment_MCX_ERROR_FILE_NOT_CONFIGURED = 65;
+
+    /**
+     * @brief RSP_StrategyComment_INVALID_VENDOR_CODE_RECEIVED
+     */
+    const unsigned short RSP_StrategyComment_INVALID_VENDOR_CODE_RECEIVED = 66;
+ 
+    /**
+     * @brief RSP_StrategyComment_HEDGE_NEW_ORDER_REJECTED
+     */
+    const unsigned short RSP_StrategyComment_HEDGE_NEW_ORDER_REJECTED = 67;
+
+    /**
      * @brief RSP_StrategyComment_STRATEGY_END
      */
-    const unsigned short RSP_StrategyComment_MAX = 59;
+    const unsigned short RSP_StrategyComment_MAX = 68;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -758,9 +840,44 @@ namespace API2
     const unsigned short RSP_RiskStatus_RMS_INTERNAL_REJECT = 53;
 
     /**
+     * @brief RiskStatus_MAX_TURNOVER_VALUE_VIOLATED
+     */
+    const unsigned short RiskStatus_MAX_TURNOVER_VALUE_VIOLATED = 54;
+
+    /**
+     * @brief RiskStatus_MAX_OUTSTANDING_VALUE_VIOLATED
+     */
+    const unsigned short RiskStatus_MAX_OUTSTANDING_VALUE_VIOLATED = 55;
+
+    /**
+     * @brief RiskStatus_SCRIP_GROUP_GROSS_LOTS_VIOLATED
+     */
+    const unsigned short RiskStatus_SCRIP_GROUP_GROSS_LOTS_VIOLATED = 56;
+
+    /**
+     * @brief RiskStatus_SCRIP_GROUP_GROSS_VALUE_VIOLATED
+     */
+    const unsigned short RiskStatus_SCRIP_GROUP_GROSS_VALUE_VIOLATED = 57;
+
+    /**
+     * @brief RiskStatus_PAN_ID_NOT_FOUND
+     */
+    const unsigned short RiskStatus_PAN_ID_NOT_FOUND = 58;
+
+    /**
+     * @brief RiskStatus_NSECM_PARTICIPATION_CODE_DIFFERENT
+     */
+    const unsigned short RiskStatus_NSECM_PARTICIPATION_CODE_DIFFERENT = 59;
+
+    /**
+     * @brief RSP_RiskStatus_MULTILEG_REJECTED
+     */
+    const unsigned short RSP_RiskStatus_MULTILEG_REJECTED = 60;
+
+    /**
      * @brief RSP_RiskStatus_MAX
      */
-    const unsigned short RSP_RiskStatus_MAX = 54;
+    const unsigned short RSP_RiskStatus_MAX = 61;
 
 
     /************************************************************************************************************************/
@@ -1139,6 +1256,11 @@ namespace API2
      */
     const unsigned short CMD_ProductType_INTRADAY = 1;
 
+    /**
+     * @brief CMD_ProductType_MAX
+     */
+    const unsigned short CMD_ProductType_MAX = 2;
+
 
 
     /************************************************************************************************************************/
@@ -1200,6 +1322,10 @@ namespace API2
      */
     const unsigned short CMD_InstrumentType_COMMODITY = 10;
 
+    /**
+     * @brief CMD_InstrumentType_EQ
+     */
+    const unsigned short CMD_InstrumentType_EQ = 11;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1467,42 +1593,47 @@ namespace API2
     /**
      * @brief CMD_CommandCategory_TERMINATE_STRATEGY
      */
-    const unsigned int CMD_CommandCategory_TERMINATE_STRATEGY = 7; 
+    const unsigned int CMD_CommandCategory_TERMINATE_STRATEGY = 7;
 
     /**
      * @brief CMD_CommandCategory_NSECOM_DISCONNECTED
      */
-    const unsigned short CMD_CommandCategory_NSECOM_DISCONNECTED = 149;
-   
+    const unsigned short CMD_CommandCategory_NSECOM_DISCONNECTED = 152;
+
+    /**
+     * @brief CMD_CommandCategory_BSECOM_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_BSECOM_DISCONNECTED = 154;
+
     /**
      * @brief CMD_CommandCategory_NSECM_MarketSession_PREOPEN
      */
-    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_PREOPEN = 151;
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_PREOPEN = 157;
 
     /**
      * @brief CMD_CommandCategory_NSECM_MarketSession_OPEN
      */
-    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_OPEN = 152;
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_OPEN = 158;
 
     /**
      * @brief CMD_CommandCategory_NSECM_MarketSession_PREOPEN_CLOSED
      */
-    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_PREOPEN_CLOSED=153;
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_PREOPEN_CLOSED=159;
 
     /**
      * @brief CMD_CommandCategory_NSECM_MarketSession_POST_CLOSED
      */
-    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_POST_CLOSED=154;
+    const unsigned short CMD_CommandCategory_NSECM_MARKETSESSION_POST_CLOSED=160;
 
     /**
      * @brief CMD_CommandCategory_NSEFO_MarketSession_OPEN
      */
-    const unsigned short CMD_CommandCategory_NSEFO_MARKETSESSION_OPEN=155;
+    const unsigned short CMD_CommandCategory_NSEFO_MARKETSESSION_OPEN=161;
 
     /**
      * @brief CMD_CommandCategory_NSECDS_MarketSession_OPEN
      */
-    const unsigned short CMD_CommandCategory_NSECDS_MARKETSESSION_OPEN=156;
+    const unsigned short CMD_CommandCategory_NSECDS_MARKETSESSION_OPEN=162;
 
     /**
      * @brief CMD_CommandCategory_MAX
@@ -1681,6 +1812,11 @@ namespace API2
      */
     const short RSP_ErrorCode_TM_TRD_MOD_DISABLED_NSECDS = 17047;
 
+    /**
+     * @brief RSP_ErrorCode_PR_REJECTION_BSE
+     */
+    const short RSP_ErrorCode_PR_REJECTION_BSE = 10001;
+
     /************************************************************************************************************************/
     /************************************************************************************************************************/
 
@@ -1706,11 +1842,241 @@ namespace API2
      */
     const short CMD_CONFIRMATION_TYPE_MAX = 2;
 
+    const uint64_t SECONDS_PER_DAY = 86400;
+    const uint64_t SECONDS_PER_HOUR = 3600;
+    const uint64_t SECONDS_PER_MINUTE = 60;
+    const uint64_t SECONDS_TO_NANOSECONDS = 1000000000;
+
+    const time_t BASE = 0;
+    const uint32_t UTC   = 0;
+    const uint32_t LOCAL = localtime(&BASE)->tm_gmtoff;
+    const uint32_t IST = 19800;
+
+    const std::string ISO_TIME_FORMAT = "%T";
+    const std::string STANDARD_DATE_FORMAT = "%d/%m/%Y";
+    const std::string TWELVE_HOUR_TIME_FORMAT = "%r";
+    const std::string DATE_TIME_FORMAT = "%m/%d/%Y %X";
+
     /**
      * @brief RSP_ErrorCode_ORDER_CANNOT_BE_MODIFIED_NSE
      * Comes If Some Parameter is wrong while sending an order
      */
     const DATA_TYPES::ERROR_CODE RSP_ErrorCode_ORDER_CANNOT_BE_MODIFIED_NSE = 16346;
+
+    /**
+     * @brief CMD_ExchangeId_NSE - for exchange NSE
+     */
+    const std::string CMD_ExchangeId_NSE = "NSE";
+
+    /**
+     * @brief CMD_ExchangeId_BSE - for exchange BSE
+     */
+    const std::string CMD_ExchangeId_BSE = "BSE";
+
+    /**
+     * @brief CMD_ExchangeId_MSE - for exchange MSE
+     */
+    const std::string CMD_ExchangeId_MSE = "MSE";
+
+    /**
+     * @brief CMD_ExchangeId_MCX - for exchange MCX
+     */
+    const std::string CMD_Exchange_MCX = "MCX";
+     
+    /**
+     * @brief ScripGroup_CASH
+     */
+    const short ScripGroup_CASH = 0;
+
+    /**
+     * @brief ScripGroup_FUTSTK - group consisting futures on stock
+     */
+    const short ScripGroup_FUTSTK = 1;
+
+    /**
+     * @brief ScripGroup_FUTIDX - group consisting futures on index
+     */
+    const short ScripGroup_FUTIDX = 2;
+
+    /**
+     * @brief ScripGroup_FUTCUR - group consisting futures on currency
+     */
+    const short ScripGroup_FUTCUR = 3;
+
+    /**
+     * @brief ScripGroup_FUTIRD - group consisting interest rate future derivatives
+     */
+    const short ScripGroup_FUTIRD = 4;
+
+    /**
+     * @brief ScripGroup_FUTIVX - group consisting futures on volatility index
+     */
+    const short ScripGroup_FUTIVX = 5;
+
+    /**
+     * @brief ScripGroup_FUTCOM - group consisting comodities
+     */
+    const short ScripGroup_FUTCOM = 6;
+
+    /**
+     * @brief ScripGroup_OPTSTK - group consisting options on stock
+     */
+    const short ScripGroup_OPTSTK = 7;
+
+    /**
+     * @brief ScripGroup_OPTIDX - group consisting options on index
+     */
+    const short ScripGroup_OPTIDX = 8;
+
+    /**
+     * @brief ScripGroup_OPTCUR - group consisting options on currency
+     */
+    const short ScripGroup_OPTCUR = 9;
+
+    /**
+     * @brief ScripGroup_OPTIRD - group consisting interest rate option derivatives
+     */
+    const short ScripGroup_OPTIRD = 10;
+
+    /**
+     * @brief ScripGroup_OPTIVX - group consisting options on volatility index
+     */
+    const short ScripGroup_OPTIVX = 11;
+
+    /**
+     * @brief ScripGroup_OPTCOM - group consisting comodities
+     */
+    const short ScripGroup_OPTCOM = 12;
+
+    /**
+     * @brief ScripGroup_MAX
+     */
+    const short ScripGroup_MAX = 13;
+
+    const short CMD_QUEUED_SESSION_NORMAL = 0;
+
+    const short CMD_QUEUED_SESSION_PREOPEN = 1;
+
+    const short CMD_QUEUED_SESSION_OPEN = 2;
+
+    const short CMD_QUEUED_SESSION_CLOSE = 3;
+
+    const short CMD_QUEUED_SESSION_POSTCLOSE = 4;
+
+    const short CMD_QUEUED_SESSION_MAX = 5;
+
+    /**
+     * @brief STRATEGY_TYPE_DEFAULT_VALUE
+     * @description -Default value is the combination of ByPassNNF(default '0') + NNF_SUFFIX(default '01') = 001
+     *              - If BYPASS_NNFID is enabled in strategyBlock and the strategy is running
+     *              - interexchange then set 13th digit of location Id with '4' in case of NSE orders.
+     *              - NNF_SUFFIX is in strategy Block with default value '01' means the vendorcode set in RMS should pass in the order
+     *              - If value other then '01' it should bypass RMS vendorCode and Pass NNF_SUFFIX from strategy Block in the order
+     */
+    const short STRATEGY_TYPE_DEFAULT_VALUE = 1;
+
+    /************************************************************************************************************
+     ***********************************Strategy Logs Messages***************************************************
+     ************************************************************************************************************/
+    namespace STRATEGY_CONSTANTS
+    {
+      const std::string STATIC_DATA_NOT_FOUND_SYMBOL1 = "Some error in reading static data for first symbol";
+      const std::string STATIC_DATA_NOT_FOUND_SYMBOL2 = "Some error in reading static data for second symbol";
+      const std::string STATIC_DATA_NOT_FOUND_SYMBOL3 = "Some error in reading static data for third symbol";
+      const std::string STATIC_DATA_NOT_FOUND_SYMBOL4 = "Some error in reading static data for fourth symbol";
+      const std::string TIME_TO_REACT = "TTR";
+      const std::string TIME_TO_SEND = "TTS";
+      const std::string TOTAL_TIME = "TT";
+      const std::string PARAMETERS_DUMP = " Dump of strategy parameters";
+      const std::string MODIFY_PARAMETERS_DUMP = "Dump of strategy parameters on modification";
+      const std::string INVALID_CLIENTCODE_OR_ADAPTER_DETAIL = "Invalid client code or adapter details. Exiting strategy.";
+      const std::string RISK_STATUS = "Risk status";
+      const std::string EXCHANGE_DETAIL_LEG1 = "Exchange adapter detail for leg1";
+      const std::string EXCHANGE_DETAIL_LEG2 = "Exchange adapter detail for leg2";
+      const std::string EXCHANGE_DETAIL_LEG3 = "Exchange adapter detail for leg3";
+      const std::string EXCHANGE_DETAIL_LEG4 = "Exchange adapter detail for leg4";
+      const std::string STRATEGY_VERSION_DIFFERS = "Strategy version differs";
+      const std::string BACKEND_STRATEGY_VERSION = "Backend strategy version";
+      const std::string FRONTEND_STRATEGY_VERSION = "Frontend strategy version";
+      const std::string INVALID_ALGO_ID = "Invalid algo id received";
+      const std::string INVALID_ALGO_CATEGORY = "Invalid algo category";
+      const std::string STRATEGY_STARTED = "Strategy started";
+      const std::string MODIFY_COMMANDCATEGORY = "Strategy received Modify_STRATEGY command.";
+      const std::string WRONGPARAM = "Error : Wrong Parameter";
+      const std::string LEG1_TBT_FAILED = "Leg-1 symbol: FAILED subscribing to TBT";
+      const std::string LEG2_TBT_FAILED = "Leg-2 symbol: FAILED subscribing to TBT";
+      const std::string LEG3_TBT_FAILED = "Leg-3 symbol: FAILED subscribing to TBT";
+      const std::string LEG4_TBT_FAILED = "Leg-4 symbol: FAILED subscribing to TBT";
+      const std::string MAX_REPLACE_COUNTER_BREACHED = "Max allowed replace counter breached, cancelling current bid";
+      const std::string MAX_REPLACE_COUNTER = "Max Allowed replace counter";
+      const std::string CURRENT_REPLACE_COUNTER = "Current replace Counter";
+      const std::string LTP = "Last traded price is";
+      const std::string SPREAD_LIMIT_BREACHED = "Spread limit breached. Exiting strategy.";
+      const std::string STRATEGY_COMPLETED = "Strategy completed.";
+      const std::string STRATEGY_TERMINATED = "Strategy terminated.";
+      const std::string STRATEGY_EXIT = "Exiting strategy.";
+      const std::string STRATEGY_UNKNOWN_STATE = "Strategy is in unknown state. Exiting strategy.";
+      const std::string LEG1_ORDER_FILLED_QTY = "First leg order filled, Quantity";
+      const std::string LEG2_ORDER_FILLED_QTY = "Second leg order filled, Quantity";
+      const std::string LEG3_ORDER_FILLED_QTY = "Third leg order filled, Quantity";
+      const std::string LEG4_ORDER_FILLED_QTY = "Fourth leg order filled, Quantity";
+      const std::string LEG1_ORDER_FILLED_PRICE = "First leg order filled, Price";
+      const std::string LEG2_ORDER_FILLED_PRICE = "Second leg order filled, Price";
+      const std::string LEG3_ORDER_FILLED_PRICE = "Third leg order filled, Price";
+      const std::string LEG4_ORDER_FILLED_PRICE = "Fourth leg order filled, Price";
+      const std::string LEG1_LAST_ORD_REJECT = "Leg-1 last order is rejected";
+      const std::string LEG2_LAST_ORD_REJECT = "Leg-2 last order is rejected";
+      const std::string LEG3_LAST_ORD_REJECT = "Leg-3 last order is rejected";
+      const std::string LEG4_LAST_ORD_REJECT = "Leg-4 last order is rejected";
+      const std::string LEG1_ORDER_CANCELED = "Leg-1 order cancelled";
+      const std::string LEG2_ORDER_CANCELED = "Leg-2 order cancelled";
+      const std::string LEG3_ORDER_CANCELED = "Leg-3 order cancelled";
+      const std::string LEG4_ORDER_CANCELED = "Leg-4 order cancelled";
+      const std::string ORDER_CONFRIMATION_RCVD = "Order confirmation received.";
+      const std::string STRATEGY_TERMINATED_FRONT_END = "Strategy terminated from front-end.";
+      const std::string FORCE_TERMINATE = "Received force terminate command from front-end.";
+      const std::string ORDER_NOT_FOUND = "Order not found";
+      const std::string LEG1_DEPTH_ONE_SIDE = "Order depth first leg one side";
+      const std::string LEG1_DEPTH_OTHER_SIDE = "Order depth first leg other side";
+      const std::string LEG2_DEPTH_ONE_SIDE = "Order depth second leg one side";
+      const std::string LEG2_DEPTH_OTHER_SIDE = "Order depth second leg other side";
+      const std::string LEG3_DEPTH_ONE_SIDE = "Order depth third leg one side";
+      const std::string LEG3_DEPTH_OTHER_SIDE = "Order depth third leg other side";
+      const std::string LEG4_DEPTH_ONE_SIDE = "Order depth fourth leg one side";
+      const std::string LEG4_DEPTH_OTHER_SIDE = "Order depth fourth leg other side";
+      const std::string TOTAL_QTY_ZERO = "Total quantity is zero. Exiting strategy.";
+      const std::string ITERATION_TOTAL_QTY_ZERO = "Iteration quantity is zero. Exiting strategy.";
+      const std::string RATIO_MISMATCH = " Ratio mismatch occured. Exiting strategy.";
+      const std::string RATIO1 = "Ratio1";
+      const std::string RATIO2 = "Ratio2";
+      const std::string RATIO3 = "Ratio3";
+      const std::string RATIO4 = "Ratio4";
+      const std::string LEG1_DATA_ERROR = "Error in leg-1 data. Exiting strategy.";
+      const std::string LEG2_DATA_ERROR = "Error in leg-2 data. Exiting strategy.";
+      const std::string LEG3_DATA_ERROR = "Error in leg-3 data. Exiting strategy.";
+      const std::string LEG4_DATA_ERROR = "Error in leg-4 data. Exiting strategy.";
+      const std::string HCF_ZERO = " HCF is zero. Some error in calculation. Exiting strategy.";
+      const std::string CIRCULAR_QUEUE_FALSE = "Circular queue returned false";
+      const std::string CANCELLING_PREV_BID = "Cancelling previous bid.";
+      const std::string TURNAROUNDTIME_LEG1 = "TAT Leg-1";
+      const std::string TURNAROUNDTIME_LEG2 = "TAT Leg-4";
+      const std::string TURNAROUNDTIME_LEG3 = "TAT Leg-3";
+      const std::string TURNAROUNDTIME = "TAT";
+      const std::string ORDER_FILLED = "Order filled";
+      const std::string PARTIALLY_FILLED = "Order partially filled";
+      const std::string RMS_FAILED = "RMS Failed";
+      const std::string ORDER_MODIFIED_PRICE = "Order modified to price";
+      const std::string ORDER_MODIFIED_QTY= "Order modified to quantity";
+      const std::string LEG1_BID_ORDER_PRICE = "Leg-1 bid price";
+      const std::string LEG1_BID_ORDER_QTY = "Leg-1 bid quantity";
+      const std::string LEG1_MODIFY_ORDER_PRICE = "Leg-1 modify price";
+      const std::string LEG1_ORIGINAL_ORDER_QTY = "Leg-1 original order quantity";
+      const std::string LEG1_MODIFY_ORDER_REPLACE_QTY = "Leg 1 modify order replace quantity";
+      const std::string FILLED_QTY = "Filled Quantity";
+      const std::string ORDER_PLACED_SUCCESSFULLY = "Order placed successfully";
+      const std::string INVALID_VENDOR_CODE = "Invalid Vendor Code";
+
+    } // STRATEGY_CONSTANTS
   }
 }
 #endif

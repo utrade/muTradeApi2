@@ -162,9 +162,10 @@ namespace API2  {
     long        bcastFlag;
 
     /**
-     * @brief mktPicBcastFlag
+     * @brief assetCode : asset Code from exchange
+     * eg:- BSEFO = ACCL , AXIS  scrip_master = ACC , AXISBANK
      */
-    std::string mktPicBcastFlag;
+    std::string assetCode;
 
     /**
      * @brief productCode
@@ -350,6 +351,9 @@ namespace API2  {
      */
     int spreadMaturityDay;
 
+    /**
+     * @brief price with respect to tick size is insertedin this map
+     */
     MultiTickMap _mapMultiTickSize ;
 
     /**
@@ -376,7 +380,14 @@ namespace API2  {
      * @brief index name for indices symbol
      */
     std::string indexName;
-    
+
+    /**
+     * @brief scripGroup  - group containing symbols based on type of security(cash, future, option)
+     *                      and type of derivative(stock, future, currency etc)
+     *                      it's derived from security type and instrument type
+     */
+    API2::DATA_TYPES::ScripGroup scripGroup = API2::CONSTANTS::ScripGroup_MAX;
+
     /**
      * @brief API_SymbolStaticData
      */
@@ -440,12 +451,12 @@ namespace API2  {
 
 
     static SIGNED_LONG getOption(
-        std::string symbolName,
-        SIGNED_LONG lastTradePrice,
+        const std::string symbolName,
+        const SIGNED_LONG lastTradePrice,
         const API2::DATA_TYPES::OptionMode optionMode,
-        char upDown,
-        int yearMon,
-        int day,
+        const char upDown,
+        const int yearMon,
+        const int day,
         const API2::DATA_TYPES::ExchangeId targetExchange,
         const API2::DATA_TYPES::SourceId source = API2::CONSTANTS::CMD_SourceId_DEFAULT);
 

@@ -21,23 +21,62 @@ namespace API2
          * @param symbolData
          */
     template<class A,class B>
-    static void roundPriceToTick(A &price ,
-                                 API2::DATA_TYPES::OrderMode mode,
-                                 const B &symbolData)
+      static void roundPriceToTick(A &price ,
+          API2::DATA_TYPES::OrderMode mode,
+          const B &symbolData)
+      {
+        if(symbolData.tickSize == 0)
+        {
+          throw UnknownTypeException();
+          return;
+        }
+        SIGNED_LONG tickDeviation = price % symbolData.tickSize;
+        if( tickDeviation )
+        {
+          if( mode == API2::CONSTANTS::CMD_OrderMode_BUY)
+            price -= tickDeviation;
+          else
+            price += (symbolData.tickSize - tickDeviation);
+        }
+      }
+
+    static inline time_t getCurrentTimeToMidNightTimeDiffInSeconds()
     {
-      if(symbolData.tickSize == 0)
-      {
-        throw UnknownTypeException();
-        return;
-      }
-      UNSIGNED_LONG tickDeviation = price % symbolData.tickSize;
-      if( tickDeviation )
-      {
-        if( mode == API2::CONSTANTS::CMD_OrderMode_BUY)
-          price -= tickDeviation;
-        else
-          price += (symbolData.tickSize - tickDeviation);
-      }
+      time_t rawTime = time(NULL);
+      struct tm timeInfo;
+      localtime_r(&rawTime, &timeInfo);
+      timeInfo.tm_hour = 0;
+      timeInfo.tm_min  = 0;
+      timeInfo.tm_sec  = 0;
+      return difftime(rawTime,mktime(&timeInfo));
+    }
+
+    static inline int64_t convertLocalDayTimeToUTC(const time_t localDayTime)
+    {
+      time_t rawTime = time(NULL);  //  UTC time
+      struct tm timeInfo;
+      localtime_r(&rawTime, &timeInfo); //  get local time from UTC time
+      //  reset the hour, min and second to 0
+      timeInfo.tm_hour = 0;
+      timeInfo.tm_min  = 0;
+      timeInfo.tm_sec  = 0;
+      //  return UTC time of day start + localDayTime
+      //  this is the UTC
+      return mktime(&timeInfo) + localDayTime;
+    }
+
+    static inline std::string getFormattedTime( const time_t& dateTime,
+        const std::string& format,
+        const uint32_t& timezone)
+    {
+      char buffer[100];
+      std::tm *convertedTime;
+
+      const time_t dateTimeTMAdjusted = dateTime + timezone;
+      convertedTime = gmtime( &dateTimeTMAdjusted );
+
+      strftime(buffer,100, format.c_str(), convertedTime);
+      return buffer;
     }
   };
 

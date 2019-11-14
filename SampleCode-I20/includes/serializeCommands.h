@@ -46,6 +46,15 @@ namespace API2 {
      * @param bytes start index of char, auto adjusted according to size of val after serialization
      */
 
+    void serialize(const bool &val, char *buf, int &bytes);
+
+    /**
+     * @brief serialize will serialize the long value and append to buf and auto-increment bytes with size of data serialized
+     * @param val to be serialized
+     * @param buf char array pointer
+     * @param bytes start index of char, auto adjusted according to size of val after serialization
+     */
+
     void serialize(const UNSIGNED_INTEGER &val, char *buf, int &bytes);
 
     /**
@@ -132,6 +141,15 @@ namespace API2 {
      */
     void serialize(const StringSet &data, char* buf, int &bytes);
 
+    /**
+     * @brief serialize will serialize the std::map and append to buf and auto-increment bytes with size of data serialized
+     * @param map to be serialized
+     * @param buf char array pointer
+     * @param bytes start index of char, auto adjusted according to size of val after serialization
+     */
+    void serialize(std::unordered_map<std::string, std::string>& map, char* buf, int &bytes);
+
+
 
     /**
      * @brief deSerialize overloaded function, deserializes to val from buf, and adjusts offset to bytes read for deserialization.
@@ -174,6 +192,14 @@ namespace API2 {
      * @param offset start index of char, auto adjusted according to size of val after deserialization
      */
     void deSerialize(char &val, const char *buf, int &offset);
+
+    /**
+     * @brief deSerialize overloaded function, deserializes to val from buf, and adjusts offset to bytes read for deserialization.
+     * @param val to be deserialized
+     * @param buf char array pointer
+     * @param offset start index of char, auto adjusted according to size of val after deserialization
+     */
+    void deSerialize(bool &val, const char *buf, int &offset);
 
     /**
      * @brief deSerialize overloaded function, deserializes to val from buf, and adjusts offset to bytes read for deserialization.
@@ -317,6 +343,15 @@ namespace API2 {
      * @param bytes
      */
     void deSerializePacketLength( PACKET_LENGTH_TYPE &size ,const char *buf , int &bytes);
+ 
+    /**
+     * @brief deSerialize overloaded function, deserializes to std::map from buf,
+     *        and adjusts offset to bytes read for deserialization.
+     * @param accountDetails to be deseralized
+     * @param buf char array pointer
+     * @param offset start index of char, auto adjusted according to size of val after deserialization
+     */
+    void deSerialize( std::unordered_map<std::string, std::string> &data, char const* buf, int &offset);
 
   }
 

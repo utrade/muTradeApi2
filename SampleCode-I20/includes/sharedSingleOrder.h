@@ -279,10 +279,16 @@ extern "C"
 
 
         /**
-         * @brief AlgoId , AlgoCategory
+         * @brief AlgoId , MarketSession
          */
         CREATE_FIELD(DATA_TYPES::AlgoId,AlgoId);
-        CREATE_FIELD(DATA_TYPES::AlgoCategory,AlgoCategory);
+        CREATE_FIELD(DATA_TYPES::MarketSessionType,MarketSession);
+
+        char _generatedOrderId[BUF_SIZE_60] = {0};
+        /**
+         * @brief _ExchangeAdapterDetails - adapter details for the order
+         */
+        CREATE_FIELD(ExchangeAdapterDetails,ExchangeAdapterDetails);
 
       public :
 
@@ -346,7 +352,7 @@ extern "C"
             const DATA_TYPES::STRATEGY_ID& parentStrategyId,
             short strategyType,
             DATA_TYPES::AlgoId algoId,
-            DATA_TYPES::AlgoCategory algoCategory,
+            DATA_TYPES::MarketSessionType marketSession,
             const AccountDetail& accountDetails
             ); 
 
@@ -378,7 +384,7 @@ extern "C"
             DATA_TYPES::OrderValidity validity, // GTD, FOK etc.
             DATA_TYPES::TRADER_ID traderId,
             DATA_TYPES::AlgoId algoId,
-            DATA_TYPES::AlgoCategory algoCategory,
+            DATA_TYPES::MarketSessionType marketSession,
             const AccountDetail &accountDetails=AccountDetail());
 
         SingleOrder(const DATA_TYPES::SYMBOL_ID &symbolId,
@@ -423,7 +429,7 @@ extern "C"
             DATA_TYPES::STRATEGY_ID parentStrategyId,
             short strategyType,
             DATA_TYPES::AlgoId algoId,
-            DATA_TYPES::AlgoCategory algoCategory,
+            DATA_TYPES::MarketSessionType marketSession,
             const AccountDetail &accountDetails= AccountDetail());
 
         /**

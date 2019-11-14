@@ -1,6 +1,9 @@
 19 Sep, 2018
 - DEBUG_FLUSH which flushes logs into respective file was there during confirmation processing at base level. It is removed in current version. User need to take care of this at their algo level.
 
+24 Oct, 2018
+Increased api version from 2.2.4 to 2.3.0
+
 25 Oct, 2018
 -Added new field amount(price*qty) in struct InstrumentPosition.
 
@@ -8,7 +11,6 @@
 -Added new Instrument types in apiconstants
 
 9 Nov, 2018
-- API version increased from 2.2.6 to 2.2.7
 - Signature of createNewInstrument and reqRegisterMarketData (file : sgContext. h) changed. It contains a new argument named depthSize which is having default value MarketDepthArraySize (value = 20, refer apiConstants.h) which indicated that upto which level of depth need to be processed by algo at base level.Existing users will not get impacted and there is no need to change in code.If user want some optimisations for data processing in api base infra, it can be reduced to desirable value. Same applies for MktData class constructor (file : sgMktData.h) signature.
 
 // CONSTANTS::MarketDepthArraySize is 10
@@ -65,5 +67,48 @@ reqRegisterMarketData(symbolId, true, true, false, 5); // last param can be from
 Added new function "resetPosition" in class InstrumentPosition which is used to reset intrument positions to zero.
 
 22 Nov, 2018
-- API version increased from 2.2.7 to 2.2.8
-- CONSTANTS::MarketDepthArraySize configurable param's default value changed to 10. Previously, it was 20.  
+- CONSTANTS::MarketDepthArraySize configurable param's default value changed to 10. Previously, it was 20. 
+
+28 Nov, 2018
+- added scripGroup variable in API2::SymbolStaticData, added ScripGroup type in data types, added scrip group constants
+Files : api2UserCommands.h, apiConstants.h, apiDataTypes.h, sgSymbolDataDefines.h
+
+20 Dec, 2018
+- Increased api version from 2.3.0 to 2.3.1
+15 Mar, 2019
+- API version increased from 2.3.1 to 2.3.3
+- Added getIsTerminatedFromFrontEnd() and setIsTerminateFromFrontEnd() in API2::Strategy.
+- Added new function serialize() in  API2::Serialization.
+- Changed in parameters for void reqSendStrategyResponse() in API2::SGContext.
+- Added new function onCMDInternalMessage() API2::SGContext.
+- Added scripGroup variable in API2::SymbolStaticData, added ScripGroup type in data types, added scrip group constants.
+- SymbolStatic Data is sent in getFreezeQty function in sgContext.h
+
+02 Apr, 2019
+- Added Strategy Type enum in apiDataTypes.h.
+
+10 Apr, 2019
+- API documentation updated for reqQrySymbolId and createNewInstrument.
+
+23 May, 2019
+- API version increased from 2.3.3 to 2.3.5
+- Default parameter is added in function reqForceTerminateStrategy in sgContext 
+- Added new strategyComment in apiConstants
+- Added new funtion setStrategyType in sgContext
+
+03 June, 2019
+-API version increased from 2.3.5 to 2.3.6
+-Default parameter is added in function readConfForAlgoid in sgContext.
+
+2 July 2019
+orderWrapper added in API in file orderWrapperAPI.h : class name is OrderWrapperAPI
+API version incremented to 2.3.7
+in sgContext.h in api_includes
+parameter added in reqNewSingleOrder : validateAccountDetail :: using this account detail validation can be made confirgurable while placing order
+method added : validateAccountDetail :: this will validate the account detail, user can use the same to do one time validation and remove the runtime validation in each order
+
+13 August 2019
+Added lock support in debug logs : single thread can push in Logs queue / vector, multiple threads may read it and dump in ofstream
+
+04 August 2019
+Documentation  updated: SGContext.h : reqCancelOrder, ReqReplace Order| OrderWrapperAPI.h cancelOrder, replaceOrder

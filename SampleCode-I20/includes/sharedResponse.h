@@ -3,6 +3,7 @@
 #include <apiDataTypes.h>
 #include <sharedCommands.h> 
 #include <string>
+
 namespace API2 
 {
   /**
@@ -23,6 +24,7 @@ namespace API2
       DATA_TYPES::UINTEGER64 getAdminTokenId() const { return _adminTokenId;}
       DATA_TYPES::UINTEGER64 getSequenceNumber() const { return _sequenceNumber;}
       DATA_TYPES::UCHAR getStrategyComment() const { return _strategyComment; }
+      bool getIsTerminatedFromFrontEnd() const { return _isTerminatedFromFrontEnd; }
 
       void setResponseType(DATA_TYPES::UCHAR responseType){ _responseType = responseType;}
       void setRiskStatus(DATA_TYPES::UCHAR riskStatus){ _riskStatus = riskStatus;}
@@ -32,6 +34,7 @@ namespace API2
       void setAdminTokenId(DATA_TYPES::UINTEGER64 adminTokenId) { _adminTokenId = adminTokenId;}
       void setSequenceNumber(DATA_TYPES::UINTEGER64 sequenceNumber) { _sequenceNumber = sequenceNumber;}
       void setStrategyComment(DATA_TYPES::UCHAR strategyComment) { _strategyComment = strategyComment; }
+      void setIsTerminatedFromFrontEnd(bool isTerminatedFromFrontEnd) { _isTerminatedFromFrontEnd = isTerminatedFromFrontEnd; }
       void dump();
     private:
       DATA_TYPES::UCHAR _responseType;    // Value (SUCCESS / FAILURE)
@@ -42,6 +45,7 @@ namespace API2
       DATA_TYPES::UINTEGER32 _parentId; //Id of parent strategy(strategy from which another strategy is invoked)
       DATA_TYPES::UINTEGER64 _adminTokenId;
       DATA_TYPES::UINTEGER64 _sequenceNumber; // Sequence number to sync up offline responses to RMS/Admin screen
+      bool _isTerminatedFromFrontEnd;         // Flag to notify whether it is front end termination.
   };
 
   class OrderConfirmationImpl;
@@ -61,6 +65,14 @@ namespace API2
     DATA_TYPES::QTY _lastFillQuantity;
     DATA_TYPES::PRICE  _lastFillPrice;
     DATA_TYPES::PRICE  _origLastFillPrice;
+
+    /**
+     * @brief _exchangeEntryTime  - for nse, it'll contain last activity reference time,
+     *                              for other exchanges, it's entry time
+     *                              Note : in case of NSE, in confirmed confirmation,
+     *                                      entry time, last modify time, and last activity reference time
+     *                                      all are same
+     */
     DATA_TYPES::EXCHANGE_TIME  _exchangeEntryTime;
     DATA_TYPES::EXCHANGE_TIME  _exchangeModifyTime;
     DATA_TYPES::STRATEGY_ID  _strategyId;
@@ -112,6 +124,8 @@ namespace API2
 
     DATA_TYPES::PlatformType _platformType;
 
+    CREATE_FIELD( DATA_TYPES::HOLDING_TYPE , HoldingType );
+
     /**
      * @brief _algoId
      */
@@ -121,6 +135,8 @@ namespace API2
      * @brief _algoCategory
      */
     DATA_TYPES::AlgoCategory _algoCategory;
+
+    char _generatedOrderId[BUF_SIZE_60] = {0};
 
     public:
 
@@ -409,8 +425,8 @@ namespace API2
     char* getFixClOrderIdCharPtr() ;
 
     /**
-     * @brief getAlgoId
-     * @return
+     * @brief getAlgoId 
+     * @return 
      */
     API2::DATA_TYPES::AlgoId getAlgoId() const;
 
@@ -772,6 +788,24 @@ namespace API2
      * @param AlgoCategory
      */
     void setAlgoCategory(const DATA_TYPES::AlgoCategory AlgoCategory);
+
+    /**
+     * @brief getString - This method returns string for confirmation dump.
+     * @return
+     */
+    const std::string getString() const;
+
+    /**
+     * @brief getExchangeModifyTimeEpoch  - get modify time in epoch
+     * @return
+     */
+    const ::API2::DATA_TYPES::EXCHANGE_TIME getExchangeModifyTimeEpoch() const;
+
+    /**
+     * @brief getExchangeEntryTimeEpoch - get entry time in epoch
+     * @return
+     */
+    const ::API2::DATA_TYPES::EXCHANGE_TIME getExchangeEntryTimeEpoch() const;
   };
 
 

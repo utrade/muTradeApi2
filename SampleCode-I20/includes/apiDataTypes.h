@@ -229,6 +229,12 @@ namespace API2
      * @brief CommandCategory
      */
     typedef UNSIGNED_SHORT CommandCategory;
+    
+    /**
+     * @typedef
+     * @brief MarketSessionType
+     */
+    typedef UNSIGNED_SHORT MarketSessionType;
 
     /**
      * enum
@@ -455,6 +461,11 @@ namespace API2
     typedef UNSIGNED_SHORT OrderCategory;
 
     /**
+     * @brief HOLDING_TYPE
+     */
+    typedef UNSIGNED_CHARACTER HOLDING_TYPE;
+  
+    /**
      * @brief AlgoId
      */
     typedef SIGNED_LONG  AlgoId;
@@ -465,10 +476,44 @@ namespace API2
     typedef short  AlgoCategory;
 
     /**
-     * @typedef
-     * @brief ERROR_CODE
+     * @brief ScripGroup  - group containing symbols based on type of security(cash, future, option)
+     *                      and type of derivative(stock, future, currency etc)
      */
-    typedef UNSIGNED_LONG ERROR_CODE;
+    typedef short ScripGroup;
+
+    /**
+     * @brief MicroTimeStamp
+     */
+    typedef int64_t MicroTimeStamp;
+
+    /**
+     * @brief The TimerType enum
+     */
+    enum TimerType
+    {
+      TimerType_Preopen = 0,
+      TimerType_Open = 1,
+      TimerType_PostClose = 2,
+      TimerType_Max = 3
+    };
+
+    /**
+     * @brief SECURITY_ID
+     */
+    typedef SIGNED_LONG SECURITY_ID;
+
+
+    /**
+     * @brief The BYPASS_NNFID enum
+     * @description - If BYPASS_NNFID is enabled in strategyBlock and the strategy is running
+     *              - interexchange then set 13th digit of location Id with '4' in case of NSE orders
+     */
+    enum BYPASS_NNFID
+    {
+      BYPASS_NNFID_DISABLED = 0,
+      BYPASS_NNFID_ENABLED = 1,
+      BYPASS_NNFID_MAX
+    };
 
   }
 }

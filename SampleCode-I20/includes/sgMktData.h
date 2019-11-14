@@ -455,6 +455,13 @@ namespace API2
        */
       bool hasTradeBeenProcessed();
 
+      /**
+       * @brief checkIfPriceLieBetweenMarketDataRange
+       * @param priceToBeValidatedForInsideRange
+       * @return true if price lie between market data
+       */
+      bool checkIfPriceLieBetweenMarketDataRange(DATA_TYPES::PRICE priceToBeValidatedForInsideRange );
+
 #if 0
       /**
        * @brief checkUpdateStatus

@@ -166,7 +166,6 @@ namespace SampleFutFutArbitrage
     //Hedging Driver
     if(!_hedging->startHedge())
     {
-      //DEBUG_MESSAGE( reqQryDebugLog(),"Hedging failed");
       terminateStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_ERROR_STATE );
       return;
     }
@@ -204,6 +203,9 @@ namespace SampleFutFutArbitrage
     {
       DEBUG_VARSHOW(reqQryDebugLog(),"Order confirmed for unknown OrderId",orderId);
     }
+
+    dumpOrderLimits();
+    dumpPositions();
   }
 
   //CallBack for When an Order is Filled
@@ -257,6 +259,9 @@ namespace SampleFutFutArbitrage
       DEBUG_VARSHOW(reqQryDebugLog(),"Order filled for unknown OrderId",orderId);
     }
 
+    dumpOrderLimits();
+    dumpPositions();
+
     //Terminate if all the lots are traded
     if(( (_hedging->getHedgePositions() * _commonUtilities.ratio1) >=
           (_userParams.totalQuantity * _commonUtilities.ratio2)) )
@@ -284,6 +289,9 @@ namespace SampleFutFutArbitrage
     {
       DEBUG_VARSHOW(reqQryDebugLog(),"Order partial filled for unknown OrderId",orderId);
     }
+
+    dumpOrderLimits();
+    dumpPositions();
   }
 
   //CallBack for When an Order is Canceled
@@ -682,6 +690,10 @@ namespace SampleFutFutArbitrage
     {
       _isModify = true;
     }
+
+    DEBUG_VARSHOW(reqQryDebugLog(), "Symbol1 Timestamp", _commonUtilities.mktData1->getTimeStamp());
+    DEBUG_VARSHOW(reqQryDebugLog(), "Symbol2 timeStamp", _commonUtilities.mktData2->getTimeStamp());
+
     reqSendStrategyResponse(
         API2::CONSTANTS::RSP_ResponseType_STRATEGY_RUNNING,
         API2::CONSTANTS::RSP_RiskStatus_SUCCESS,
@@ -742,6 +754,9 @@ namespace SampleFutFutArbitrage
     _terminateCheck = true;
 
     reqAddStrategyComment(comment);
+
+    dumpOrderLimits();
+    dumpPositions();
 
     reqTerminateStrategy(true);
   }
@@ -808,6 +823,13 @@ namespace SampleFutFutArbitrage
     list.push_back( str );
     std::string customData;
     if( !reqQrySendCustomResponse( customData, list, 0 ) )
+    {
+      DEBUG_MESSAGE(reqQryDebugLog(),"Unable to send custom response to frontend");
+      terminateStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_ERROR_STATE );
+    }
+
+    //Sending custom response to frontend API.
+    if( !reqQrySendCustomResponseEx( customData, list, 0 ) )
     {
       DEBUG_MESSAGE(reqQryDebugLog(),"Unable to send custom response to frontend");
       terminateStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_ERROR_STATE );
@@ -907,7 +929,8 @@ namespace SampleFutFutArbitrage
   {
     std::ostringstream oss;
     auto &quote = mktData->getRefQuote();
-    for(size_t i=0; i< API2::CONSTANTS::MarketDepthArraySize;i++)
+
+    for(size_t i=0; i< API2::COMMON::MktData::getMaxDepthSupported(); i++)
     {
       oss<<quote.MarketDepth[i].toString();
     }
@@ -939,6 +962,237 @@ namespace SampleFutFutArbitrage
     std::ifstream file(configFile.c_str());
     store ( parse_config_file ( file, configFileOptions, true), variableMap);
     bpo::notify( variableMap );
+  }
+
+  void FutFutArbitrage::dumpOrderLimits()
+  {
+    if( !isInstrumentCreated() )
+    {
+      return;
+    }
+
+    API2::DATA_TYPES::INTEGER64 dealerUsedDeposit;
+    API2::DATA_TYPES::INTEGER64 bidClientUsedDeposit;
+    API2::DATA_TYPES::INTEGER64 hedgeClientUsedDeposit;
+    API2::COMMON::OrderLimitsApiStruct dealerOrderLimits;
+    API2::COMMON::OrderLimitsApiStruct bidClientOrderLimits;
+    API2::COMMON::OrderLimitsApiStruct hedgeClientOrderLimits;
+
+    //-----------------------------------getApiDepositForDealer--------------------------------------
+
+    getApiDepositForDealer(
+        dealerUsedDeposit,
+        reqQryClientID(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        _commonUtilities.instrument1->getStaticData()->securityType);
+
+    //-----------------------------------getApiDepositForClient--------------------------------------
+
+    getApiDepositForClient(
+        bidClientUsedDeposit,
+        _userParams.account1.getPrimaryClientCode(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        _commonUtilities.instrument1->getStaticData()->securityType);
+
+    //----------------------------------getApiDepositForClient---------------------------------------
+
+    getApiDepositForClient(
+        hedgeClientUsedDeposit,
+        _userParams.account2.getPrimaryClientCode(),
+        _commonUtilities.instrument2->getStaticData()->exchangeId,
+        _commonUtilities.instrument2->getStaticData()->securityType);
+
+    //--------------------------------getApiOrderLimitsForDealer-------------------------------------
+
+    getApiOrderLimitsForDealer(
+        dealerOrderLimits,
+        reqQryClientID());
+
+    //--------------------------------getApiOrderLimitsForClient-------------------------------------
+
+    getApiOrderLimitsForClient(
+        bidClientOrderLimits,
+        _userParams.account1.getPrimaryClientCode(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ) );
+
+    //--------------------------------getApiOrderLimitsForClient-------------------------------------
+
+    getApiOrderLimitsForClient(
+        hedgeClientOrderLimits,
+        _userParams.account2.getPrimaryClientCode(),
+        _commonUtilities.instrument2->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ) );
+
+    //-----------------------------------------------------------------------------------------------
+
+    std::stringstream dumpOrderLimits;
+
+    dumpOrderLimits << " \n--------------Method dumpOrderLimits---------------"
+      << " \n___________Dealer : " << reqQryClientID() << " Limits___________"
+      << dealerOrderLimits.getString()
+      << " \n DealerUsedDeposit : " << dealerUsedDeposit << "\n"
+      << " \n_________Bid Client : " << _userParams.account1.getPrimaryClientCode() << " Limits_________"
+      << bidClientOrderLimits.getString()
+      << " \n BidClientUsedDeposit : " << bidClientUsedDeposit << "\n"
+      << " \n_________Hedge Client : " << _userParams.account2.getPrimaryClientCode() << " Limits_________"
+      << hedgeClientOrderLimits.getString()
+      << " \n HedgeClientUsedDeposit : " << hedgeClientUsedDeposit << std::endl;
+
+    DEBUG_MESSAGE( reqQryDebugLog(), dumpOrderLimits.str() );
+
+  }
+
+  void FutFutArbitrage::dumpPositions()
+  {
+    if( !isInstrumentCreated() )
+    {
+      return;
+    }
+
+    API2::SymbolIdAndPositionStructHash dealerHash;
+    API2::SymbolIdAndPositionStructHash dealerBidClientHash;
+    API2::SymbolIdAndPositionStructHash dealerHedgeClientHash;
+    API2::SymbolIdAndPositionStructHash bidClientHash;
+    API2::SymbolIdAndPositionStructHash hedgeClientHash;
+    API2::PositionStruct dealerGlobalPos;
+    API2::PositionStruct bidClientGlobalPos;
+    API2::PositionStruct hedgeClientGlobalPos;
+
+    boost::unordered_set< SIGNED_LONG > symbolIdSet;
+    symbolIdSet.insert( _commonUtilities.instrument1->getSymbolId() );
+    symbolIdSet.insert( _commonUtilities.instrument2->getSymbolId() );
+
+    std::stringstream dumpPositionString;
+
+    //----------------------------------getApiPositionForDealer-------------------------------------
+
+    getApiPositionForDealer(
+        dealerHash,
+        reqQryClientID(),
+        symbolIdSet );
+
+    dumpPositionString << " \n--------------Method dumpPositions---------------"
+      << " \n___________Dealer : " << reqQryClientID() << " Positions___________";
+
+    for( auto& positionHash : dealerHash )
+    {
+      dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+      dumpPositionString << positionHash.second.getPositionString();
+    }
+
+    //-----------------------------------getApiPositionForClient-------------------------------------
+
+    getApiPositionForClient(
+        bidClientHash,
+        _userParams.account1.getPrimaryClientCode(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ),
+        symbolIdSet );
+
+    dumpPositionString  << " \n_________Bid Client : " << _userParams.account1.getPrimaryClientCode() << " Positions_________";
+
+    for( auto& positionHash : bidClientHash )
+    {
+      dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+      dumpPositionString << positionHash.second.getPositionString();
+    }
+
+    //-----------------------------------getApiPositionForClient-------------------------------------
+
+    getApiPositionForClient(
+        hedgeClientHash,
+        _userParams.account2.getPrimaryClientCode(),
+        _commonUtilities.instrument2->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ),
+        symbolIdSet );
+
+    dumpPositionString  << " \n_________Hedge Client : " << _userParams.account2.getPrimaryClientCode() << " Positions_________";
+
+    for( auto& positionHash : hedgeClientHash )
+    {
+      dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+      dumpPositionString << positionHash.second.getPositionString();
+    }
+
+    //--------------------------------getApiPositionForDealerClient----------------------------------
+
+    getApiPositionForDealerClient(
+        dealerBidClientHash,
+        reqQryClientID(),
+        _userParams.account1.getPrimaryClientCode(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ),
+        symbolIdSet );
+
+    dumpPositionString << " \n_____Dealer ( " << reqQryClientID() << " ) + Bid Client ( "
+      << _userParams.account1.getPrimaryClientCode() << " ) Positions_____";
+
+    for( auto& positionHash : dealerBidClientHash )
+    {
+      dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+      dumpPositionString << positionHash.second.getPositionString();
+    }
+
+    //--------------------------------getApiPositionForDealerClient----------------------------------
+
+    getApiPositionForDealerClient(
+        dealerHedgeClientHash,
+        reqQryClientID(),
+        _userParams.account2.getPrimaryClientCode(),
+        _commonUtilities.instrument2->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ),
+        symbolIdSet );
+
+    dumpPositionString << " \n_____Dealer ( " << reqQryClientID() << " ) + Hedge Client ( "
+      << _userParams.account2.getPrimaryClientCode() << " ) Positions_____";
+
+    for( auto& positionHash : dealerHedgeClientHash )
+    {
+      dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+      dumpPositionString << positionHash.second.getPositionString();
+    }
+
+    //---------------------------------getApiGlobalDealerPosition------------------------------------
+
+    getApiGlobalDealerPosition(
+        dealerGlobalPos,
+        reqQryClientID() );
+
+    dumpPositionString << " \n______Dealer : " << reqQryClientID() << " Global Positions______";
+    dumpPositionString << dealerGlobalPos.getPositionString();
+
+    //--------------------------------getApiGlobalClientPosition-------------------------------------
+
+    getApiGlobalClientPosition(
+        bidClientGlobalPos,
+        _userParams.account1.getPrimaryClientCode(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ) );
+
+    dumpPositionString  << " \n____Bid Client : " << _userParams.account1.getPrimaryClientCode() << " Global Positions____";
+    dumpPositionString << bidClientGlobalPos.getPositionString();
+
+    //--------------------------------getApiGlobalClientPosition-------------------------------------
+
+    getApiGlobalClientPosition(
+        hedgeClientGlobalPos,
+        _userParams.account2.getPrimaryClientCode(),
+        _commonUtilities.instrument2->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ) );
+
+    dumpPositionString  << " \n____Hedge Client : " << _userParams.account2.getPrimaryClientCode() << " Global Positions____";
+    dumpPositionString << hedgeClientGlobalPos.getPositionString();
+
+    //----------------------------------------------------------------------------------------------
+
+    DEBUG_MESSAGE( reqQryDebugLog(), dumpPositionString.str() );
+
+  }
+
+  bool FutFutArbitrage::isInstrumentCreated()
+  {
+    return ( _commonUtilities.instrument1 && _commonUtilities.instrument2 ) ;
   }
 
 }

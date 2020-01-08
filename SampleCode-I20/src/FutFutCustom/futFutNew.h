@@ -8,7 +8,7 @@
 #include <cmdDefines.h>
 #include "structure.h"
 #include "price.h"
-#include "hedging.h"
+#include "futFutNewHedging.h"
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
@@ -394,6 +394,27 @@ public:
      * @return void
      */
     void readParamsFromFile();
+
+    /**
+     * @type Implementation Function
+     * @brief dumpOrderLimits
+     * @return void
+     */
+    void dumpOrderLimits();
+
+    /**
+     * @type Implementation Function
+     * @brief dumpPositions
+     * @return void
+     */
+    void dumpPositions();
+
+    /**
+     * @brief isInstrumentCreated
+     * @description check if both instruments(instrument1 and instrument1) created in commonUtilities
+     * @return bool
+     */
+    bool isInstrumentCreated();
 
 
 

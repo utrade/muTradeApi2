@@ -1,4 +1,4 @@
-#include "hedging.h"
+#include "futFutNewHedging.h"
 #include "apiConstants.h"
 #include "futFutNew.h"
 /*
@@ -46,7 +46,10 @@ namespace SampleFutFutArbitrage
       return true;
 
     API2::DATA_TYPES::PRICE price =  hedgingPrice.getHedgePrice(orderValidity);
-    hedgeOrderWrapper._orderValidity = orderValidity;
+
+    // Will update the order validity if there is no open order at Exchange.
+    hedgeOrderWrapper.updateOrderValidity( orderValidity );
+
     API2::SharedUtilities::roundPriceToTick(price,
         _userParams->orderMode2,
         *( _commonUtilities->instrument2->getStaticData()));

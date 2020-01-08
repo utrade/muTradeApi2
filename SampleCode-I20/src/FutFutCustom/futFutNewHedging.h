@@ -1,5 +1,5 @@
-#ifndef HEDGING_H
-#define HEDGING_H
+#ifndef FUTFUTNEWHEDGING_H
+#define FUTFUTNEWHEDGING_H
 #include"price.h"
 #include"structure.h"
 
@@ -176,4 +176,4 @@ public:
 };
 
 }
-#endif // HEDGING_H
+#endif // FUTFUTNEWHEDGING_H

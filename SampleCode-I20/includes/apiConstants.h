@@ -12,7 +12,7 @@ namespace API2
     /**
      * @brief MarketDepthArraySize
      */
-    const size_t MarketDepthArraySize = 10;
+    const size_t MarketDepthArraySize = 20;
 
     /**
      * @brief RSP_OrderStatus_PENDING
@@ -205,9 +205,24 @@ namespace API2
     const unsigned short RSP_OrderStatus_CONVERTED_ORDER_STRATEGY_TO_MANUAL = 37;
 
     /**
+     * @brief RSP_OrderStatus_QUEUED_CONFIRMED
+     */
+    const unsigned short RSP_OrderStatus_QUEUED_CONFIRMED = 38;
+
+    /**
+     * @brief RSP_OrderStatus_QUEUED_EXECUTED
+     */
+    const unsigned short RSP_OrderStatus_QUEUED_EXECUTED = 39;
+
+    /**
+     * @brief RSP_OrderStatus_QUEUED_CANCELED
+     */
+    const unsigned short RSP_OrderStatus_QUEUED_CANCELED = 40;
+
+    /**
      * @brief OrderStatus_MAX
      */
-    const unsigned short  RSP_OrderStatus_MAX = 38;
+    const unsigned short  RSP_OrderStatus_MAX = 41;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -555,9 +570,29 @@ namespace API2
     const unsigned short RSP_StrategyComment_HEDGE_NEW_ORDER_REJECTED = 67;
 
     /**
+     * @brief RSP_StrategyComment_DMS_DISCONNECTED
+     */
+    const unsigned short RSP_StrategyComment_DMS_DISCONNECTED = 68;
+
+    /**
+     * @brief RSP_StrategyComment_AUTO_TIMER_EXPIRED
+     */
+    const unsigned short RSP_StrategyComment_AUTO_TIMER_EXPIRED = 69;
+
+    /**
+     * @brief RSP_StrategyComment_TERMINATE_MAX_SLIPPAGE_BREACHED
+     */
+    const unsigned short RSP_StrategyComment_TERMINATE_MAX_SLIPPAGE_BREACHED = 70;
+
+    /**
+     * @brief RSP_StrategyComment_TERMINATE_MAX_DEVIATION_BREACHED
+     */
+    const unsigned short RSP_StrategyComment_TERMINATE_MAX_DEVIATION_BREACHED = 71;
+
+    /**
      * @brief RSP_StrategyComment_STRATEGY_END
      */
-    const unsigned short RSP_StrategyComment_MAX = 68;
+    const unsigned short RSP_StrategyComment_MAX = 72;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -638,9 +673,20 @@ namespace API2
      */
     const unsigned short RSP_ResponseType_STRATEGY_COMPLETED = 15;
 
+    /**
+     * @brief RSP_ResponseType_STRATEGY_WAIT
+     */
     const unsigned short RSP_ResponseType_STRATEGY_WAIT = 16;
 
-    const unsigned short RSP_ResponseType_MAX = 17;
+    /**
+     * @brief RSP_ResponseType_DMS_DISCONNECTED
+     */
+    const unsigned short RSP_ResponseType_DMS_DISCONNECTED = 17;
+
+    /**
+     * @brief RSP_ResponseType_MAX
+     */
+    const unsigned short RSP_ResponseType_MAX = 18;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -839,45 +885,60 @@ namespace API2
      */
     const unsigned short RSP_RiskStatus_RMS_INTERNAL_REJECT = 53;
 
-    /**
-     * @brief RiskStatus_MAX_TURNOVER_VALUE_VIOLATED
+     /**
+     * @brief RSP_RiskStatus_MAX_TURNOVER_VALUE_VIOLATED
      */
-    const unsigned short RiskStatus_MAX_TURNOVER_VALUE_VIOLATED = 54;
+    const unsigned short RSP_RiskStatus_MAX_TURNOVER_VALUE_VIOLATED = 54;
 
     /**
-     * @brief RiskStatus_MAX_OUTSTANDING_VALUE_VIOLATED
+     * @brief RSP_RiskStatus_MAX_OUTSTANDING_VALUE_VIOLATED
      */
-    const unsigned short RiskStatus_MAX_OUTSTANDING_VALUE_VIOLATED = 55;
+    const unsigned short RSP_RiskStatus_MAX_OUTSTANDING_VALUE_VIOLATED = 55;
 
     /**
-     * @brief RiskStatus_SCRIP_GROUP_GROSS_LOTS_VIOLATED
+     * @brief RSP_RiskStatus_SCRIP_GROUP_GROSS_LOTS_VIOLATED
      */
-    const unsigned short RiskStatus_SCRIP_GROUP_GROSS_LOTS_VIOLATED = 56;
+    const unsigned short RSP_RiskStatus_SCRIP_GROUP_GROSS_LOTS_VIOLATED = 56;
 
     /**
-     * @brief RiskStatus_SCRIP_GROUP_GROSS_VALUE_VIOLATED
+     * @brief RSP_RiskStatus_SCRIP_GROUP_GROSS_VALUE_VIOLATED
      */
-    const unsigned short RiskStatus_SCRIP_GROUP_GROSS_VALUE_VIOLATED = 57;
+    const unsigned short RSP_RiskStatus_SCRIP_GROUP_GROSS_VALUE_VIOLATED = 57;
 
     /**
-     * @brief RiskStatus_PAN_ID_NOT_FOUND
+     * @brief RSP_RiskStatus_PAN_ID_NOT_FOUND
      */
-    const unsigned short RiskStatus_PAN_ID_NOT_FOUND = 58;
-
-    /**
-     * @brief RiskStatus_NSECM_PARTICIPATION_CODE_DIFFERENT
-     */
-    const unsigned short RiskStatus_NSECM_PARTICIPATION_CODE_DIFFERENT = 59;
+    const unsigned short RSP_RiskStatus_PAN_ID_NOT_FOUND = 58;
 
     /**
      * @brief RSP_RiskStatus_MULTILEG_REJECTED
      */
-    const unsigned short RSP_RiskStatus_MULTILEG_REJECTED = 60;
+    const unsigned short RSP_RiskStatus_MULTILEG_REJECTED = 59;
+
+    /**
+     * @brief RiskStatus_NSECM_PARTICIPATION_CODE_DIFFERENT
+     */
+    const unsigned short RSP_RiskStatus_NSECM_PARTICIPATION_CODE_DIFFERENT = 60;
+
+    /**
+     * @brief RiskStatus_DISCLOSED_QTY_FOR_IOC_NOT_ALLOWED
+     */
+    const unsigned short RiskStatus_DISCLOSED_QTY_FOR_IOC_NOT_ALLOWED = 61;
+
+    /**
+     * @brief RiskStatus_DISCLOSED_QTY_IS_MORE_THAN_ORDER_QTY
+     */
+    const unsigned short RiskStatus_DISCLOSED_QTY_IS_MORE_THAN_ORDER_QTY = 62;
+
+    /**
+     * @brief RiskStatus_DISCLOSED_QTY_IS_NOT_IN_MARKET_LOT
+     */
+    const unsigned short RiskStatus_DISCLOSED_QTY_IS_NOT_IN_MARKET_LOT = 63;
 
     /**
      * @brief RSP_RiskStatus_MAX
      */
-    const unsigned short RSP_RiskStatus_MAX = 61;
+    const unsigned short RSP_RiskStatus_MAX = 64;
 
 
     /************************************************************************************************************************/
@@ -897,6 +958,11 @@ namespace API2
      * @brief RSP_ResponseCategory_PROTO_RESPONSE_MESSAGE
      */
     const unsigned short RSP_ResponseCategory_PROTO_RESPONSE_MESSAGE = 6000;
+
+    /**
+     * @brief RSP_ResponseCategory_MAX
+     */
+    const unsigned short RSP_ResponseCategory_MAX = 6001;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1013,7 +1079,9 @@ namespace API2
     const unsigned short CMD_ExchangeId_NSEIFSC = 79;
     const unsigned short CMD_ExchangeId_NSECOM = 80;
     const unsigned short CMD_ExchangeId_BSECOM = 81;
-    const unsigned short CMD_ExchangeId_MAX = 82;
+    const unsigned short CMD_ExchangeId_ICEX = 82;
+    const unsigned short CMD_ExchangeId_MFX = 83;
+    const unsigned short CMD_ExchangeId_MAX = 84;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1077,9 +1145,14 @@ namespace API2
     const unsigned short CMD_SecurityType_SPREAD = 3;
 
     /**
+     * @brief CMD_SecurityType_AUCTION
+     */
+    const unsigned short CMD_SecurityType_AUCTION = 4;
+
+    /**
      * @brief CMD_SecurityType_MAX
      */
-    const unsigned short CMD_SecurityType_MAX = 4;
+    const unsigned short CMD_SecurityType_MAX = 5;
 
 
     /************************************************************************************************************************/
@@ -1165,9 +1238,34 @@ namespace API2
     const unsigned short CMD_OrderType_Bid1P3 = 12;
 
     /**
+     * @brief CMD_OrderType_MARKET_TO_LIMIT
+     */
+    const unsigned short CMD_OrderType_MARKET_TO_LIMIT = 13;
+
+    /**
+     * @brief CMD_OrderType_2L
+     */
+    const unsigned short CMD_OrderType_2L = 14;
+
+    /**
+     * @brief CMD_OrderType_3L
+     */
+    const unsigned short CMD_OrderType_3L = 15;
+
+    /**
+     * @brief CMD_OrderType_4L
+     */
+    const unsigned short CMD_OrderType_4L = 16;
+
+    /**
+     * @brief CMD_OrderType_SPREAD
+     */
+    const unsigned short CMD_OrderType_SPREAD = 17;
+
+    /**
      * @brief CMD_OrderType_MAX
      */
-    const unsigned short CMD_OrderType_MAX = 13;
+    const unsigned short CMD_OrderType_MAX = 18;
 
 
 
@@ -1198,6 +1296,21 @@ namespace API2
      * @brief CMD_OrderValidity_GTC
      */
     const unsigned short CMD_OrderValidity_GTC = 6;
+
+    /**
+     * @brief CMD_OrderValidity_EOS
+     */
+    const unsigned short CMD_OrderValidity_EOS = 11;
+
+    /**
+     * @brief CMD_OrderValidity_COL
+     */
+    const unsigned short CMD_OrderValidity_COL = 12;
+
+    /**
+     * @brief CMD_OrderValidity_MAX
+     */
+    const unsigned short CMD_OrderValidity_MAX = 13;
 
 
     /************************************************************************************************************************/
@@ -1323,9 +1436,15 @@ namespace API2
     const unsigned short CMD_InstrumentType_COMMODITY = 10;
 
     /**
-     * @brief CMD_InstrumentType_EQ
+     * @brief CMD_InstrumentType_IRT
      */
-    const unsigned short CMD_InstrumentType_EQ = 11;
+    const unsigned short CMD_InstrumentType_IRT = 11;
+
+    /**
+     * @brief CMD_InstrumentType_MAX
+     */
+    const unsigned short CMD_InstrumentType_MAX = 12;
+
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1636,6 +1755,21 @@ namespace API2
     const unsigned short CMD_CommandCategory_NSECDS_MARKETSESSION_OPEN=162;
 
     /**
+     * @brief CMD_CommandCategory_ICEX_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_ICEX_DISCONNECTED=163;
+    
+    /**
+     * @brief CMD_CommandCategory_MFX_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_MFX_DISCONNECTED=164;
+
+    /**
+     * @brief CMD_CommandCategory_SOR_UNMAPPED
+     */
+    const unsigned short CMD_CommandCategory_SOR_UNMAPPED = 183;
+    
+    /**
      * @brief CMD_CommandCategory_MAX
      */
     const unsigned int CMD_CommandCategory_MAX = 6001;
@@ -1649,7 +1783,7 @@ namespace API2
     const unsigned short CMD_OrderCateGory_PAIRED = 2;
     const unsigned short CMD_OrderCateGory_STRADDLE = 3;
     const unsigned short CMD_OrderCateGory_MULTILEG = 4;
-    const unsigned short CMD_OrderCateGory_MAX = 5;
+    const unsigned short CMD_OrderCateGory_MAX = 7;
 
     /**
      * @brief CMD_ContractType_NORMAL
@@ -1838,9 +1972,14 @@ namespace API2
     const short CMD_CONFIRMATION_TYPE_SELF = 1;
 
     /**
+     * @brief CMD_CONFIRMATION_TYPE_AFTER_MARKET_ORDER - for After Market Orders.
+     */
+    const short CMD_CONFIRMATION_TYPE_AFTER_MARKET_ORDER = 2;
+
+    /**
      * @brief CMD_CONFIRMATION_TYPE_MAX - invalid confirmation type
      */
-    const short CMD_CONFIRMATION_TYPE_MAX = 2;
+    const short CMD_CONFIRMATION_TYPE_MAX = 3;
 
     const uint64_t SECONDS_PER_DAY = 86400;
     const uint64_t SECONDS_PER_HOUR = 3600;
@@ -1953,17 +2092,24 @@ namespace API2
      */
     const short ScripGroup_MAX = 13;
 
+    /**
+     * @brief API params buffer header(4(command category) + 4(packet length) + 4(apiId) )
+     */
+    const short API_BUFFER_HEADER = 12;
+
     const short CMD_QUEUED_SESSION_NORMAL = 0;
 
     const short CMD_QUEUED_SESSION_PREOPEN = 1;
 
-    const short CMD_QUEUED_SESSION_OPEN = 2;
+    const short CMD_QUEUED_SESSION_PREOPEN_CLOSED = 2;
 
-    const short CMD_QUEUED_SESSION_CLOSE = 3;
+    const short CMD_QUEUED_SESSION_OPEN = 3;
 
-    const short CMD_QUEUED_SESSION_POSTCLOSE = 4;
+    const short CMD_QUEUED_SESSION_CLOSE = 4;
 
-    const short CMD_QUEUED_SESSION_MAX = 5;
+    const short CMD_QUEUED_SESSION_POSTCLOSE = 5;
+
+    const short CMD_QUEUED_SESSION_MAX = 6;
 
     /**
      * @brief STRATEGY_TYPE_DEFAULT_VALUE
@@ -2075,8 +2221,119 @@ namespace API2
       const std::string FILLED_QTY = "Filled Quantity";
       const std::string ORDER_PLACED_SUCCESSFULLY = "Order placed successfully";
       const std::string INVALID_VENDOR_CODE = "Invalid Vendor Code";
+      const std::string DMS_DISCONNECTED = "DMS disconnected. Terminating strategy.";
 
     } // STRATEGY_CONSTANTS
+
+    /************************************************************************************************************
+     ************************************************************************************************************/
+    /**
+     * @brief RSP_TerminationReasonType_AUTO
+     */
+    const unsigned short RSP_TerminationReasonType_AUTO = 0;
+
+    /**
+     * @brief RSP_TerminationReasonType_FRONT_END
+     */
+    const unsigned short RSP_TerminationReasonType_FRONT_END = 1;
+
+    /**
+     * @brief RSP_TerminationReasonType_DMS_DISCONNECTION
+     */
+    const unsigned short RSP_TerminationReasonType_DMS_DISCONNECTION = 2;
+
+    /**
+     * @brief RSP_TerminationReasonType_EXCHANGE_DISCONNECTION
+     */
+    const unsigned short RSP_TerminationReasonType_EXCHANGE_DISCONNECTION = 3;
+
+    /**
+     * @brief RSP_TerminationReasonType_AUTO_TIMER_EXPIRED
+     */
+    const unsigned short RSP_TerminationReasonType_AUTO_TIMER_EXPIRED = 4;
+
+    /**
+     * @brief RSP_TerminationReasonType_MAX
+     */
+    const unsigned short RSP_TerminationReasonType_MAX = 5;
+
+    /** Service Types for care orders.
+     *  Same enums exist in sales trader proto structures.
+     *  If any changes are done here should also be updated 
+     *  in those structures too.
+     */
+    const short Service_OPEN = 0;
+    const short Service_DISPLAY_SIZE = 1;
+    const short Service_LIQUIDITY_SEEKER = 2;
+    const short Service_INCOGNITO = 3;
+    const short Service_TWAP = 4;
+    const short Service_POV = 5;
+    const short Service_MANUAL_ORDER = 6;
+    const short Service_FORKWAVE = 7;
+    const short Srvce_MAX = 8;
+
+    /**
+     * @brief CUSTOM_STRATEGY_COMMAND -Will store custom commands will need to
+     * handle in strategy if needed.
+     */
+    enum class CUSTOM_STRATEGY_COMMAND
+    {
+      AUTO_TERMINATE, // This event is going to push when AUTO_TERMINATE_TIME is achieved.
+      MAX
+    };
+
+    /**
+     * @brief NSE_SOR_STRATEGY_TYPE_DIGIT : This is 3rd last digit of location id for nse
+     * when a strategy is running in sor mode.
+     */
+    const short NSE_SOR_STRATEGY_TYPE_DIGIT = 2;
+
+    /**
+     * @brief BSE_SOR_STRATEGY_TYPE_DIGIT : This is 3rd last digit of location id for bse
+     * when a strategy is running in sor mode.
+     */
+    const short BSE_SOR_STRATEGY_TYPE_DIGIT = 4;
+
+    /**
+     * @brief CMD_ExpiryDay_INCLUDE
+     */
+    const short CMD_ExpiryDay_INCLUDE = 0;
+
+    /**
+     * @brief CMD_ExpiryDay_HALF_INCLUDE
+     */
+    const short CMD_ExpiryDay_HALF_INCLUDE = 1;
+
+    /**
+     * @brief CMD_ExpiryDay_EXCLUDE
+     */
+    const short CMD_ExpiryDay_EXCLUDE = 2;
+
+    /**
+     * @brief CMD_ExpiryDay_INCLUDE_ON_EXPIRY
+     */
+    const short CMD_ExpiryDay_INCLUDE_ON_EXPIRY = 3;
+
+    /**
+     * @brief CMD_ExpiryDay_MAX
+     */
+    const short CMD_ExpiryDay_MAX = 4;
+
+    /**
+     * @brief ReferenceSpotPrice_BID
+     */
+    const short ReferenceSpotPrice_BID = 0;
+
+    /**
+     * @brief ReferenceSpotPrice_ASK
+     */
+    const short ReferenceSpotPrice_ASK = 1;
+
+    /**
+     * @brief ReferenceSpotPrice_LTP
+     */
+    const short ReferenceSpotPrice_LTP = 2;
+
   }
 }
 #endif

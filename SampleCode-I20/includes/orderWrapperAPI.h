@@ -41,6 +41,43 @@ namespace API2 {
       API2::DATA_TYPES::MarketSessionType _marketSessionType;
       const API2::ExchangeAdapterDetails* _exchangeAdapterDetails;
 
+      /**
+       * @brief _timeStart : Start time of placing order
+       */
+      timespec _timeStart;
+      /**
+       * @brief _timeEnd : End time of placing order
+       */
+      timespec _timeEnd;
+      /**
+       * @brief _timeFavourable : Time when the strategy is ready to place order
+       */
+      timespec _timeFavourable;
+      /**
+       * @brief _timeTurnAround : Time at which strategy is getting confirmation of placed order
+       */
+      timespec _timeTurnAround;
+
+      /**
+       * @brief _printLatency : configuration of whether to print latency logs
+       */
+      CREATE_FIELD ( bool, PrintLatency);
+
+    public:
+      /**
+       * @brief OrderWrapperAPI : constructor
+       * @param instrument
+       * @param mode : order mode for placing order
+       * @param context : SGContext pointer
+       * @param account : Account detail
+       * @param type : Order Type for placing order, By default LIMIT
+       * @param validity : Order Validity
+       * @param isSpread : Set this parameter to true. if this is spread order
+       * @param selfTradeOrderFlag : STPC flag
+       * @param marketSessionType : market session type
+       * @param exchangeAdapterDetails : echange adapter datail
+       * @param latencyPrint : this parameter is used to enable Latency logs. i.e Time to send , time to react, TAT, TotalTime
+       */
       OrderWrapperAPI(API2::COMMON::Instrument *instrument,
           const API2::DATA_TYPES::OrderMode &mode,
           SGContext *context,
@@ -50,15 +87,16 @@ namespace API2 {
           bool isSpread =false,
           const API2::DATA_TYPES::SelfTradeOrderFlag &selfTradeOrderFlag = API2::CONSTANTS::CMD_SelfTradeOrderFlag_CANCEL_PASSIVE,
           const API2::DATA_TYPES::MarketSessionType marketSessionType = API2::CONSTANTS::CMD_QUEUED_SESSION_NORMAL,
-          const API2::ExchangeAdapterDetails* const exchangeAdapterDetails = nullptr)
+          const API2::ExchangeAdapterDetails* const exchangeAdapterDetails = nullptr,
+          bool latencyPrint = false)
         :
           _instrument(instrument),
           _mode(mode),
           _orderType(type),
           _orderValidity(validity),
-          _order(NULL),
-          _replaceOrder(NULL),
-          _orderId(NULL),
+          _order(nullptr),
+          _replaceOrder(nullptr),
+          _orderId(nullptr),
           _exchangeOrderId(""),
           _context(context),
           _accountDetail(account),
@@ -73,8 +111,11 @@ namespace API2 {
           _lastFilledQuantity(0),
           _selfTradeOrderFlag( selfTradeOrderFlag ),
           _marketSessionType(marketSessionType),
-          _exchangeAdapterDetails(exchangeAdapterDetails)
+          _exchangeAdapterDetails(exchangeAdapterDetails),
+          _PrintLatency(latencyPrint)
       {
+        _timeFavourable.tv_nsec = 0;
+        _timeFavourable.tv_sec = 0;
         reset();
       }
       void setPrimaryClientCode(const std::string &pcc)
@@ -82,13 +123,15 @@ namespace API2 {
         _accountDetail.setPrimaryClientCode(pcc.c_str());
         _accountDetail.setAccountType(0);
       }
+
       OrderWrapperAPI()
         :
-          _instrument(NULL),
+          _instrument(nullptr),
           _mode(API2::CONSTANTS::CMD_OrderMode_MAX),
-          _order(NULL),
-          _orderId(NULL),
-          _context(NULL),
+          _order(nullptr),
+          _replaceOrder(nullptr),
+          _orderId(nullptr),
+          _context(nullptr),
           _isReset(false),
           _isPendingNew(false),
           _isPendingReplace(false),
@@ -100,8 +143,13 @@ namespace API2 {
           _lastFilledQuantity(0),
           _selfTradeOrderFlag(API2::CONSTANTS::CMD_SelfTradeOrderFlag_CANCEL_PASSIVE),
           _marketSessionType(API2::CONSTANTS::CMD_QUEUED_SESSION_NORMAL),
-          _exchangeAdapterDetails(nullptr)
-      {}
+          _exchangeAdapterDetails(nullptr),
+          _PrintLatency(false)
+      {
+        _timeFavourable.tv_nsec = 0;
+        _timeFavourable.tv_sec = 0;
+      }
+
       void reset();
 
       SIGNED_LONG getLastQuantity() { return _lastQuantity; }
@@ -164,6 +212,21 @@ namespace API2 {
       {
         _marketSessionType = marketSessionType;
       }
+
+      /**
+       * @brief setStartTimer : For starting the timer when the strategy is ready for placing order.
+       *                        Call this method to print Time to react and total time if latency print is on
+       */
+      void setStartTimer();
+      /**
+       * @brief printLatencyLogs : To print the latency logs
+       */
+      void printLatencyLogs();
+
+      /**
+       * @brief timeDiff : return the time diffrence between time1 and time2
+       **/
+      int64_t timeDiff(const timespec &time1, const timespec &time2);
     };
 
   }

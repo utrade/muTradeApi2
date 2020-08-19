@@ -19,6 +19,19 @@ public : const TYPE &getRef##NAME() const{  return _##NAME ; } \
 public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
 private : TYPE _##NAME
 
+#define CREATE_FIELD_WITH_DEFAULT_VALUE( TYPE, NAME, DEFAULT_VALUE )  \
+  public : TYPE get##NAME() const {  return _##NAME ; } \
+public : TYPE &getRef##NAME() {  return _##NAME ; } \
+public : const TYPE &getRef##NAME() const{  return _##NAME ; } \
+public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
+private : TYPE _##NAME = DEFAULT_VALUE
+
+#define CREATE_ENUM_CLASS_FIELD( TYPE, NAME ) \
+public : std::underlying_type<TYPE>::type get##NAME() const {  return \
+             static_cast<typename std::underlying_type<TYPE>::type>(_##NAME) ; } \
+public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
+private : TYPE _##NAME
+
 #define CREATE_FIELD_ACCESS_SPECIFIER( TYPE, NAME, ACCESS_SPECIFIER ) \
   public : TYPE get##NAME() const {  return _##NAME ; } \
 public : TYPE &getRef##NAME() {  return _##NAME ; } \
@@ -119,7 +132,7 @@ addType(&_##NAME);
 
 #define DELETE_PTR(param) if(param) {\
     delete param;\
-  param =0; }
+  param =nullptr; }
 
 #define DEBUG_METHOD(DEBUG_OBJECT) { DEBUG_OBJECT->message(__FUNCTION__); }
 #define DEBUG_MESSAGE(DEBUG_OBJECT,debug_message) {  DEBUG_OBJECT->message(debug_message); }

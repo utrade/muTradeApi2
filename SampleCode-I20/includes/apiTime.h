@@ -54,9 +54,9 @@ namespace API2 {
       UNSIGNED_LONG getMedian();
       double getMean();
       void dumpDataSet(std::string fileName="");
-      LatencyNumbers(std::string name);
+      explicit LatencyNumbers(const std::string &name);
       LatencyNumbers();
-      void setName(std::string name);
+      void setName(const std::string &name);
     };
 
   }

@@ -12,6 +12,7 @@
 #include <boost/unordered_set.hpp>
 #include <unordered_set>
 #include <string>
+
 namespace API2
 {
 
@@ -35,7 +36,9 @@ namespace API2
  */
 
   class SGContextImpl;
-  
+ 
+  class CustomData;
+  typedef std::shared_ptr<CustomData> CustomDataPtr;
   /**
    * @brief The SGContext class The main class to be inherited for creating a new Strategy
    */
@@ -55,7 +58,7 @@ namespace API2
        * @param params API2::StrategyParameters
        * @param sgName Unique String for Strategy Name
        */
-    SGContext(StrategyParameters *params, const std::string sgName);
+    SGContext(StrategyParameters *params, const std::string &sgName);
 
     static void registerStrategy(boost::shared_ptr<SGContext>);
     SGContextImpl * getSGContextImpl();
@@ -63,6 +66,25 @@ namespace API2
     /************************ Factory Calls ********************/
     /***********************************************************/
 
+    /**
+     * @brief sendCustomDataToStrategiesDealerWise - send custom data for all
+     * active strategies for a dealer and provides callback for all startegies.
+     * If passed dealerId is zero, then custom data will sent to all strategy
+     * @param dealerId
+     * @param customDataPtr shared pointer to base class CustomData
+     */
+    void sendCustomDataToStrategiesDealerWise(const DATA_TYPES::CLIENT_ID dealerId , 
+        CustomDataPtr customDataPtr);
+
+    /**
+     * @brief receiveCustomData - CallBack to this function will be received by
+     * all API strategies of a particular dealer. The function
+     * sendCustomDataToStrategiesDealerWise is used to generate callback on the
+     * specific dealer with specific custom data. User need to further typecast
+     * the customDataPtr into its derived class.
+     * @param customDataPtr shared pointer to base class CustomData
+     */
+    virtual void receiveCustomData(CustomDataPtr customDataPtr);
 
     /**
        * @brief createNewInstrument To add a new Instrument in the strategy \n
@@ -85,7 +107,7 @@ namespace API2
                                               bool useSnapShot=true, 
                                               bool useTbt=false, 
                                               bool useOhlc=false,
-                                              const size_t depthSize = CONSTANTS::MarketDepthArraySize);
+                                              size_t depthSize = CONSTANTS::MarketDepthArraySize);
 
     /**
        * @brief createNewInstrument To add a new Instrument in the strategy \n
@@ -146,7 +168,7 @@ namespace API2
                                                bool useSnapShot=true, 
                                                bool useTbt=false, 
                                                bool useOhlc=false,
-                                               const size_t depthSize = CONSTANTS:: MarketDepthArraySize);
+                                               size_t depthSize = CONSTANTS:: MarketDepthArraySize);
 
     /**
        * @brief createNewOrder To create a New Order for an instrument
@@ -204,7 +226,7 @@ namespace API2
      */
     bool reqNewSingleOrder(DATA_TYPES::RiskStatus &riskStatus,
         COMMON::Instrument *instrument,
-        SingleOrder *&order,
+        SingleOrder *order,
         COMMON::OrderId *orderId,
         bool isSpreadOrder = false,
         const bool validateAccountDetail = true);
@@ -270,7 +292,7 @@ namespace API2
         COMMON::Instrument *instrument;
         SingleOrder *order;
         COMMON::OrderId *orderId;
-        OrderLegData(COMMON::Instrument *instrument):
+        explicit OrderLegData(COMMON::Instrument *instrument):
           instrument(instrument),
           order(0),
           orderId(0){}
@@ -307,7 +329,7 @@ namespace API2
      **/
     bool reqReplaceOrder(DATA_TYPES::RiskStatus &riskStatus,
                           COMMON::Instrument *instrument,
-                          SingleOrder *&order,
+                          SingleOrder *order,
                           COMMON::OrderId *orderId,
                           bool isSpreadOrder = false);
 
@@ -387,6 +409,14 @@ namespace API2
     bool validateAlgoDetail();
 
     /**
+     * @brief validateSorPermission : This function will validate whether a user is allowed 
+     * to run a sor strategy or not.
+     * @param userStr : client code on which strategy will be run
+     * @return false if user is not given sor permissions.
+     */
+    bool validateSorPermission( const API2::DATA_TYPES::USER_ID_STR &userStr );
+
+    /**
      * @brief reqStartOHLCAlgo function call to Start the Strategy listening to OHLC update events
      * @return
      */
@@ -442,7 +472,7 @@ namespace API2
           bool isSnapshot = true,
           bool isTbt = false,
           bool isOhlc = false,
-          const size_t depthSize = CONSTANTS::MarketDepthArraySize
+          size_t depthSize = CONSTANTS::MarketDepthArraySize
           );
 
       /**
@@ -503,26 +533,37 @@ namespace API2
           bool isSnapshot = true,
           bool isTbt = false,
           bool isOhlc = false,
-          const size_t depthSize = CONSTANTS::MarketDepthArraySize
+          size_t depthSize = CONSTANTS::MarketDepthArraySize
           );
 
-    /**
-     * @brief reqAddStrategyComment To set the current Startegy Comment Whenever a strategy Response is sent to frontend this will be the  sent as the strategy Comment
-     * @param com
-     */
-    void reqAddStrategyComment(DATA_TYPES::StrategyComment com);
+      /**
+       * @brief reqAddStrategyComment To set the current Startegy Comment Whenever a strategy Response is sent to frontend 
+       * this will be the  sent as the strategy Comment
+       * @param com
+       */
+      void reqAddStrategyComment(DATA_TYPES::StrategyComment com);
+
+      /**
+       * @brief reqAddStrategyComment To set the current Startegy Comment Whenever a strategy Response is sent to frontend
+       * this will be the sent as the custom strategy comment and will be shown as it is at frontend.
+       * @param com
+       */
+      void reqAddStrategyComment(const DATA_TYPES::String &com);
 
     /**
        * @brief reqSendStrategyResponse To send a Response to the frontend
        * @param responseType the response Type as DATA_TYPES::ResponseType
        * @param riskStatus the Risk Status as DATA_TYPES::RiskStatus
        * @param strategyComment the Strategy Comment as DATA_TYPES::StrategyComment
+       * @param terminationReasonType The reason due to which the strategy is terminated
+       *                              for eg. if it is terminated front-end, automatically etc.
        */
     void reqSendStrategyResponse(
         DATA_TYPES::ResponseType responseType,
         DATA_TYPES::RiskStatus riskStatus,
         DATA_TYPES::StrategyComment strategyComment = CONSTANTS::RSP_StrategyComment_MAX,
-        bool isTerminatedFromFrontEnd = false
+        DATA_TYPES::TerminationReasonType terminationReasonType = CONSTANTS::RSP_TerminationReasonType_AUTO,
+        const DATA_TYPES::String &strategyCustomComment = ""
         );
 
     /**
@@ -862,6 +903,12 @@ namespace API2
     virtual void onCMDTerminateStartegy();
 
     /**
+     * @brief onCMDDmsDisconnection - This method needs to be called when DMS gets disconnected from
+     *                                hft or front-end gets disconnected from DMS.
+     */
+    virtual void onCMDDmsDisconnection();
+
+    /**
        * @brief onCMDTerminateSqOffStrategy Called when strategy receives Terminate SqOff Command from Frontend
        */
     virtual void onCMDTerminateSqOffStrategy();
@@ -1045,6 +1092,13 @@ namespace API2
      */
     virtual void onTimerEvent(){}
 
+    /**
+     * @brief onStrategyCustomCommand Call back when there is any custom command or
+     * extra information (i.e. generated at infra) will sent to strategy.
+     * @param command
+     */
+    virtual void onStrategyCustomCommand( const API2::CONSTANTS::CUSTOM_STRATEGY_COMMAND command ){}
+
     /***********************************************************/
     /************************ RMS Getters ********************/
     /***********************************************************/
@@ -1057,10 +1111,10 @@ namespace API2
      * @param groupName - BE, EQ
      * @param staticData
      */
-    SIGNED_LONG getFreezeQty(const std::string symbol,
+    SIGNED_LONG getFreezeQty(const std::string &symbol,
         const DATA_TYPES::ExchangeId exchangeId,
         const char securityType,
-        const std::string groupName = " ",
+        const std::string &groupName = " ",
         const API2::SymbolStaticData *const staticData = nullptr );
 
     /**
@@ -1076,8 +1130,17 @@ namespace API2
      *         and value will be position struct. 
      *
      * @param symbolIdVec vector of symbol ids for those we need to get positions.
+     * @return true, if any of passed symbol position is found
+     *         otherwise return false
+     *
+     * Note:
+     * In case using new RMS :
+     * - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     * - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *   then those old positions will not be present in this position as they are assumed to be reverted
+     *   and shall not impact current day's trading.
      */
-    void getApiPositionBySymbolId(
+    bool getApiPositionBySymbolId(
         SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
         const std::vector< SIGNED_LONG >& symbolIdVec );
 
@@ -1088,6 +1151,14 @@ namespace API2
      *         false if position does not exist. 
      *
      * @param symbolId symbol id for which we need to get position.
+     * @return true : if position(buy + sell  + old) is exist in the system otherwise false.
+     *
+     * Note:
+     * In case using new RMS :
+     * - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     * - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *   then those old positions will not be present in this position as they are assumed to be reverted
+     *   and shall not impact current day's trading.
      */
     bool getApiPositionBySymbolId( 
         API2::PositionStruct &outPos, 
@@ -1102,8 +1173,17 @@ namespace API2
      * @param symbolIdVec vector of symbol ids for those we need to find out positions.
      *        - Default value is empty and in this case dealer wise positions for all symbols under one input dealer will be return 
      *        - If we need dealer wise positions for some specific symbol ids for input dealer then we pass those symbol ids in this vector.
+     * @return For OLD RMS : it will always return true for now
+     *               For NEW RMS: it will return true if position found for any of the symbol, otherwise return false.
+     *
+     * Note:
+     * In case using new RMS :
+     * - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     * - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *   then those old positions will not be present in this position as they are assumed to be reverted
+     *   and shall not impact current day's trading.
      */
-    void getApiPositionForDealer(
+    bool getApiPositionForDealer(
         API2::SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
         SIGNED_INTEGER dealerId,
         const boost::unordered_set< SIGNED_LONG >& symbolIdSet = boost::unordered_set< SIGNED_LONG >() );
@@ -1122,12 +1202,279 @@ namespace API2
      *          under all input/all dealers will be returned. 
      *        - If we need dealer wise positions for some specific symbol ids 
      *          for all input/all dealers then we pass those symbol ids in this vector.
+     * @return it will always return true for now
+     *
+     * Note:
+     * In case using new RMS :
+     * - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     * - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *   then those old positions will not be present in this position as they are assumed to be reverted
+     *   and shall not impact current day's trading.
      */
-    void getApiPositionForDealer(
+    bool getApiPositionForDealer(
         API2::DealerIdVsSymbolIdAndPositionStructHash& hashDealerIdSymbolIdPositionStruct,
         const std::vector< SIGNED_INTEGER >& dealerIdVec = std::vector< SIGNED_INTEGER >(),
         const boost::unordered_set< SIGNED_LONG >& symbolIdSet = boost::unordered_set< SIGNED_LONG >() );
 
+    /**
+     * @brief getApiPositionForClient - This function will be used for getting the client  + symbolId wise positions
+     *                                - for the symbols provided in symbolIdSet.
+     *
+     * @return hashSymbolIdAndPositionStruct - This is an unordered map where key will be symbol id
+     *                                       - and value will be position struct and symbol Id will come
+     *                                       - from symbolIdSet which will be provided when this method is called.
+     *
+     * @param primaryClientCode - primary client code ( Can get from AccountDetails )
+     *
+     * @param exchangeId - Exchange Id ( Can get from symbolStatic Data ):
+     *                     For Old RMS this value should be valid, because in Client wise position not supported
+     *                     For New RMS: this value could be anything, because there is only client code wise position
+     *                     Not Considered in New RMS .
+     *
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     *                     For Old RMS this value should be valid, because in Client wise position not supported
+     *                     For New RMS: this value could be anything, because there is only client code wise position.
+     *                     Not Considered in New RMS
+     *
+     * @param symbolIdVec vector of symbol ids for those we need to find out positions.
+     *        - If there is no position created on the symbol Id it will return PositionStruct with default values ( i.e. 0 ).
+     *
+     * @example - Returned Structure Diagram (i.e. API2::SymbolIdAndPositionStructHash)
+     *
+     *               Client + Exchange + Segment (e.g. Client( C1 ) + Exchange( NSECM ) + Segment( CASH ) )
+     *       ------------------------------------------
+     *       |     Symbol Id     |    PositionStruct  |
+     *       ------------------------------------------
+     *       |     11504375      |        P1          |  Where P1,P2....PN are PositionStruct.
+     *       |     11504376      |        P2          |
+     *       |       ....        |       ....         |
+     *       |     11601234      |        PN          |
+     *       ------------------------------------------
+     *
+     * @note - If there is no position created for the given inputs it will return an empty position structure
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price using getRmsPositionPrecision() method
+     *       - For New RMS : client + exchange + segment not supported
+     *
+     * @return : true if position exist in system for primaryClientCode
+     *                In case of OLD RMS : it will return false if exchangeId ==MAX or segmentType == MAX or symbolIdSet is empty
+     *                In case of NEW RMS: It will return false, setting not provided by admin.
+     * Note:
+     * In case using new RMS :
+     * - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     * - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *   then those old positions will not be present in this position as they are assumed to be reverted
+     *   and shall not impact current day's trading.
+     */
+    bool getApiPositionForClient(
+        API2::SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const boost::unordered_set< API2::DATA_TYPES::SYMBOL_ID >& symbolIdSet,
+        const API2::DATA_TYPES::ExchangeId exchangeId = API2::CONSTANTS::CMD_ExchangeId_MAX,
+        const API2::DATA_TYPES::ClientSegmentType segmentType = API2::DATA_TYPES::ClientSegmentType::MAX);
+
+    /**
+     * @brief getApiPositionForDealerClient - This function will be used for getting the Dealer + Client + SymbolId wise positions
+     *                                      - for the symbols provided in symbolIdSet.
+     *
+     * @return hashSymbolIdAndPositionStruct - This is an unordered map where key will be symbol id
+     *                                       - and value will be position struct and symbol Id will come
+     *                                       - from symbolIdSet which will be provided when this method is called.
+     *                                       - (For NEW RMS for now)if symbolIdSet is passed empty, all symbol positions
+     *                                       - will be returned
+     *
+     * @param dealerId - dealerId
+     * @param primaryClientCode - primary client code ( Can get from AccountDetails )
+     * @param exchangeId - Exchange Id ( Can get from symbolStatic Data )
+     *                     For  New RMS: It can be  MAX.
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     *                      For New RMS: It can be MAX
+     *  For New RMS if Exchangeid and  segment both are MAX than all symbol position will be return.
+     *
+     * @param symbolIdVec vector of symbol ids for those we need to find out positions.
+     *        - For Old RMS: If there is no position created on the symbol Id it will return PositionStruct with default values ( i.e. 0 ).
+     *
+     * @example - Returned Structure Diagram (i.e. API2::SymbolIdAndPositionStructHash)
+     *
+     *          Dealer + Client + Exchange + Segment (e.g. Dealer( D1 ) + Client( C1 ) + Exchange( NSECM ) + Segment( CASH ) )
+     *       ------------------------------------------
+     *       |     Symbol Id     |    PositionStruct  |
+     *       ------------------------------------------
+     *       |     11504375      |        P1          |  Where P1,P2....PN are PositionStruct.
+     *       |     11504376      |        P2          |
+     *       |       ....        |       ....         |
+     *       |     11601234      |        PN          |
+     *       ------------------------------------------
+     *
+     * @note - If there is no position created for the given inputs it will return an empty position structure
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     *  @return : For OLD RMS: If exchange id or segment type is MAX it will return false, other wise return true
+     *                 For NEW RMS : Value of exchange id and segment type should be valid or invalid.
+     *                          If  exchanege id is valid and segment type is invalid  or  vice versa then it will return false.
+     *                          also if dealer not found then it will return false.
+     *                          Otherwise return true
+     *  Note: This method will return position and old position of Dealer+Client+Symbol same as shown in the net position book.
+     *         - Trade give up has no impact on this position
+     */
+    bool getApiPositionForDealerClient(
+        API2::SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
+        const API2::DATA_TYPES::CLIENT_ID dealerId,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId = API2::CONSTANTS::CMD_ExchangeId_MAX,
+        const API2::DATA_TYPES::ClientSegmentType segmentType = API2::DATA_TYPES::ClientSegmentType::MAX,
+        const boost::unordered_set< API2::DATA_TYPES::SYMBOL_ID >& symbolIdSet = boost::unordered_set< API2::DATA_TYPES::SYMBOL_ID >());
+
+    /**
+     * @brief getApiDepositForClient - This function will get clientUsedDeposit for a particular client.
+     *                                 In Case of OLD RMS it will return Deposit by CLIENT+ExchangeId+Segment
+     *                                 In Case of NEW RMS it will return by CLIENT ID
+     * @return clientUsedDeposit - Use to get the client used deposit.
+     * @param primaryClientCode  - primary client code ( Can get from AccountDetails )
+     * @param exchangeId         - exchangeId ( Can get from symbolStatic Data )
+     *                             For OLD RMS: Value should be valid otherwise return false.
+     *                             For NEW RMS:Value Does not matters, Only supported for Client level,
+     * @param securityType       - securityType ( Can get from symbolStatic Data )
+     *                             For OLD RMS: Value should be valid otherwise return false.
+     *                             For NEW RMS:Value Does not matters, Only supported for Client level,
+     * @description - Exchange Id and security type is required to apply the margin percentage
+     *              - on the used deposit which varies w.r.t exchange and security type.
+     *
+     * @note - Will return clientUsedDeposit as it is if inputs are invalid.
+     *       - clientUsedDeposit is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     * @return false : if position not exist in the system or exchange id or security type is max otherwise return true.
+     */
+    bool getApiDepositForClient(
+        API2::DATA_TYPES::INTEGER64& clientUsedDeposit,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId = API2::CONSTANTS::CMD_ExchangeId_MAX,
+        const API2::DATA_TYPES::SecurityType securityType  = API2::CONSTANTS::CMD_SecurityType_MAX );
+
+    /**
+     * @brief getApiDepositForDealer - This function will get dealerUsedDeposit for a particular dealer.
+     * @return dealerUsedDeposit - Use to get the dealer used deposit.
+     * @param dealerId          - Dealer Id
+     * @param exchangeId        - exchangeId ( Can get from symbolStatic Data )
+     * @param securityType      - securityType ( Can get from symbolStatic Data )
+     * @description - Exchange Id and security type is required to apply the margin percentage
+     *              - on the used deposit which varies w.r.t exchange and security type.
+     *
+     * @note - Will return dealerUsedDeposit as it is if inputs are invalid.
+     *       - dealerUsedDeposit is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     *      --- Will return false in case of NEW RMS(Not Handled), otherwise true
+     */
+    bool getApiDepositForDealer(
+        API2::DATA_TYPES::INTEGER64& dealerUsedDeposit,
+        const API2::DATA_TYPES::CLIENT_ID dealerId,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::SecurityType securityType );
+
+    /**
+     * @brief getApiOrderLimitsForClient - This function will get client order Limits for a client.
+     *                                     In Case of OLD RMS it will return order limit by CLIENT+ExchangeId+Segment
+     *                                     In Case of NEW RMS it will return by CLIENT ID
+     * @return clientOrderLimitsApiStruct - Return order limits for the given client.
+     * @param primaryClientCode - primary client code ( Can get from AccountDetails )
+     * @param exchangeId - Exchange Id ( Can get from symbolStatic Data )
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     *
+     * @note - Will return clientOrderLimitsApiStruct as it is if inputs are invalid.
+     *       - values are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     * @return For OLD RMS: it will return false if Exchange id or segment will MAX, otherwise return true;
+     *         For NEW RMS: Return false if limits not given from FE. otherwise false.
+     */
+    bool getApiOrderLimitsForClient(
+        API2::COMMON::OrderLimitsApiStruct& clientOrderLimitsApiStruct,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId = API2::CONSTANTS::CMD_ExchangeId_MAX,
+        const API2::DATA_TYPES::ClientSegmentType segmentType = API2::DATA_TYPES::ClientSegmentType::MAX);
+
+    /**
+     * @brief getApiOrderLimitsForDealer - This function will get client order Limits for a dealer.
+     * @param dealerOrderLimitsApiStruct - Return order limits for the given dealer.
+     * @param dealerId - Dealer Id for which we need to get limits.
+     *
+     * @note - Will return dealerOrderLimitsApiStruct as it is if inputs are invalid.
+     *       - values are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     *        - For New RMS : Value of AggregateDeposit will be zero, because dealer level AggregateDeposit is not supported
+     *
+     * @return false if settings not given from FE or system error.
+     */
+    bool getApiOrderLimitsForDealer(
+        API2::COMMON::OrderLimitsApiStruct& dealerOrderLimitsApiStruct,
+        const API2::DATA_TYPES::CLIENT_ID dealerId );
+
+    /**
+     * @brief getApiGlobalClientPosition - Will get the global client wise position.
+     *                                In Case of OLD RMS it will return Position by CLIENT+ExchangeId+Segment
+     *                                In Case of NEW RMS it will return by CLIENT ID
+     * @return outPos - Return the global client position.
+     * @param primaryClientCode ( Can get from AccountDetails )
+     * @param exchangeId (Not used in NEW RMS)( Can get from symbolStatic Data )
+     * @param segmentType (Not used in NEW RMS)( Can get from symbolStatic Data )
+     *
+     * @note - If there is no position created for the given inputs it will return position structure as it is
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     *       - In case using new RMS :
+     *         - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     *         - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *           then those old positions will not be present in this position as they are assumed to be reverted
+     *           and shall not impact current day's trading.
+     *
+     * @return return false  if Invalid Client code or Position not found in the system
+     *                     Otherwise return true
+     *              For OLD RMS : it will return false if Exchange id or segment is MAX or
+     *                   Invalid CLient code or Position not found in the system,
+     *                   otherwise return true;
+     */
+    bool getApiGlobalClientPosition(
+        API2::PositionStruct& outPos,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId = API2::CONSTANTS::CMD_ExchangeId_MAX,
+        const API2::DATA_TYPES::ClientSegmentType segmentType = API2::DATA_TYPES::ClientSegmentType::MAX);
+
+    /**
+     * @brief getApiGlobalDealerPosition - Will get global dealer wise position.
+     * @return outPos - Return the global dealer wise position.
+     * @param dealerId
+     * @note - If there is no position created for the given inputs it will return position structure as it is
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     *       - In case using new RMS :
+     *         - If margin revert on trade give up is enabled in the system, the same shall impact this position.
+     *         - For old positions, if ignore old position(of client with a mapped cp code) is enabled in the system,
+     *           then those old positions will not be present in this position as they are assumed to be reverted
+     *           and shall not impact current day's trading.
+     *
+     * @return true if dealer is valid and position exist in the system.
+     *                Otherwise false.
+     */
+
+    bool getApiGlobalDealerPosition(
+        API2::PositionStruct& outPos,
+        const API2::DATA_TYPES::CLIENT_ID dealerId );
+
+    /**
+     * @brief getRmsPositionPrecision
+     * @description - Return the RMS position precision in terms of multiplier
+     *                For e.g.
+     *                 - In Position for buy or sell value the price will
+     *                   be adjusted according to RMS position precision.
+     *
+     *                 - If buy value is 234500 and RMS position precision is 10000
+     *                 - then the actual value will be 23.45 i.e. ( 234500 / 10000 )
+     *
+     * @return API2::DATA_TYPES::RMS_POSITION_PRECISION
+     */
+    API2::DATA_TYPES::RMS_POSITION_PRECISION getRmsPositionPrecision();
     
     /**
      * @brief readConfForAlgoid - read AlgoId from conf file.
@@ -1170,7 +1517,7 @@ namespace API2
     void readConfForAlgoid(
         const std::string &blockName,
         const std::string &fileName,
-        const std::string strategy = "_ALGO_ID",
+        const std::string &strategy = "_ALGO_ID",
         bool useExchName = true,
         bool useExchNameWithSegment = false); 
 
@@ -1200,6 +1547,31 @@ namespace API2
      *              - or if ByPassNNFID is greater or equal to BYPASS_NNFID_MAX then return false.
      */
     bool setStrategyType(const short vendorCode, const API2::DATA_TYPES::BYPASS_NNFID byPassNNFID = API2::DATA_TYPES::BYPASS_NNFID_DISABLED );
+
+    /**
+     * @brief getClientCodesDealerExchangeSegmentWise
+     * @description - This method will return all the clients mapped with the dealer + Exchange + segment
+     *              - which is passed in the method arguments.
+     *
+     * @param clientCodeVec - This vector will be returned with client codes
+     * @param dealerId    - Dealer Id
+     * @param exchangeId  - Exchange Id ( Can get from symbolStatic Data )
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     */
+
+    void getClientCodesDealerExchangeSegmentWise(
+        std::vector< API2::DATA_TYPES::String > &clientCodeVec,
+        const API2::DATA_TYPES::CLIENT_ID dealerId,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::ClientSegmentType segmentType );
+     
+    /**
+     * @brief This function will be used internally for strategies which will be using
+     * execution style and have some spread types that are not supported in execution
+     * style. Then execution style will call this function of the strategy to determine
+     * if pov mandate is satisfied or not.
+     */
+    virtual bool isMandateSatisfiesGetFromStrategy();
 
   private:
 

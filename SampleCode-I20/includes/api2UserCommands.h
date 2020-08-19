@@ -1,7 +1,7 @@
 #ifndef api2_UserParams_h
 #define api2_UserParams_h
 #include <baseCommands.h>
-#define API2_VERSION_STRING "2.3.8"
+#define API2_VERSION_STRING "3.1.9"
 
 namespace API2 {
 
@@ -48,7 +48,7 @@ class UserParams : public AbstractUserParams
      * @param buf
      * @throw DuplicateKeyException
      */
-    UserParams(const std::string &frontendDesign,const char *buf = NULL);
+    explicit UserParams(const std::string &frontendDesign,const char *buf = NULL);
 
 #ifdef FRONTEND_COMPILATION
     UserParams(const UserParams &other);

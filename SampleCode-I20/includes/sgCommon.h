@@ -68,9 +68,9 @@ namespace API2{
       /**
        * @brief getAvgPrice, Get Average Trade Price at requested OrderMode
        * @param mode
-       * @return Average Price as DATA_TYPES::SIGNED_LONG in paisa ( to convert in Rupee, convert to float and divide by 100)
+       * @return Average Price as DATA_TYPES::AVG_PRICE(double) in paisa ( to convert in Rupee, divide by 100)
        */
-      DATA_TYPES::PRICE getAvgPrice(const DATA_TYPES::OrderMode &mode);
+      DATA_TYPES::AVG_PRICE getAvgPrice(const DATA_TYPES::OrderMode &mode);
 
       /**
        ** @brief getAmount, Get amount(price*qty) of requested order mode

@@ -70,9 +70,6 @@ namespace API2   {
     boost::unordered_map<DATA_TYPES::CLORDER_ID, CMD::SingleOrder*> _orderBook;
     //boost::unordered_map<long, CMD::ThreeLegOrder*> _orderBookThreeLeg;
 
-    // ExchangeOrderId to TradeId mapping -- used in reconcilation to find duplicate fills
-    std::multimap<std::string, std::string> _exchangeOrderIdToTradeId;
-
   };
 
 }

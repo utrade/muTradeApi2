@@ -107,8 +107,413 @@ in sgContext.h in api_includes
 parameter added in reqNewSingleOrder : validateAccountDetail :: using this account detail validation can be made confirgurable while placing order
 method added : validateAccountDetail :: this will validate the account detail, user can use the same to do one time validation and remove the runtime validation in each order
 
-13 August 2019
-Added lock support in debug logs : single thread can push in Logs queue / vector, multiple threads may read it and dump in ofstream
 
 04 August 2019
 Documentation  updated: SGContext.h : reqCancelOrder, ReqReplace Order| OrderWrapperAPI.h cancelOrder, replaceOrder
+
+13 August 2019
+-API version increased from 2.3.7 to 2.3.8
+-Added lock support in debug logs : single thread can push in Logs queue / vector, multiple threads may read it and dump in ofstream
+
+26 November 2019
+-API version increased from 2.3.8 to 2.3.9
+-Added new Data type (AVG_PRICE) in apiDatatypes.h.
+-Change the return type of method getAvgPrice() in InstrumentPosition structure to DATA_TYPES::AVG_PRICE.
+
+05 December, 2019
+-getMaxDepthSupported : method added in sgMktData.h : This method is used to get Max Depth supported by HFT infra.
+-getTimeStamp : method added in sgMktData.h : This method will return last update timestamp of Symbol. 
+                It Will return valid value in case of TBT (Symbol is subscibed on TBT) 
+                Else It Will return 0
+-CONSTANTS::MarketDepthArraySize : value changed to 20 from 10.
+            Default value for depth in  reqRegisterMarketData and  createNewInstrument will be 20 now.
+
+- API version increased from 2.3.9 to 2.4.0
+- New StrategyComment - "RSP_StrategyComment_DMS_DISCONNECTED" added.
+- New ResponseType - "RSP_ResponseType_DMS_DISCONNECTED" added.
+- New Constants for TerminationReasonType added.
+- Changed the data type of the parameter "isTerminatedFromFrontEnd" of the method reqSendStrategyResponse()
+  from boolean to Enum type and name to "terminationReasonType" in SGContext.h
+- New DataType added for TerminationReasonType.
+- New method added in SGContext.h : onCMDDmsDisconnection() :: this method can be used to perform some operation when DMS gets disconnected.
+
+18 December, 2019
+- API version increased from 2.4.0 to 2.4.1
+
+- New methods added in sgContext
+
+    /**
+     * @brief getApiPositionForClient - This function will be used for getting the client  + symbolId wise positions
+     *                                - for the symbols provided in symbolIdSet.
+     *
+     * @return hashSymbolIdAndPositionStruct - This is an unordered map where key will be symbol id
+     *                                       - and value will be position struct and symbol Id will come
+     *                                       - from symbolIdSet which will be provided when this method is called.
+     *
+     * @param primaryClientCode - primary client code ( Can get from AccountDetails )
+     * @param exchangeId - Exchange Id ( Can get from symbolStatic Data )
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     *
+     * @param symbolIdVec vector of symbol ids for those we need to find out positions.
+     *        - If there is no position created on the symbol Id it will return PositionStruct with default values ( i.e. 0 ).
+     *
+     * @example - Returned Structure Diagram (i.e. API2::SymbolIdAndPositionStructHash)
+     *
+     *               Client + Exchange + Segment (e.g. Client( C1 ) + Exchange( NSECM ) + Segment( CASH ) )
+     *       ------------------------------------------
+     *       |     Symbol Id     |    PositionStruct  |
+     *       ------------------------------------------
+     *       |     11504375      |        P1          |  Where P1,P2....PN are PositionStruct.
+     *       |     11504376      |        P2          |
+     *       |       ....        |       ....         |
+     *       |     11601234      |        PN          |
+     *       ------------------------------------------
+     *
+     * @note - If there is no position created for the given inputs it will return an empty position structure
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price using getApiGlobalDealerPosition() method
+     */
+    1. void getApiPositionForClient(
+        API2::SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::ClientSegmentType segmentType,
+        const boost::unordered_set< API2::DATA_TYPES::SYMBOL_ID >& symbolIdSet );
+
+    /**
+     * @brief getApiPositionForDealerClient - This function will be used for getting the Dealer + Client + SymbolId wise positions
+     *                                      - for the symbols provided in symbolIdSet.
+     *
+     * @return hashSymbolIdAndPositionStruct - This is an unordered map where key will be symbol id
+     *                                       - and value will be position struct and symbol Id will come
+     *                                       - from symbolIdSet which will be provided when this method is called.
+     *
+     * @param dealerId - dealerId
+     * @param primaryClientCode - primary client code ( Can get from AccountDetails )
+     * @param exchangeId - Exchange Id ( Can get from symbolStatic Data )
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     *
+     * @param symbolIdVec vector of symbol ids for those we need to find out positions.
+     *        - If there is no position created on the symbol Id it will return PositionStruct with default values ( i.e. 0 ).
+     *
+     * @example - Returned Structure Diagram (i.e. API2::SymbolIdAndPositionStructHash)
+     *
+     *          Dealer + Client + Exchange + Segment (e.g. Dealer( D1 ) + Client( C1 ) + Exchange( NSECM ) + Segment( CASH ) )
+     *       ------------------------------------------
+     *       |     Symbol Id     |    PositionStruct  |
+     *       ------------------------------------------
+     *       |     11504375      |        P1          |  Where P1,P2....PN are PositionStruct.
+     *       |     11504376      |        P2          |
+     *       |       ....        |       ....         |
+     *       |     11601234      |        PN          |
+     *       ------------------------------------------
+     *
+     * @note - If there is no position created for the given inputs it will return an empty position structure
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+    2. void getApiPositionForDealerClient(
+        API2::SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
+        const API2::DATA_TYPES::CLIENT_ID dealerId,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::ClientSegmentType segmentType,
+        const boost::unordered_set< API2::DATA_TYPES::SYMBOL_ID >& symbolIdSet );
+
+    /**
+     * @brief getApiDepositForClient - This function will get clientUsedDeposit for a particular client.
+     * @return clientUsedDeposit - Use to get the client used deposit.
+     * @param primaryClientCode  - primary client code ( Can get from AccountDetails )
+     * @param exchangeId         - exchangeId ( Can get from symbolStatic Data )
+     * @param securityType       - securityType ( Can get from symbolStatic Data )
+     * @description - Exchange Id and security type is required to apply the margin percentage
+     *              - on the used deposit which varies w.r.t exchange and security type.
+     *
+     * @note - Will return clientUsedDeposit as it is if inputs are invalid.
+     *       - clientUsedDeposit is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+    3. void getApiDepositForClient(
+        API2::DATA_TYPES::INTEGER64& clientUsedDeposit,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::SecurityType securityType );
+
+    /**
+     * @brief getApiDepositForDealer - This function will get dealerUsedDeposit for a particular dealer.
+     * @return dealerUsedDeposit - Use to get the dealer used deposit.
+     * @param dealerId          - Dealer Id
+     * @param exchangeId        - exchangeId ( Can get from symbolStatic Data )
+     * @param securityType      - securityType ( Can get from symbolStatic Data )
+     * @description - Exchange Id and security type is required to apply the margin percentage
+     *              - on the used deposit which varies w.r.t exchange and security type.
+     *
+     * @note - Will return dealerUsedDeposit as it is if inputs are invalid.
+     *       - dealerUsedDeposit is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+    4. void getApiDepositForDealer(
+        API2::DATA_TYPES::INTEGER64& dealerUsedDeposit,
+        const API2::DATA_TYPES::CLIENT_ID dealerId,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::SecurityType securityType );
+
+    /**
+     * @brief getApiOrderLimitsForClient - This function will get client order Limits for a client.
+     * @return clientOrderLimitsApiStruct - Return order limits for the given client.
+     * @param primaryClientCode - primary client code ( Can get from AccountDetails )
+     * @param exchangeId - Exchange Id ( Can get from symbolStatic Data )
+     * @param segmentType - Segment Type ( Can get from symbolStatic Data )
+     *
+     * @note - Will return clientOrderLimitsApiStruct as it is if inputs are invalid.
+     *       - values are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+    5. void getApiOrderLimitsForClient(
+        API2::COMMON::OrderLimitsApiStruct& clientOrderLimitsApiStruct,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::ClientSegmentType segmentType );
+
+    /**
+     * @brief getApiOrderLimitsForDealer - This function will get client order Limits for a dealer.
+     * @param dealerOrderLimitsApiStruct - Return order limits for the given dealer.
+     * @param dealerId - Dealer Id for which we need to get limits.
+     *
+     * @note - Will return dealerOrderLimitsApiStruct as it is if inputs are invalid.
+     *       - values are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+    6. void getApiOrderLimitsForDealer(
+        API2::COMMON::OrderLimitsApiStruct& dealerOrderLimitsApiStruct,
+        const API2::DATA_TYPES::CLIENT_ID dealerId );
+
+    /**
+     * @brief getApiGlobalClientPosition - Will get the global client wise position.
+     * @return outPos - Return the global client position.
+     * @param primaryClientCode ( Can get from AccountDetails )
+     * @param exchangeId ( Can get from symbolStatic Data )
+     * @param segmentType ( Can get from symbolStatic Data )
+     *
+     * @note - If there is no position created for the given inputs it will return position structure as it is
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+
+    7. void getApiGlobalClientPosition(
+        API2::PositionStruct& outPos,
+        const API2::DATA_TYPES::String& primaryClientCode,
+        const API2::DATA_TYPES::ExchangeId exchangeId,
+        const API2::DATA_TYPES::ClientSegmentType segmentType );
+
+    /**
+     * @brief getApiGlobalDealerPosition - Will get global dealer wise position.
+     * @return outPos - Return the global dealer wise position.
+     * @param dealerId
+     * @note - If there is no position created for the given inputs it will return position structure as it is
+     *         same goes for the invalid inputs.
+     *       - Positions are coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getApiGlobalDealerPosition() method.
+     */
+
+    8. void getApiGlobalDealerPosition(
+        API2::PositionStruct& outPos,
+        const API2::DATA_TYPES::CLIENT_ID dealerId );
+
+    /**
+     * @brief getRmsPositionPrecision
+     * @description - Return the RMS position precision in terms of multiplier
+     *                For e.g.
+     *                 - In Position for buy or sell value the price will
+     *                   be adjusted according to RMS position precision.
+     *
+     *                 - If buy value is 234500 and RMS position precision is 10000
+     *                 - then the actual value will be 23.45 i.e. ( 234500 / 10000 )
+     *
+     * @return API2::DATA_TYPES::RMS_POSITION_PRECISION
+     */
+    9. API2::DATA_TYPES::RMS_POSITION_PRECISION getRmsPositionPrecision();
+
+- New fields are added in positionStruct in apiPositionStruct.h
+  1. OldBuyQuantity( DATA_TYPES::QTY )
+  2. OldSellQuantity( DATA_TYPES::QTY )
+  3. OldBuyValue( DATA_TYPES::VOLUME )
+  4. OldSellValue( DATA_TYPES::VOLUME )
+
+    /*                In PositionStruct
+     * --------------------------------------------------
+     * | TotalBuyQuantity   | These four fields contains|
+     * | TotalSellQuantity  | DAY + OLD position        |
+     * | TotalBuyValue      | i.e. Intraday + Previous  |
+     * | TotalSellValue     | day position              |
+     * --------------------------------------------------
+     *
+     * --------------------------------------------------
+     * | OldBuyQuantity   | These four fields contains  |
+     * | OldSellQuantity  | OLD position.               |
+     * | OldBuyValue      | i.e. Previous day position. |
+     * | OldSellValue     |                             |
+     * --------------------------------------------------
+     *
+     * Previous day position can also be the cumulative of past day positions
+     * For e.g.
+     * - Take today day as N
+     *   N will be Day position or Intraday position
+     * - And ( N - 1 ) day will be old position which can also be
+     *   the cumulative of ( N - 1 ) + ( N - 2 ) + ..... + ( N - X ).
+     */
+
+- Added OrderLimitsApiStruct structure in apiStructs.h which will be use to store order limits for client or dealer.
+
+08 January, 2020
+- API version increased from 2.4.1 to 2.4.2
+- New methods added in sgContext
+
+  This method will return all the clients mapped with the dealer + Exchange + segment
+  which is passed in the method arguments.
+
+  void getClientCodesDealerExchangeSegmentWise(
+      std::vector< API2::DATA_TYPES::String > &clientCodeVec,
+      const API2::DATA_TYPES::CLIENT_ID dealerId,
+      const API2::DATA_TYPES::ExchangeId exchangeId,
+      const API2::DATA_TYPES::ClientSegmentType segmentType );
+
+  Refer sgContext.h for more details
+- New parameter latencyPrint  is added in orderWrapperAPI.h : this parameter is used to enable Latency logs. i.e Time to send , time to react, TAT, TotalTime
+- setStartTimer : For starting the timer when the strategy is ready for placing order.Call this method to print: Time to react and total time.
+
+10 January, 2020
+- API version increased from 2.4.2 to 2.4.3
+- Three new methods introduced namely:
+  getTradeBuyOrderId(), getTradeSellOrderId(), getExchangeOrderId().
+  which wil be providing exchange order id on tbt data.
+
+31 January, 2020
+- API version increased from 2.4.3 to 2.4.4
+
+- Added new consts for orderStatus in apiConstants.h
+  1) RSP_OrderStatus_QUEUED_CONFIRMED
+  2) RSP_OrderStatus_QUEUED_EXECUTED
+  3) RSP_OrderStatus_QUEUED_CANCELED
+
+- Added new consts for queued session in apiConstants.h
+  1) CMD_QUEUED_SESSION_PREOPEN_CLOSED
+
+- Added new enum for TimerType in apiDataTypes.h
+  1) TimerType_PreOpenClose
+  2) TimerType_Close
+
+10 February, 2020
+- API version increased from 2.4.4 to 2.4.5
+
+- Added new class for StrategyWave in file strategyWave.h, this file is for 
+  internal usage in hft and need not to be used by client.
+
+- New data types added in apiDataTypes.h
+
+18 Feb, 2020
+- New Data type added PERCENTAGE
+
+- roundPriceToTick : improvement, added support for spread instrument price in
+  sharedUtilities.h
+
+- New Constant added in apiConstants.h
+
+27 Feb, 2020
+- API version increased from 2.4.5 to 2.4.6
+- New enum is added in apiConstant for CUSTOM_STRATEGY_COMMAND
+- New call back is added in sgContext i.e. onStrategyCustomCommand( const API2::CONSTANTS::CUSTOM_STRATEGY_COMMAND command )
+
+09 Mar, 2020
+- API version increased from 2.4.6 to 3.0.4
+- New Const added
+  1. CMD_SecurityType_AUCTION
+  2. CMD_OrderType_MARKET_TO_LIMIT
+  3. CMD_OrderType_2L
+  4. CMD_OrderType_3L
+  5. CMD_OrderType_4L
+  6. CMD_OrderType_SPREAD
+  7. CMD_OrderValidity_EOS
+  8. CMD_OrderValidity_COL
+  9. CMD_CONFIRMATION_TYPE_AFTER_MARKET_ORDER
+- New Data type added PRICE_PROTECTION
+
+09 Apr, 2020
+- New Constant added in apiConstants.h
+  1. RiskStatus_DISCLOSED_QTY_FOR_IOC_NOT_ALLOWED
+  2. RiskStatus_DISCLOSED_QTY_IS_MORE_THAN_ORDER_QTY
+  3. RiskStatus_DISCLOSED_QTY_IS_NOT_IN_MARKET_LOT
+
+15 Apr, 2020
+- API version increased from 3.0.4 to 3.0.5
+- New Method in SgContext
+  1. reqAddStrategyComment(const DATA_TYPES::String &com)
+
+04 May, 2020
+- New Constant added in apiConstants.h
+  1. RSP_StrategyComment_TERMINATE_MAX_SLIPPAGE_BREACHED
+  2. RSP_StrategyComment_TERMINATE_MAX_DEVIATION_BREACHED
+
+11 May, 2020
+- Version increased from 3.0.6 to 3.0.7
+- ClientSegmentType Enum synced with INFRA
+- Position getters Interface changed.
+- API Position getter supported on NEW RMS API 
+  - updated the Documentation corressponding to changes in SgContext.h
+  - API2::COMMON::OrderLimitsApiStruct Struct changes added 
+    - MinimumNetQuantity : Documentation updated corresponding to changes in apiStructs.h
+    - MinimumNetValue :Documentation updated corresponding to changes in apiStructs.h
+    - IsBuyValueInPercentage, IsSellValueInPercentage and
+      IsNetValuesInPercentage is added if return values recieved in %age in in apiStructs.h
+  - Old RMS vs NEW RMS changes:
+      - Position Only supported at Client level at NEW RMS,
+        But in OLD RMS, Position supported at Client+ExchangeId+Segment
+      - Dealer level Deposit not support in NEW RMS
+
+29 May, 2020
+- Version increased from 3.0.7 to 3.0.8
+- C++ code level improvements like explicit constructors, constant reference variables, 
+  correct initialisation of variables, addition of override keyword for overriden methods  
+- Code refactoring
+
+08 June, 2020
+- Typedef added for: GiveUpFlag
+- CREATE_FIELD_WITH_DEFAULT_VALUE macro created for assigning default value
+- sgContext.cpp documention changed for all position getter regarding Give Up flag (configurable).
+  - for method getApiPositionForDealerClient : On Trade Give-up received , no
+    impact on this position.
+  - For all other position getters, positions returned will exclude reverted trades(reverted from trade give up).
+- Give-Up status flag is exposed to API.
+
+10 June,2020
+-New Class is Added in customData.h : CustomData 
+ Passed while generating callbacks on all APi Strategies for a specific dealer
+
+-Function sendCustomDataToStrategiesDealerWise is added in sgContext.h :
+ generates event for all active strategies for a dealer and provides callback
+ for all strategies.
+
+  void sendCustomDataToStrategiesDealerWise(const DATA_TYPES::CLIENT_IDdealerId
+  ,CustomDataPtr customDataPtr);
+
+- Function receiveCustomData is added in sgContext.h :
+  CallBack to this function will be received by all API strategies of a particular
+  dealer
+
+  virtual void receiveCustomData(CustomDataPtr customDataPtr);
+
+17 June, 2020
+- Added new file in api_include ( i.e. ivGreekInterface.h ) contains methods to calculate
+  1) IV
+  2) Delta
+  3) Option Price
+  4) Greek metrics
+- Added new constant and datatypes in apiConstants.h and apiDataTypes.h
+- Added new method in shared utilities to calculate time to expire in years for Future and Option contracts
+- Added new method in sgMktData.h to fetch symbol spot price.
+
+18 Jun, 2020
+- API version increased from 3.0.8 to 3.0.9
+  MarketPriceProtectionPercentage field added in OrderConfirmation

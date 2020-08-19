@@ -49,9 +49,9 @@ namespace API2 {
          * @param value
          * @param type
          */
-        KeyValue(std::string label,
-            std::string key,
-            std::string value,
+        KeyValue(const std::string &label,
+            const std::string &key,
+            const std::string &value,
             SerializedDataType type) :
           _label(label),
           _key(key),
@@ -120,42 +120,42 @@ namespace API2 {
          * @param line
          * @return
          */
-        static bool isComment(std::string &line);
+        static bool isComment(const std::string &line);
 
         /**
          * @brief isLabel
          * @param line
          * @return
          */
-        static bool isLabel(std::string &line);
+        static bool isLabel(const std::string &line);
 
         /**
          * @brief isSpace
          * @param line
          * @return
          */
-        static bool isSpace(std::string &line);
+        static bool isSpace(const std::string &line);
 
         /**
          * @brief isSymbol
          * @param line
          * @return
          */
-        static bool isSymbol(std::string &line);
+        static bool isSymbol(const std::string &line);
 
         /**
          * @brief isParams
          * @param line
          * @return
          */
-        static bool isParams(std::string &line);
+        static bool isParams(const std::string &line);
 
         /**
          * @brief isOther
          * @param line
          * @return
          */
-        static bool isOther(std::string &line);
+        static bool isOther(const std::string &line);
 
         /**
          * @brief getBaseTypeVector

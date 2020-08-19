@@ -8,21 +8,23 @@
 #include <string.h>
 #include <unordered_map>
 #define EXCHANGE_ORDERID_SIZE 50
-#define TRADEID_SIZE 50
+#define CONF_EXCHANGE_ORDERID_SIZE 30
+#define TRADEID_SIZE 25
 #define SYMBOL_SIZE 24
 #define SERIES_SIZE 20
 #define API_REQUEST_SIZE 200
 #define MAX_BUF_SIZE 8192
 #define STRATEGY_TYPE_SIZE 3
-#define STRATEGY_TYPE_SQNNO_SIZE 20
+#define STRATEGY_TYPE_SQNNO_SIZE 9
 #define PRIMARY_CLIENT_CODE_SIZE 20
 #define EXCHANGE_CLIENT_CODE_SIZE 20
-#define PARTICIPANT_CODE_SIZE 20
+#define PARTICIPANT_CODE_SIZE 13
 #define ERROR_TEXT_SIZE 350
 #define FIX_ORDERID_SIZE 20
 #define PAN_SIZE 11
 #define BUF_SIZE_60 60
 #define API_COMPILATION 1
+#define ALGO_NAME_SIZE 30
 
 #ifdef FRONTEND_COMPILATION
 #define MULTIPLIER_ONE 1
@@ -62,6 +64,8 @@ typedef std::set<std::string> StringSet;
 typedef std::list<std::string> StringList;
 typedef MapULong::const_iterator MapULongIter;
 
+#define BUF_SIZE_60 60
+#define GENERATED_CLORDID_SIZE 40
 #define ACCOUNT_FIELD_SIZE 12
 #define MARKET_DATA_DEPTH_MAX 11
 

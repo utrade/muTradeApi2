@@ -42,7 +42,7 @@ namespace API2
        * @brief OhlcQuote
        * @param symbolId
        */
-      OhlcQuote(UNSIGNED_LONG symbolId);
+      explicit OhlcQuote(UNSIGNED_LONG symbolId);
 
       /**
        * @brief getOpenPrice
@@ -91,9 +91,33 @@ namespace API2
        * @return
        */
       bool checkForModification(time_t lastProcessTimeStamp);
+     
+    private:
 
+      /**
+       * @brief OhlcQuote : copy constructor
+       * @param other
+       */
+      OhlcQuote(const OhlcQuote &other) = delete;
 
-    };
+      /**
+       *  @brief operator= : copy assignment operator
+       *  @param other
+       */
+      OhlcQuote& operator=(const OhlcQuote &other) = delete;
+
+      /**
+       *  @brief OhlcQuote : move constructor
+       *  @param other
+       */
+      OhlcQuote(OhlcQuote &&other) = delete;
+
+      /**
+       *  @brief operator= : move assignment operator
+       *  @brief other
+       */
+      OhlcQuote& operator=(OhlcQuote &&other) = delete;
+  };
 
     /**
      * @brief The TradeTick struct
@@ -345,6 +369,16 @@ namespace API2
       DATA_TYPES::VOLUME getAvgTradePrice();
 
       /**
+       * @brief getTimeStamp : This method will return last update timestamp of Symbol.
+       *                                       It Will return valid value in case of TBT (Symbol is subscibed on TBT)
+       *                                       Else It Will return 0
+       *
+       * @return Timestamp in NanoSecond
+       */
+      DATA_TYPES::NanoSecondTimeStamp getTimeStamp();
+
+
+      /**
        * @brief getPrice
        * @param position
        * @param mode
@@ -430,7 +464,7 @@ namespace API2
        * @param isTbt
        * @param depthSize
        */
-      MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true, bool isTbt = false,size_t depthSize = CONSTANTS::MarketDepthArraySize);
+      explicit MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true, bool isTbt = false,size_t depthSize = CONSTANTS::MarketDepthArraySize);
 
       //MktData();
       ~MktData();
@@ -492,6 +526,44 @@ namespace API2
        * @param debugObject
        */
       void dump(API2::DebugLog *debugObject);
+
+      /**
+       * @brief getMaxDepthSupported : This method is used to get Max Depth supported by HFT infra.
+       * @return Max Depth unsigned integer
+       */
+      static const size_t getMaxDepthSupported();
+    
+      /*
+       * @brief getTradeBuyOrderId : returns exchange order id of last traded buy order.
+       */
+      DATA_TYPES::TBT_ORDER_ID getTradeBuyOrderId();
+      
+      /*
+       * @brief getTradeSellOrderId : returns exchange order id of last traded sell order.
+       */
+      DATA_TYPES::TBT_ORDER_ID getTradeSellOrderId();
+
+      /*
+       * @brief getTradeSellOrderId : returns exchange order id of latest security update(new/modify/cancel).
+       */
+      DATA_TYPES::TBT_ORDER_ID getExchangeOrderId();
+
+      /**
+       * @brief getSymbolSpotPrice
+       * @param retSpotPrice - SpotPrice of underlying symbol in scrip precision
+       *                  - If scrip precision is 2 and actual price is 123.45 then
+       *                  - price in scrip precision 12345( i.e. 123.45 * 100 )
+       * @param symbolId - Symbol for which spot price need to br fetch.
+       * @param referenceSpotPriceType - Default Value API2::CONSTANTS::ReferenceSpotPrice_LTP.
+       * @note - Underlying price is getting fetch through API::COMMON::getSymbolSpotPrice which will add latency
+       *       - If snapshot is disable then this method won't work as spot price can't be fetch.
+       * @return bool - return true if successful otherwise returns false.
+       */
+      static bool getSymbolSpotPrice(
+          API2::DATA_TYPES::PRICE &retSpotPrice,
+          const API2::DATA_TYPES::SYMBOL_ID symbolId,
+          const API2::DATA_TYPES::REFERENCE_SPOT_PRICE_TYPE referenceSpotPriceType = API2::CONSTANTS::ReferenceSpotPrice_LTP );
+
 
     };
 }

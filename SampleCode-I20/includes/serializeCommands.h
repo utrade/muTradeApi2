@@ -249,7 +249,7 @@ namespace API2 {
      * @param buf
      * @param offset
      */
-    void deSerialize(double &val, const char *buf, int &offset);
+    void deSerialize(double val, const char *buf, int &offset);
 
     /**
      * @brief deSerialize overloaded function, deserializes to val from buf, and adjusts offset to bytes read for deserialization.
@@ -311,7 +311,7 @@ namespace API2 {
      * @param buf
      * @param bytes
      */
-    void serializeAccountDetails(AccountDetail &accountDetails, char* buf, int &bytes);
+    void serializeAccountDetails(const AccountDetail &accountDetails, char* buf, int &bytes);
 
     /**
      * @brief serialize Command Category

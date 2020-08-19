@@ -20,6 +20,12 @@ namespace API2
 
     /**
      * @typedef
+     * @brief PRICE_PROTECTIOM
+     */
+    typedef UNSIGNED_SHORT PRICE_PROTECTION;
+
+    /**
+     * @typedef
      * @brief QTY
      */
     typedef SIGNED_LONG QTY;
@@ -126,6 +132,11 @@ namespace API2
      * @brief StrategyComment
      */
     typedef UNSIGNED_SHORT StrategyComment;
+
+    /**
+     * @brief TerminationReasonType
+     */
+    typedef UNSIGNED_SHORT TerminationReasonType;
 
     /**
      * @typedef
@@ -241,13 +252,13 @@ namespace API2
      *
      * @brief AccountType - customer for normal clients trading, firm for direct broker trading
      */
-    enum AccountType
+    enum class AccountType : uint8_t
     {
-      AccountType_CUSTOMER,
-      AccountType_FIRM,
-      AccountType_SPLCLIENT,
-      AccountType_INST,
-      AccountType_MAX
+      CUSTOMER,
+      FIRM,
+      SPLCLIENT,
+      INST,
+      MAX
     };
 
     /**
@@ -255,11 +266,12 @@ namespace API2
      *
      * @brief ClientSegmentType - CM for cash segment, FO for future / option segment
      */
-    enum ClientSegmentType
+    enum class ClientSegmentType : uint8_t
     {
-      ClientSegmentType_CM,
-      ClientSegmentType_FO,
-      ClientSegmentType_MAX
+      CM,
+      FO,
+      ALL,
+      MAX
     };
 
     /**
@@ -492,9 +504,11 @@ namespace API2
     enum TimerType
     {
       TimerType_Preopen = 0,
-      TimerType_Open = 1,
-      TimerType_PostClose = 2,
-      TimerType_Max = 3
+      TimerType_PreOpenClose = 1,
+      TimerType_Open = 2,
+      TimerType_Close = 3,
+      TimerType_PostClose = 4,
+      TimerType_Max = 5
     };
 
     /**
@@ -512,9 +526,166 @@ namespace API2
     {
       BYPASS_NNFID_DISABLED = 0,
       BYPASS_NNFID_ENABLED = 1,
+      BYPASS_NNFID_SOR_ENABLED = 2,
       BYPASS_NNFID_MAX
     };
 
+    /**
+     * @brief AVG_PRICE
+     */
+    typedef double AVG_PRICE;
+
+    /**
+     * @brief RMS_POSITION_PRECISION
+     */
+    typedef double RMS_POSITION_PRECISION;
+
+     /*
+     * @brief NanoSecondTimeStamp
+     */
+    typedef SIGNED_LONG NanoSecondTimeStamp;
+
+    /**
+     * @brief TBT_ORDER_ID: Used to represent exchange order id's in nse Multicast tbt
+     */
+    typedef UNSIGNED_LONG TBT_ORDER_ID;
+
+    /**
+     * @brief Service: Service of a wave.
+     */
+    typedef UNSIGNED_SHORT Service;
+
+    /**
+     * @brief CARE_ORDER_ID
+     */
+    typedef UNSIGNED_LONG CARE_ORDER_ID;
+
+    /**
+     * @brief LINE_ID
+     */
+    typedef UNSIGNED_SHORT LINE_ID;
+
+    /**
+     * @brief WAVE_ID
+     */
+    typedef UNSIGNED_SHORT WAVE_ID;
+
+    /**
+     * @brief USER_ID_STR
+     */
+    typedef std::string USER_ID_STR;
+
+    /**
+     * @brief PERCENTAGE
+     */
+    typedef int64_t PERCENTAGE;
+
+    /**
+     * @brief CASH_UNIQUE_KEY
+     */
+    typedef std::string CASH_UNIQUE_KEY;
+
+    /**
+     * @brief GiveUpFlag
+     */
+    typedef UNSIGNED_CHARACTER GiveUpFlag;
+    
+    /**
+     * @brief EXPIRYDAY_TYPE
+     */
+    typedef UNSIGNED_SHORT EXPIRYDAY_TYPE;
+
+    /**
+     * @brief REFERENCE_SPOT_PRICE_TYPE
+     */
+    typedef UNSIGNED_SHORT REFERENCE_SPOT_PRICE_TYPE;
+
+    /**
+     * @brief DIVIDEND
+     */
+    typedef double DIVIDEND;
+
+    /**
+     * @brief INTEREST_RATE
+     */
+    typedef double INTEREST_RATE;
+
+    /**
+     * @brief TIME_TO_EXPIRE
+     */
+    typedef double TIME_TO_EXPIRE;
+
+    /**
+     * @brief IMPLIED_VOLATILITY
+     */
+    typedef double IMPLIED_VOLATILITY;
+
+    /**
+     * @brief DELTA
+     */
+    typedef double GREEK;
+  }
+
+  namespace TYPE_DEFS
+  {
+    /**
+     * @typedef
+     * @brief STRATEGY_ID
+     */
+    typedef UNSIGNED_INTEGER STRATEGY_ID;
+
+    /**
+     * @typedef
+     * @brief CLIENT_ID
+     */
+    typedef UNSIGNED_INTEGER CLIENT_ID;
+    
+    /**
+     * @typedef
+     * @brief ERROR_CODE
+     */
+    typedef UNSIGNED_INTEGER ERROR_CODE;
+
+    /**
+     * @typedef
+     * @brief OrderType
+     */
+    typedef UNSIGNED_CHARACTER OrderType;
+
+    /**
+     * @typedef
+     * @brief OrderValidity
+     */
+    typedef UNSIGNED_CHARACTER OrderValidity;
+
+    /**
+     * @typedef
+     * @brief PlatformType
+     */
+    typedef UNSIGNED_CHARACTER PlatformType;
+
+    /**
+     * @typedef
+     * @brief ProductType
+     */
+    typedef UNSIGNED_CHARACTER ProductType;
+
+    /**
+      * @typedef
+      * @brief GTC_GTD_Date
+      */
+    typedef UNSIGNED_INTEGER GTD_Date;
+
+    /**
+     * @typedef
+     * @brief ConfirmationType
+     */
+    typedef UNSIGNED_CHARACTER ConfirmationType;
+
+    /**
+     * @brief AlgoCategory
+     */
+    typedef UNSIGNED_CHARACTER  AlgoCategory;
   }
 }
 #endif

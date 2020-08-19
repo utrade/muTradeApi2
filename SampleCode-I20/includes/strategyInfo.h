@@ -50,7 +50,7 @@ namespace INVOKING
        * @brief StrategyInfo constructor
        * @param debugObject for message prints in strategy
        */
-      StrategyInfo( API2::DebugLog *debugObject );
+      explicit StrategyInfo( API2::DebugLog *debugObject );
 
      
       /*

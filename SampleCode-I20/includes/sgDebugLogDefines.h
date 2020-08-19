@@ -115,15 +115,15 @@ namespace API2
     CREATE_FIELD( DATA_TYPES::PRICE, OrderPrice ); 
     CREATE_FIELD( DATA_TYPES::QTY, IOCCanceledQuantity );
     public:
-    ConfirmationPrintData(const API2::OrderConfirmation& conf );
+    explicit ConfirmationPrintData(const API2::OrderConfirmation& conf );
   };
 
   class Logs_Single : public  AbstractSingle
   {
     const ConfirmationPrintData _confirmationPrint;
     public:
-    Logs_Single(const API2::OrderConfirmation& conf); 
-    std::string getString();
+    explicit Logs_Single(const API2::OrderConfirmation& conf); 
+    std::string getString() override;
   };
 
   class StringSingle : public AbstractSingle
@@ -131,9 +131,9 @@ namespace API2
     //char  * _name;
     const std::string  _name;
     public:
-    StringSingle(const char *name);
+    explicit StringSingle(const char *name);
 
-    std::string getString();
+    std::string getString() override;
   };
 
   class DebugLog ;
@@ -308,7 +308,7 @@ namespace API2
      * @param flushLogs
      * @param printLogsOnExit
      */
-    DebugLog(
+    explicit DebugLog(
         const std::string &fileName,
         const bool &silientMode = false,
         const bool &useBufferedLogs = false,

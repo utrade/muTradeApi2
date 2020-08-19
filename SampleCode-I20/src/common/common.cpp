@@ -476,5 +476,12 @@ namespace API2
       }
       return false;
     }
+
+    double applyPercentage(const double value, const API2::DATA_TYPES::PERCENTAGE percentage)
+    {
+      return value * percentage/10000.0;
+    }
+
+
   }
 }

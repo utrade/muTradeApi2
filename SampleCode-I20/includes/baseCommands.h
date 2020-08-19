@@ -17,6 +17,7 @@
 #include <soci.h>
 #endif
 #endif
+#include "strategyWave.h"
 
 namespace CMD{
 
@@ -26,53 +27,51 @@ namespace CMD{
    *The class is inherited to all the Strategy Parameters Commands
    *All the common parameters of strategies should be a member of
    *this class.
-   *
-   *As of now only uhedge Portfolio Id is in this class.
-   *As of now only parentStrategyId is added which is used in Invoking API
-   *
    */
   class BaseStrategyParamCommmand
   {
 
+    /**
+     * @brief PortfolioId: uHedge portfolio id
+     */
     CREATE_FIELD(UNSIGNED_INTEGER, PortfolioId);
+    
+    /**
+     * @brief ParentStrategyId: id of api strategy from which any inHouse strategy invoked(invoking API)
+     */
     CREATE_FIELD(UNSIGNED_INTEGER, ParentStrategyId);
 
+    // DTA Work
+    // /**
+    //  * @brief FixClOrderId: It is set when API strategy is run throgh FIX.     
+    //  */
+    // CREATE_FIELD( UNSIGNED_LONG, FixClOrderId );
+
+    CREATE_FIELD(ST::StrategyWave, StrategyWave);
+
     public:
-    BaseStrategyParamCommmand()
-    {
-      initialize();
-    }
+    BaseStrategyParamCommmand();
+
+    ~BaseStrategyParamCommmand();
 
     /**
      * @brief initialize initialize the members of the class.
      */
-    void initialize()
-    {
-      _PortfolioId = 0;
-      _ParentStrategyId = 0;
-    }
+    void initialize();
 
     /**
      * @brief serializeMembers - serialize the members of this class without command category
      * @param buff
      * @return
      */
-    void serializeMembers(char * buff, int &bytes)
-    {
-      API2::Serialization::serialize( getPortfolioId() , buff, bytes);
-    }
+    void serializeMembers(char * buff, int &bytes);
 
     /**
      * @brief deSerializeMembers - deSerialize the members of this class
      * @param buff
      * @return
      */
-    void deSerializeMembers(const char * buff, int &offset)
-    {
-      UNSIGNED_INTEGER temp;
-      API2::Serialization::deSerialize( temp , buff, offset);
-      setPortfolioId(temp);
-    }
+    void deSerializeMembers(const char * buff, int &offset);
 
     /**
      * @brief getString
@@ -81,11 +80,14 @@ namespace CMD{
     std::string getString()
     {
       std::stringstream ss;
-
-      ss << "\n getPortfolioId() : " << getPortfolioId() << std::endl;
-
+      ss << "\n PortfolioId() : " << getPortfolioId();
+      ss << "\n ParentStrategyId : " << getParentStrategyId();
+      // DTA Work
+      // ss << "\n FixClOrderId : " << getFixClOrderId() << std::endl;
+      ss << "\n Dump of wave details: " <<getRefStrategyWave().getString() << std::endl;
       return ss.str();
     }
+
   };
 
 
@@ -183,7 +185,7 @@ namespace API2{
      * @brief DerivedType
      * @param type
      */
-    DerivedType(const std::string &type):
+    explicit DerivedType(const std::string &type):
       BaseType(type),
       _Value(T()),
       _Count(0)
@@ -198,7 +200,7 @@ namespace API2{
     /**
      * @brief printType
      */
-    void printType() const
+    void printType() const override
     {
       std::cout<<"\n typename "<<typeid(_Value).name()<<std::endl;
     }
@@ -208,7 +210,7 @@ namespace API2{
      * @param buf
      * @param bytes
      */
-    void serializeFun(char *buf, int &bytes) const
+    void serializeFun(char *buf, int &bytes) const override
     {
       serialize(_Value, buf, bytes);
     }
@@ -218,7 +220,7 @@ namespace API2{
      * @param buf
      * @param offset
      */
-    void deSerializeFun(const char *buf, int &offset)
+    void deSerializeFun(const char *buf, int &offset) override
     {
       deSerialize(_Value, buf, offset);
     }
@@ -234,7 +236,7 @@ namespace API2{
         char *buf,
         int &bytes) const
     {
-      for(MapULongIter i= mapULong.begin(); i!= mapULong.end(); i++)
+      for(MapULongIter i= mapULong.begin(); i!= mapULong.end(); ++i)
       {
         Serialization::serialize(i->first,buf,bytes);
         Serialization::serialize(i->second,buf,bytes);
@@ -290,19 +292,19 @@ namespace API2{
     /**
      * @brief dump
      */
-    void dump() const
+    void dump() const override
     {
       std::cout<<getKeyValueStringImpl(getValue());
     }
     /**
      * @brief getKeyValueString
      */
-    std::string getKeyValueString() const
+    std::string getKeyValueString() const override
     {
       return getKeyValueStringImpl(getValue());
     }
 
-    std::string getDBValueString() const 
+    std::string getDBValueString() const override
     {
 #ifndef FRONTEND_COMPILATION
       return API2::DBConverter::getDBString(_Value);
@@ -312,7 +314,7 @@ namespace API2{
 
 #if API_COMPILATION == 0
 #ifndef FRONTEND_COMPILATION
-    void setSociData(const soci::row &r,size_t index)
+    void setSociData(const soci::row &r,size_t index) override
     {
       return API2::DBConverter::setSociData(r,index,_Value);
     }
@@ -368,7 +370,7 @@ namespace API2{
     {
       std::ostringstream out;
       out <<"========" << std::endl << getString() << "========";
-      for(MapULongIter iter = _Value.begin(); iter != _Value.end(); iter ++)
+      for(MapULongIter iter = _Value.begin(); iter != _Value.end(); ++iter)
       {
         out << std::endl << iter->first <<"--->"<< iter->second;
       }
@@ -432,8 +434,7 @@ namespace API2{
       :
         _DataOnlyFlag(dataOnlyFlag)
     {
-      initialize();
-      BaseStrategyParamCommmand::initialize();
+      AbstractUserParams::initialize();
     }
 
     /**

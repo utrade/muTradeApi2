@@ -76,20 +76,14 @@ extern "C"
         DATA_TYPES::PRICE _price;
 
         /**
+         * @brief _marketPriceProtection
+         */
+        DATA_TYPES::PRICE_PROTECTION _marketPriceProtection;
+
+        /**
          * @brief _stopPrice
          */
         DATA_TYPES::PRICE _stopPrice;
-
-        /**
-         * @brief _optionStrikePrice
-         */
-        DATA_TYPES::PRICE _optionStrikePrice;
-
-        /**
-         * @brief _expiryDate
-         */
-        DATA_TYPES::EXPIRY_DATE _expiryDate;
-
 
         /**
          * @brief _exchangeEntryTime
@@ -112,21 +106,6 @@ extern "C"
         DATA_TYPES::ENUM _orderMode;
 
         /**
-         * @brief _securityType
-         */
-        DATA_TYPES::ENUM _securityType;
-
-        /**
-         * @brief _optionMode
-         */
-        DATA_TYPES::ENUM _optionMode;
-
-        /**
-         * @brief _optionAttribute
-         */
-        DATA_TYPES::ENUM _optionAttribute;
-
-        /**
          * @brief _orderValidity
          */
         DATA_TYPES::ENUM _orderValidity;
@@ -146,11 +125,6 @@ extern "C"
         DATA_TYPES::ENUM _orderType;
 
         /**
-         * @brief _instrumentType
-         */
-        DATA_TYPES::ENUM _instrumentType;
-
-        /**
          * @brief _settlementPeriod
          */
         DATA_TYPES::SETTLEMENT_PERIOD _settlementPeriod; // Default 10 days
@@ -166,24 +140,9 @@ extern "C"
         //    DATA_TYPES::TRADER_ID _traderId;
 
         /**
-         * @brief _symbol
-         */
-        char  _symbol[SYMBOL_SIZE];
-
-        /**
-         * @brief _series
-         */
-        char  _series[SERIES_SIZE];
-
-        /**
          * @brief _exchangeOrderId
          */
         char  _exchangeOrderId[EXCHANGE_ORDERID_SIZE];
-
-        /**
-         * @brief _tokenId
-         */
-        UNSIGNED_INTEGER _tokenId;
 
 #ifdef CTP_ORDER_CONTIGENCY_SUPPORT_ENABLED
         CREATE_FIELD(UNSIGNED_CHARACTER, OrderContigencyFlag);
@@ -234,21 +193,6 @@ extern "C"
         DATA_TYPES::CLIENT_ID _dealerId;
 
         /*
-         * @brief : Vector of Trading Session Ids
-         * */
-        std::vector<std::string> _vectorTradingSessIds;
-
-        /*
-         * @brief : Is trigger order/not
-         * */
-        CREATE_FIELD( API2::DATA_TYPES::ENUM, IsTriggerOrder );
-        
-        /*
-         * @brief : Is trade capture report/not
-         * */
-        CREATE_FIELD( API2::DATA_TYPES::ENUM, IsTradeCaptureReport );
-
-        /*
          * @brief : Fix Client OrderId
          * */
         CREATE_FIELD( std::string, FixClOrderId );
@@ -264,6 +208,21 @@ extern "C"
          * */
         CREATE_FIELD(SIGNED_INTEGER, Price1);
         CREATE_FIELD(SIGNED_INTEGER, Price2);
+
+         /*
+         * @brief : Is trigger order/not
+         * */
+        CREATE_FIELD( API2::DATA_TYPES::ENUM, IsTriggerOrder );
+        
+        /*
+         * @brief : Is trade capture report/not
+         * */
+        CREATE_FIELD( API2::DATA_TYPES::ENUM, IsTradeCaptureReport );
+
+        /*
+         * @brief : Vector of Trading Session Ids
+         * */
+        std::vector<std::string> _vectorTradingSessIds;
 #endif 
 
         /** 
@@ -289,6 +248,12 @@ extern "C"
          * @brief _ExchangeAdapterDetails - adapter details for the order
          */
         CREATE_FIELD(ExchangeAdapterDetails,ExchangeAdapterDetails);
+
+        /**
+         * @brief MasterClientOrderId - Unique Order Id, same for all order states
+         */
+        CREATE_FIELD( DATA_TYPES::CLORDER_ID, MasterClientOrderId );
+
 
       public :
 
@@ -388,11 +353,6 @@ extern "C"
             const AccountDetail &accountDetails=AccountDetail());
 
         SingleOrder(const DATA_TYPES::SYMBOL_ID &symbolId,
-            const std::string &symbol,
-            const std::string &series,
-            const DATA_TYPES::EXPIRY_DATE &expiryDate,
-            const DATA_TYPES::SecurityType &securityType,
-            const DATA_TYPES::InstrumentType &instrumentType,
             DATA_TYPES::TransactionType transactionType,
             DATA_TYPES::PlatformType platformType);
 
@@ -505,6 +465,12 @@ extern "C"
         DATA_TYPES::PRICE getPrice() const ;
 
         /**
+         * @brief getMarketPriceProtection To get the Limit price provided for order
+         * @return API2::DATA_TYPES::PRICE_PROTECTION
+         */
+        DATA_TYPES::PRICE_PROTECTION getMarketPriceProtection() const ;
+
+        /**
          * @brief getStopPrice To get the stop Price provided for Order
          * @return API2::DATA_TYPES::PRICE
          */
@@ -536,36 +502,6 @@ extern "C"
         DATA_TYPES::OrderMode getOrderMode() const ;
 
         /**
-         * @brief getSecurityType
-         * @return
-         */
-        DATA_TYPES::SecurityType getSecurityType() const ;
-
-        /**
-         * @brief getOptionMode
-         * @return
-         */
-        DATA_TYPES::OptionMode getOptionMode() const ;
-
-        /**
-         * @brief getOptionStrikePrice
-         * @return
-         */
-        DATA_TYPES::PRICE getOptionStrikePrice() const;
-
-        /**
-         * @brief getExpiryDate
-         * @return
-         */
-        DATA_TYPES::EXPIRY_DATE  getExpiryDate() const;
-
-        /**
-         * @brief getOptionAttribute
-         * @return
-         */
-        DATA_TYPES::OptionAttribute getOptionAttribute() const ;
-
-        /**
          * @brief getOrderValidity
          * @return
          */
@@ -590,12 +526,6 @@ extern "C"
         DATA_TYPES::OrderType getOrderType() const ;
 
         /**
-         * @brief getInstrumentType
-         * @return
-         */
-        DATA_TYPES::InstrumentType getInstrumentType() const ;
-
-        /**
          * @brief getSettlementPeriod
          * @return
          */
@@ -607,23 +537,6 @@ extern "C"
          */
         DATA_TYPES::OrderStatus getOrderStatus() const;
 
-        /**
-         * @brief getSymbol
-         * @return
-         */
-        const char* getSymbol() const;
-
-        /**
-         * @brief getSeries
-         * @return
-         */
-        const char* getSeries() const;
-
-        /**
-         * @brief getTokenId
-         * @return
-         */
-        UNSIGNED_INTEGER getTokenId() const;
         // Required for BSE
 
         /**
@@ -735,22 +648,16 @@ extern "C"
         void setPrice(DATA_TYPES::PRICE price);
 
         /**
+         * @brief setMarketPriceProtection
+         * @param marketPriceProtection
+         */
+        void setMarketPriceProtection(DATA_TYPES::PRICE_PROTECTION marketPriceProtection);
+
+        /**
          * @brief setStopPrice
          * @param stopPrice
          */
         void setStopPrice(DATA_TYPES::PRICE stopPrice) ;
-
-        /**
-         * @brief setOptionStrikePrice
-         * @param strikePrice
-         */
-        void setOptionStrikePrice(DATA_TYPES::PRICE strikePrice) ;
-
-        /**
-         * @brief setExpiryDate
-         * @param expiryDate
-         */
-        void setExpiryDate(DATA_TYPES::EXPIRY_DATE expiryDate);
 
         /**
          * @brief setExchangeEntryTime
@@ -777,24 +684,6 @@ extern "C"
         void setOrderMode(DATA_TYPES::OrderMode orderMode) ;
 
         /**
-         * @brief setSecurityType
-         * @param securityType
-         */
-        void setSecurityType(DATA_TYPES::SecurityType securityType) ;
-
-        /**
-         * @brief setOptionMode
-         * @param optionMode
-         */
-        void setOptionMode(DATA_TYPES::OptionMode optionMode) ;
-
-        /**
-         * @brief setOptionAttribute
-         * @param optionAttribute
-         */
-        void setOptionAttribute(DATA_TYPES::OptionAttribute optionAttribute) ;
-
-        /**
          * @brief setOrderValidity
          * @param orderValidity
          */
@@ -819,12 +708,6 @@ extern "C"
         void setOrderType(DATA_TYPES::OrderType orderType) ;
 
         /**
-         * @brief setInstrumentType
-         * @param instrumentType
-         */
-        void setInstrumentType(DATA_TYPES::InstrumentType instrumentType) ;
-
-        /**
          * @brief setSettlementPeriod
          * @param settlementPeriod
          */
@@ -837,28 +720,10 @@ extern "C"
         void setOrderStatus(DATA_TYPES::OrderStatus orderStatus) ;
 
         /**
-         * @brief setSymbol
-         * @param symbol
-         */
-        void setSymbol(const char *symbol ) ;
-
-        /**
-         * @brief setSeries
-         * @param series
-         */
-        void setSeries(const char *series) ;
-
-        /**
          * @brief setTraderId
          * @param traderId
          */
         void setTraderId(DATA_TYPES::TRADER_ID traderId);
-
-        /**
-         * @brief setTokenId
-         * @param val
-         */
-        void setTokenId(UNSIGNED_INTEGER val) ;
 
         /**
          * @brief setOrderCategory

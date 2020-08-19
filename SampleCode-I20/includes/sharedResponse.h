@@ -13,7 +13,7 @@ namespace API2
   {
     public:
       Strategy();
-      Strategy(const char* buf);
+      explicit Strategy(const char* buf);
       int serialize(char* buf);
 
       DATA_TYPES::UCHAR getResponseType() const { return _responseType;}
@@ -24,7 +24,8 @@ namespace API2
       DATA_TYPES::UINTEGER64 getAdminTokenId() const { return _adminTokenId;}
       DATA_TYPES::UINTEGER64 getSequenceNumber() const { return _sequenceNumber;}
       DATA_TYPES::UCHAR getStrategyComment() const { return _strategyComment; }
-      bool getIsTerminatedFromFrontEnd() const { return _isTerminatedFromFrontEnd; }
+      DATA_TYPES::TerminationReasonType getTerminationReasonType() const { return _terminationReasonType; }
+      const DATA_TYPES::String& getStrategyCustomComment() const { return _strategyCustomComment; }
 
       void setResponseType(DATA_TYPES::UCHAR responseType){ _responseType = responseType;}
       void setRiskStatus(DATA_TYPES::UCHAR riskStatus){ _riskStatus = riskStatus;}
@@ -34,18 +35,20 @@ namespace API2
       void setAdminTokenId(DATA_TYPES::UINTEGER64 adminTokenId) { _adminTokenId = adminTokenId;}
       void setSequenceNumber(DATA_TYPES::UINTEGER64 sequenceNumber) { _sequenceNumber = sequenceNumber;}
       void setStrategyComment(DATA_TYPES::UCHAR strategyComment) { _strategyComment = strategyComment; }
-      void setIsTerminatedFromFrontEnd(bool isTerminatedFromFrontEnd) { _isTerminatedFromFrontEnd = isTerminatedFromFrontEnd; }
+      void setTerminationReasonType(DATA_TYPES::TerminationReasonType terminationReasonType) { _terminationReasonType = terminationReasonType; }
+      void setStrategyCustomComment(const DATA_TYPES::String &strategyCustomComment) { _strategyCustomComment = strategyCustomComment; }
       void dump();
     private:
       DATA_TYPES::UCHAR _responseType;    // Value (SUCCESS / FAILURE)
       DATA_TYPES::UCHAR _riskStatus;     // Reason for RMS Failure
       DATA_TYPES::UCHAR _strategyComment;
+      DATA_TYPES::String _strategyCustomComment;
       DATA_TYPES::UCHAR _isOffline;
       DATA_TYPES::UINTEGER32 _strategyId;
       DATA_TYPES::UINTEGER32 _parentId; //Id of parent strategy(strategy from which another strategy is invoked)
       DATA_TYPES::UINTEGER64 _adminTokenId;
       DATA_TYPES::UINTEGER64 _sequenceNumber; // Sequence number to sync up offline responses to RMS/Admin screen
-      bool _isTerminatedFromFrontEnd;         // Flag to notify whether it is front end termination.
+      DATA_TYPES::TerminationReasonType _terminationReasonType;         // Strategy termination reason
   };
 
   class OrderConfirmationImpl;
@@ -75,8 +78,8 @@ namespace API2
      */
     DATA_TYPES::EXCHANGE_TIME  _exchangeEntryTime;
     DATA_TYPES::EXCHANGE_TIME  _exchangeModifyTime;
-    DATA_TYPES::STRATEGY_ID  _strategyId;
-    DATA_TYPES::CLIENT_ID  _clientId;
+    TYPE_DEFS::STRATEGY_ID  _strategyId;
+    TYPE_DEFS::CLIENT_ID  _clientId;
     // Limit price will come in Market to Limit order conversion
     DATA_TYPES::PRICE _limitPrice;
     DATA_TYPES::PRICE _origLimitPrice;
@@ -88,19 +91,16 @@ namespace API2
     DATA_TYPES::PRICE _origOrderPrice;
     DATA_TYPES::QTY _iocCanceledQuantity;
     DATA_TYPES::CLORDER_ID _originalClOrderId;
-    DATA_TYPES::SEQUENCE_NUMBER _sequenceNumber;
-    DATA_TYPES::TRADER_ID _traderId;
-    DATA_TYPES::ERROR_CODE _errorCode;
+    TYPE_DEFS::ERROR_CODE _errorCode;
     DATA_TYPES::ENUM _orderCategory;
     DATA_TYPES::PRICE  _lastFillPrice1;
     DATA_TYPES::PRICE  _lastFillPrice2;
-    char _exchangeOrderId[EXCHANGE_ORDERID_SIZE];
+    char _exchangeOrderId[CONF_EXCHANGE_ORDERID_SIZE];
     char _tradeId[TRADEID_SIZE];
     char _strategyTypeSqnNo[STRATEGY_TYPE_SQNNO_SIZE];
-    API2::DATA_TYPES::OrderValidity _orderValidity;
-    API2::DATA_TYPES::GTD_Date _gtdDate;
-    API2::DATA_TYPES::CLORDER_ID _quoteId;
-    API2::DATA_TYPES::ConfirmationType _confirmationType;
+    API2::TYPE_DEFS::OrderValidity _orderValidity;
+    API2::TYPE_DEFS::GTD_Date _gtdDate;
+    API2::TYPE_DEFS::ConfirmationType _confirmationType;
     char _fixClOrderId[FIX_ORDERID_SIZE];
 
     //Adding following two fields for Trade Backup
@@ -109,22 +109,20 @@ namespace API2
 
     //Adding following two fields for Stop Orders Support in OrderBook
     DATA_TYPES::PRICE _stopPrice;
-    DATA_TYPES::OrderType _orderType;
+    TYPE_DEFS::OrderType _orderType;
     
     //Adding this field to identify portfolio and client id for uhedge
-    API2::DATA_TYPES::STRATEGY_ID _childStrategyId;
+    API2::TYPE_DEFS::STRATEGY_ID _childStrategyId;
 
-    API2::DATA_TYPES::STRATEGY_ID _parentStrategyId;
+    API2::TYPE_DEFS::STRATEGY_ID _parentStrategyId;
 
     CREATE_FIELD_ACCESS_SPECIFIER(API2::ExchangeAdapterDetails,ExchangeAdapterDetails,protected);
 
-    CREATE_FIELD_CHAR(ErrorText,ERROR_TEXT_SIZE);
+    TYPE_DEFS::ProductType _productType;
 
-    DATA_TYPES::ProductType _productType;
+    TYPE_DEFS::PlatformType _platformType;
 
-    DATA_TYPES::PlatformType _platformType;
-
-    CREATE_FIELD( DATA_TYPES::HOLDING_TYPE , HoldingType );
+    CREATE_FIELD( DATA_TYPES::QTY, DisclosedQuantity );
 
     /**
      * @brief _algoId
@@ -134,11 +132,49 @@ namespace API2
     /**
      * @brief _algoCategory
      */
-    DATA_TYPES::AlgoCategory _algoCategory;
+    TYPE_DEFS::AlgoCategory _algoCategory;
 
-    char _generatedOrderId[BUF_SIZE_60] = {0};
+    char _generatedOrderId[GENERATED_CLORDID_SIZE] = {0};
+
+    /**
+     * @brief MasterClientOrderId - Unique Order Id, same for all order states
+     */
+    CREATE_FIELD( DATA_TYPES::CLORDER_ID, MasterClientOrderId );
+
+    /**
+     * @brief MktPriceProtection - Market Price Protection
+     */
+    CREATE_FIELD( DATA_TYPES::PERCENTAGE, MktPriceProtection );
+
+    /**
+     * @brief GiveupFlag: this response is recieved from exchange, if participant code is set for client
+     *            Default value is P(Pending).
+     *            A(Approved), R(Rejected)  will be recieved from exchange.
+     */
+    CREATE_FIELD_WITH_DEFAULT_VALUE(DATA_TYPES::GiveUpFlag, GiveupFlag, 0);
+    
+    UNSIGNED_SHORT _errorTextSize = 0;
+
+    char* _errorText = nullptr;
 
     public:
+
+    UNSIGNED_SHORT getErrorTextSize() const;
+    void setErrorTextSize(UNSIGNED_SHORT errorTextSize);
+    
+    const char *getErrorText() const;  
+    
+    std::string getErrorTextAsString() const;
+    
+    char * getRefErrorText(); 
+    
+    void setErrorText(const std::string &value );
+    
+    void initializeErrorText();
+
+    void clearErrorText();
+
+    void resetErrorText();
 
     OrderConfirmation(const OrderConfirmation& other);
     OrderConfirmation &operator =(const OrderConfirmation& );
@@ -158,8 +194,8 @@ namespace API2
     OrderConfirmation(
         DATA_TYPES::CLORDER_ID &clientOrderId,
         DATA_TYPES::SYMBOL_ID &symbolId,
-        DATA_TYPES::STRATEGY_ID &strategyId,
-        DATA_TYPES::CLIENT_ID &clientId,
+        TYPE_DEFS::STRATEGY_ID &strategyId,
+        TYPE_DEFS::CLIENT_ID &clientId,
         DATA_TYPES::OrderStatus &orderStatus,
         DATA_TYPES::OrderMode &orderMode,
         DATA_TYPES::QTY &orderQty,
@@ -186,17 +222,17 @@ namespace API2
     OrderConfirmation(
         DATA_TYPES::CLORDER_ID &clientOrderId,
         DATA_TYPES::SYMBOL_ID &symbolId,
-        DATA_TYPES::STRATEGY_ID &strategyId,
-        DATA_TYPES::CLIENT_ID &clientId,
+        TYPE_DEFS::STRATEGY_ID &strategyId,
+        TYPE_DEFS::CLIENT_ID &clientId,
         DATA_TYPES::OrderStatus &orderStatus,
         DATA_TYPES::OrderMode &orderMode,
-        DATA_TYPES::OrderType &orderType,
+        TYPE_DEFS::OrderType &orderType,
         DATA_TYPES::QTY &orderQty,
         DATA_TYPES::PRICE &orderPrice,
         DATA_TYPES::CLORDER_ID &origClOrdId,
         const DATA_TYPES::PRICE &stopPrice,
-        const DATA_TYPES::ProductType &productType,
-        const DATA_TYPES::PlatformType &platformType);
+        const TYPE_DEFS::ProductType &productType,
+        const TYPE_DEFS::PlatformType &platformType);
 
 
     /**
@@ -254,15 +290,15 @@ namespace API2
 
     /**
      * @brief getStrategyId To get The Strategy Id to which this Order belongs to
-     * @return StrategyId as API2::DATA_TYPES::STRATEGY_ID
+     * @return StrategyId as API2::TYPE_DEFS::STRATEGY_ID
      */
-    DATA_TYPES::STRATEGY_ID  getStrategyId() const ;
+    TYPE_DEFS::STRATEGY_ID  getStrategyId() const ;
 
     /**
      * @brief getClientId To get the client Id for which this Order belongs
-     * @return ClientId as API2::DATA_TYPES::CLIENT_ID
+     * @return ClientId as API2::TYPE_DEFS::CLIENT_ID
      */
-    DATA_TYPES::CLIENT_ID  getClientId() const ;
+    TYPE_DEFS::CLIENT_ID  getClientId() const ;
 
     /**
      * @brief getLimitPrice To get Limit Price set for Order
@@ -373,7 +409,7 @@ namespace API2
      * @brief getErrorCode
      * @return
      */
-    DATA_TYPES::ERROR_CODE getErrorCode() const ;
+    TYPE_DEFS::ERROR_CODE getErrorCode() const ;
 
     /**
      * @brief getTraderId
@@ -391,26 +427,19 @@ namespace API2
      * @brief getOrderValidity
      * @return
      */
-    API2::DATA_TYPES::OrderValidity getOrderValidity() const ;
+    API2::TYPE_DEFS::OrderValidity getOrderValidity() const ;
 
     /**
      * @brief getGTDDate
      * @return
      */
-    API2::DATA_TYPES::GTD_Date getGTDDate() const ;
-
-
-    /**
-     * @brief getQuoteId To get Unique Quote Order Id, sent to exchange at the time of Mass Quote Sending
-     * @return QuoteId as API2::DATA_TYPES::CLORDER_ID
-     */
-    DATA_TYPES::CLORDER_ID getQuoteId() const;
+    API2::TYPE_DEFS::GTD_Date getGTDDate() const ;
 
     /**
      * @brief getConfirmationType To get whether the confirmation is self made or from exchange
-     * @return API2::DATA_TYPES::ConfirmationType
+     * @return API2::TYPE_DEFS::ConfirmationType
      */
-    API2::DATA_TYPES::ConfirmationType getConfirmationType() const;
+    API2::TYPE_DEFS::ConfirmationType getConfirmationType() const;
 
     /**
      * @brief getFixClOrderId To get Fix Client OrderId of the order
@@ -435,7 +464,15 @@ namespace API2
      * @brief getAlgoCategory
      * @return
      */
-    API2::DATA_TYPES::AlgoCategory getAlgoCategory() const;
+    API2::TYPE_DEFS::AlgoCategory getAlgoCategory() const;
+
+    /**
+     * @brief getGeneratedOrderId
+     * @return
+     */
+    std::string getGeneratedOrderId() const ;
+
+    const char* getGeneratedOrderIdPtr() const;
 
     /**
      * @brief setStrategytypeSqnNo
@@ -513,13 +550,13 @@ namespace API2
      * @brief setStrategyId
      * @param strategyId
      */
-    void setStrategyId(DATA_TYPES::STRATEGY_ID strategyId) ;
+    void setStrategyId(TYPE_DEFS::STRATEGY_ID strategyId) ;
 
     /**
      * @brief setClientId
      * @param clientId
      */
-    void setClientId(DATA_TYPES::CLIENT_ID clientId);
+    void setClientId(TYPE_DEFS::CLIENT_ID clientId);
 
     /**
      * @brief setLimitPrice
@@ -597,7 +634,7 @@ namespace API2
      * @brief setErrorCode
      * @param errorCode
      */
-    void setErrorCode(DATA_TYPES::ERROR_CODE errorCode);
+    void setErrorCode(TYPE_DEFS::ERROR_CODE errorCode);
 
     /**
      * @brief setTraderId
@@ -627,25 +664,19 @@ namespace API2
      * @brief setOrderValidity
      * @param orderValidity
      */
-    void setOrderValidity( API2::DATA_TYPES::OrderValidity orderValidity );
+    void setOrderValidity( API2::TYPE_DEFS::OrderValidity orderValidity );
 
     /**
      * @brief getGTDDate
      * @param gtdDate
      */
-    void setGTDDate( DATA_TYPES::GTD_Date gtdDate );
-
-    /**
-     * @brief setQuoteId To set Unique Quote Order Id
-     * @param quoteId
-     */
-    void setQuoteId( DATA_TYPES::CLORDER_ID quoteId );
+    void setGTDDate( TYPE_DEFS::GTD_Date gtdDate );
 
     /**
      * @brief setConfirmationType To set the confirmation is self made or from exchange
-     * @param API2::DATA_TYPES::ConfirmationType
+     * @param API2::TYPE_DEFS::ConfirmationType
      */
-    void setConfirmationType( API2::DATA_TYPES::ConfirmationType confType ) ;
+    void setConfirmationType( API2::TYPE_DEFS::ConfirmationType confType ) ;
 
     /**
      * @brief setFixClOrderId To set Fix Client OrderId of the order
@@ -714,9 +745,9 @@ namespace API2
 
     /**
      * @brief getOrderType
-     * @return DATA_TYPES::OrderType
+     * @return TYPE_DEFS::OrderType
      */
-    DATA_TYPES::OrderType getOrderType() const;
+    TYPE_DEFS::OrderType getOrderType() const;
 
     /**
      * @brief setStopPrice
@@ -726,56 +757,56 @@ namespace API2
 
     /**
      * @brief setOrderType
-     * @param DATA_TYPES::OrderType
+     * @param TYPE_DEFS::OrderType
      */
-    void setOrderType(DATA_TYPES::OrderType orderType);
+    void setOrderType(TYPE_DEFS::OrderType orderType);
 
     /* @brief getChildStrategyId
      *  @return
      **/
-    DATA_TYPES::STRATEGY_ID getChildStrategyId() const;
+    TYPE_DEFS::STRATEGY_ID getChildStrategyId() const;
 
 
     /* @brief getParentStrategyId
      * @return
      */
-    DATA_TYPES::STRATEGY_ID getParentStrategyId() const;
+    TYPE_DEFS::STRATEGY_ID getParentStrategyId() const;
       
     /**
      * @brief setParentStrategyId
      * @param strategyId
      */
-    void setParentStrategyId(DATA_TYPES::STRATEGY_ID strategyId);
+    void setParentStrategyId(TYPE_DEFS::STRATEGY_ID strategyId);
 
     /**
      * @brief setChildStrategyId
      * @param strategyId
      **/
-    void setChildStrategyId(DATA_TYPES::STRATEGY_ID strategyId);
+    void setChildStrategyId(TYPE_DEFS::STRATEGY_ID strategyId);
 
     /**
      * @brief getProductType
-     * @return DATA_TYPES::ProductType
+     * @return TYPE_DEFS::ProductType
      */
-    DATA_TYPES::ProductType getProductType() const;
+    TYPE_DEFS::ProductType getProductType() const;
 
     /**
      * @brief getPlatformType
-     * @return DATA_TYPES::PlatformType
+     * @return TYPE_DEFS::PlatformType
      */
-    DATA_TYPES::PlatformType getPlatformType() const;
+    TYPE_DEFS::PlatformType getPlatformType() const;
 
     /**
      * @brief setPlatformType
      * @param platformType
      */
-    void setPlatformType(DATA_TYPES::PlatformType platformType);
+    void setPlatformType(TYPE_DEFS::PlatformType platformType);
 
     /**
      * @brief setProductType
      * @param productType
      */
-    void setProductType(DATA_TYPES::ProductType productType);
+    void setProductType(TYPE_DEFS::ProductType productType);
 
     /**
      * @brief setAlgoId
@@ -787,7 +818,19 @@ namespace API2
      * @brief setAlgoCategory
      * @param AlgoCategory
      */
-    void setAlgoCategory(const DATA_TYPES::AlgoCategory AlgoCategory);
+    void setAlgoCategory(const TYPE_DEFS::AlgoCategory AlgoCategory);
+
+    /**
+     * @brief setGeneratedOrderId
+     * @param generatedOrderId
+     */
+    void setGeneratedOrderId(const std::string  &generatedOrderId);
+
+    /**
+     * @brief setGeneratedOrderId
+     * @param generatedOrderId
+     */
+    void setGeneratedOrderId( const char generatedOrderId[] );
 
     /**
      * @brief getString - This method returns string for confirmation dump.

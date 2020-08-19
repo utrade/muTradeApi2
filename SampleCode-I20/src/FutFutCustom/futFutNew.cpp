@@ -1,5 +1,7 @@
+
 #include "futFutNew.h"
 #include "apiConstants.h"
+#include "ivGreekInterface.h"
 
 /*
  *Class FutFutArbtriage is the Driver Class, derived from SGContext to let us inherit
@@ -99,6 +101,10 @@ namespace SampleFutFutArbitrage
         setStrategyType(API2::CONSTANTS::STRATEGY_TYPE_DEFAULT_VALUE, API2::DATA_TYPES::BYPASS_NNFID_ENABLED);
       }
     }
+
+    //Dump Mapped clientcodes for the dealer
+    dumpMappedClientCodes();
+
     _timer.setTimer(_timeExpiry);
   }
 
@@ -106,7 +112,7 @@ namespace SampleFutFutArbitrage
   /* ---------------------------------------------Workflow Functions --------------------------------------------------*/
 
   //Recieve Callbacks on Every Market Data Event
-  void SampleFutFutArbitrage::FutFutArbitrage::onMarketDataEvent(UNSIGNED_LONG symbolId)
+  void FutFutArbitrage::onMarketDataEvent(UNSIGNED_LONG symbolId)
   {
     onDefaultEvent();
   }
@@ -166,6 +172,7 @@ namespace SampleFutFutArbitrage
     //Hedging Driver
     if(!_hedging->startHedge())
     {
+      //DEBUG_MESSAGE( reqQryDebugLog(),"Hedging failed");
       terminateStrategyComment(API2::CONSTANTS::RSP_StrategyComment_STRATEGY_ERROR_STATE );
       return;
     }
@@ -206,6 +213,7 @@ namespace SampleFutFutArbitrage
 
     dumpOrderLimits();
     dumpPositions();
+    dumpIvGreekValues();
   }
 
   //CallBack for When an Order is Filled
@@ -234,6 +242,11 @@ namespace SampleFutFutArbitrage
       _lastPrice = 0;
       //Start Hedging as soon as the Bid Order is Filled
       onDefaultEvent();
+
+      //Dumping latest exchange order id's
+      DEBUG_VARSHOW(reqQryDebugLog(),"Last Bid ExchangeOrderId: ",  _commonUtilities.mktData1->getExchangeOrderId() );
+      DEBUG_VARSHOW(reqQryDebugLog(),"Last Bid TradeBuyOrderId: ",  _commonUtilities.mktData1->getTradeBuyOrderId() );
+      DEBUG_VARSHOW(reqQryDebugLog(),"Last Bid TradeSellOrderId: ", _commonUtilities.mktData1->getTradeSellOrderId() );
     }
     else if(_hedging->isHedgeOrder(orderId))
     {
@@ -253,6 +266,10 @@ namespace SampleFutFutArbitrage
       sendUpdateResponse();
       _hedging->hedgingPrice.resetTimer();
 
+      //Dumping latest exchange order id's
+      DEBUG_VARSHOW(reqQryDebugLog(),"Last Hedge ExchangeOrderId: ",  _commonUtilities.mktData2->getExchangeOrderId() );
+      DEBUG_VARSHOW(reqQryDebugLog(),"Last Hedge TradeBuyOrderId: ",  _commonUtilities.mktData2->getTradeBuyOrderId() );
+      DEBUG_VARSHOW(reqQryDebugLog(),"Last Hedge TradeSellOrderId: ", _commonUtilities.mktData2->getTradeSellOrderId() );
     }
     else
     {
@@ -261,6 +278,7 @@ namespace SampleFutFutArbitrage
 
     dumpOrderLimits();
     dumpPositions();
+    dumpIvGreekValues();
 
     //Terminate if all the lots are traded
     if(( (_hedging->getHedgePositions() * _commonUtilities.ratio1) >=
@@ -292,6 +310,7 @@ namespace SampleFutFutArbitrage
 
     dumpOrderLimits();
     dumpPositions();
+    dumpIvGreekValues();
   }
 
   //CallBack for When an Order is Canceled
@@ -457,6 +476,7 @@ namespace SampleFutFutArbitrage
           DEBUG_MESSAGE( reqQryDebugLog(),"Bid order Cancel request failed");
         }
       }
+      return true;
     }
 
     API2::DATA_TYPES::QTY iterationQty = _userParams.perOrderQuantity;
@@ -535,17 +555,41 @@ namespace SampleFutFutArbitrage
     obj->reqTimerEvent(10000);
   }
 
+  void FutFutArbitrage::receiveCustomData(API2::CustomDataPtr customDataPtr)
+  {
+    DEBUG_MESSAGE(reqQryDebugLog(),"Custom Data Received");
+    std::shared_ptr<StrategyCustomData> strategyCustomDataPtr = std::static_pointer_cast<StrategyCustomData>(customDataPtr);
+    if(strategyCustomDataPtr)
+    {
+      strategyCustomDataPtr->print(reqQryDebugLog());
+      DEBUG_FLUSH(reqQryDebugLog());
+    }
+  }
+
   //Set modified Internal parameters
   bool FutFutArbitrage::setModifiedInternalParameters(API2::UserParams *customParams, FrontEndParameters &userParams)
   {
+    char tempValue;
     FILL_PARAMS("TotalQuantity",userParams.totalQuantity);
     FILL_PARAMS("OrderQuantity",userParams.perOrderQuantity);
     FILL_PARAMS("Market Percentage",userParams.marketPercentage);
     FILL_PARAMS("Desired Spread",userParams.desiredSpread);
+    FILL_PARAMS("Interest Rate",userParams.interestRate);
+    FILL_PARAMS("Dividend",userParams.dividend);
+    FILL_PARAMS("Expiry In Days", userParams.expiryInDays);
+    FILL_PARAMS("Ref Price type",tempValue);
+    userParams.refSpotPriceType = (API2::DATA_TYPES::REFERENCE_SPOT_PRICE_TYPE)tempValue;
+    FILL_PARAMS("Expiry Day type",tempValue);
+    userParams.expiryDayType = (API2::DATA_TYPES::EXPIRYDAY_TYPE)tempValue;
     DEBUG_VARSHOW(reqQryDebugLog(),"TotalQuantity",userParams.totalQuantity);
     DEBUG_VARSHOW(reqQryDebugLog(),"OrderQuantity",userParams.perOrderQuantity);
     DEBUG_VARSHOW(reqQryDebugLog(),"Market Percentage",userParams.marketPercentage);
     DEBUG_VARSHOW(reqQryDebugLog(),"Desired Spread",userParams.desiredSpread);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Interest Rate",userParams.interestRate);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Dividend",userParams.dividend);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Expiry In Days",userParams.expiryInDays);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Ref Price type",userParams.refSpotPriceType);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Expiry Day type",userParams.expiryDayType);
     return true;
   }
 
@@ -559,10 +603,18 @@ namespace SampleFutFutArbitrage
     FILL_PARAMS("SYMBOL LEG2",userParams.symbol2);
     FILL_PARAMS("Order Mode 2",tempValue);
     userParams.orderMode2 = (API2::DATA_TYPES::OrderMode)tempValue;
+    FILL_PARAMS("SYMBOL LEG3",userParams.underlyingSymbol);
     FILL_PARAMS("TotalQuantity",userParams.totalQuantity);
     FILL_PARAMS("OrderQuantity",userParams.perOrderQuantity);
     FILL_PARAMS("Market Percentage",userParams.marketPercentage);
     FILL_PARAMS("Desired Spread",userParams.desiredSpread);
+    FILL_PARAMS("Interest Rate",userParams.interestRate);
+    FILL_PARAMS("Dividend",userParams.dividend);
+    FILL_PARAMS("Expiry In Days",userParams.expiryInDays);
+    FILL_PARAMS("Ref Price type",tempValue);
+    userParams.refSpotPriceType = (API2::DATA_TYPES::REFERENCE_SPOT_PRICE_TYPE)tempValue;
+    FILL_PARAMS("Expiry Day type",tempValue);
+    userParams.expiryDayType = (API2::DATA_TYPES::EXPIRYDAY_TYPE)tempValue;
     FILL_PARAMS("Hedge Method",tempValue);
     userParams.hedgingMethod = (HedgeMethod)tempValue;
     FILL_PARAMS("isTBT",userParams.isTBT);
@@ -646,15 +698,21 @@ namespace SampleFutFutArbitrage
   //dump function to flush our FrontEnd Values
   void FutFutArbitrage::dump(FrontEndParameters &params)
   {
-    DEBUG_VARSHOW(reqQryDebugLog(),"SYMBOL LEG1",(int)params.symbol1);
+    DEBUG_VARSHOW(reqQryDebugLog(),"SYMBOL LEG1",params.symbol1);
     DEBUG_VARSHOW(reqQryDebugLog(),"SYMBOL LEG2",params.symbol2);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Underlying Symbol",params.underlyingSymbol);
     DEBUG_VARSHOW(reqQryDebugLog(),"TotalQuantity",params.totalQuantity);
     DEBUG_VARSHOW(reqQryDebugLog(),"OrderQuantity",params.perOrderQuantity);
     DEBUG_VARSHOW(reqQryDebugLog(),"Market Percentage",params.marketPercentage);
     DEBUG_VARSHOW(reqQryDebugLog(),"Desired Spread",params.desiredSpread);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Interest Rate",params.interestRate);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Dividend",params.dividend);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Expiry In Days",params.expiryInDays);
     DEBUG_VARSHOW(reqQryDebugLog(),"Order Mode 1",(API2::DATA_TYPES::OrderMode)params.orderMode1);
     DEBUG_VARSHOW(reqQryDebugLog(),"Order Mode 2",(API2::DATA_TYPES::OrderMode)params.orderMode2);
     DEBUG_VARSHOW(reqQryDebugLog(),"Hedge Method",int(params.hedgingMethod));
+    DEBUG_VARSHOW(reqQryDebugLog(),"Ref Price type",params.refSpotPriceType);
+    DEBUG_VARSHOW(reqQryDebugLog(),"Expiry Day type",params.expiryDayType);
   }
 
   //Strategy modified from FrontEnd
@@ -712,6 +770,11 @@ namespace SampleFutFutArbitrage
     _userParams.perOrderQuantity = _modUserParams.perOrderQuantity;
     _userParams.desiredSpread = _modUserParams.desiredSpread;
     _userParams.marketPercentage = _modUserParams.marketPercentage;
+    _userParams.interestRate = _modUserParams.interestRate;
+    _userParams.dividend = _modUserParams.dividend;
+    _userParams.expiryInDays = _modUserParams.expiryInDays;
+    _userParams.refSpotPriceType = _modUserParams.refSpotPriceType;
+    _userParams.expiryDayType = _modUserParams.expiryDayType;
     return true;
   }
 
@@ -757,6 +820,7 @@ namespace SampleFutFutArbitrage
 
     dumpOrderLimits();
     dumpPositions();
+    dumpIvGreekValues();
 
     reqTerminateStrategy(true);
   }
@@ -953,6 +1017,9 @@ namespace SampleFutFutArbitrage
       ("FUT_FUT_ARBITRAGE.CHECK_BASIC_CHECKS" , 
        bpo::value<bool> ( & _checkBasicChecks )->default_value(0),
        "Check Basic Checks before placing order like DPR check,TER check,freeze qty check")
+      ("FUT_FUT_ARBITRAGE.POSITION_PRINT_LOG" ,
+       bpo::value<bool> ( & _positionPrintLog )->default_value(false),
+      "Check Basic Checks before placing order like DPR check,TER check,freeze qty check")
       ;
     std::string configFile = "./config/FutFutArbitrage.txt";
     bpo::options_description configFileOptions;
@@ -966,14 +1033,17 @@ namespace SampleFutFutArbitrage
 
   void FutFutArbitrage::dumpOrderLimits()
   {
+    if(!_positionPrintLog)
+      return;
+
     if( !isInstrumentCreated() )
     {
       return;
     }
 
-    API2::DATA_TYPES::INTEGER64 dealerUsedDeposit;
-    API2::DATA_TYPES::INTEGER64 bidClientUsedDeposit;
-    API2::DATA_TYPES::INTEGER64 hedgeClientUsedDeposit;
+    API2::DATA_TYPES::INTEGER64 dealerUsedDeposit = 0;
+    API2::DATA_TYPES::INTEGER64 bidClientUsedDeposit = 0;
+    API2::DATA_TYPES::INTEGER64 hedgeClientUsedDeposit = 0;
     API2::COMMON::OrderLimitsApiStruct dealerOrderLimits;
     API2::COMMON::OrderLimitsApiStruct bidClientOrderLimits;
     API2::COMMON::OrderLimitsApiStruct hedgeClientOrderLimits;
@@ -1032,10 +1102,10 @@ namespace SampleFutFutArbitrage
       << " \n___________Dealer : " << reqQryClientID() << " Limits___________"
       << dealerOrderLimits.getString()
       << " \n DealerUsedDeposit : " << dealerUsedDeposit << "\n"
-      << " \n_________Bid Client : " << _userParams.account1.getPrimaryClientCode() << " Limits_________"
+      << " \n\n\n_________Bid Client : " << _userParams.account1.getPrimaryClientCode() << " Limits_________"
       << bidClientOrderLimits.getString()
       << " \n BidClientUsedDeposit : " << bidClientUsedDeposit << "\n"
-      << " \n_________Hedge Client : " << _userParams.account2.getPrimaryClientCode() << " Limits_________"
+      << " \n\n\n_________Hedge Client : " << _userParams.account2.getPrimaryClientCode() << " Limits_________"
       << hedgeClientOrderLimits.getString()
       << " \n HedgeClientUsedDeposit : " << hedgeClientUsedDeposit << std::endl;
 
@@ -1045,6 +1115,11 @@ namespace SampleFutFutArbitrage
 
   void FutFutArbitrage::dumpPositions()
   {
+    if(!_positionPrintLog)
+    {
+      return;
+    }
+
     if( !isInstrumentCreated() )
     {
       return;
@@ -1086,9 +1161,9 @@ namespace SampleFutFutArbitrage
     getApiPositionForClient(
         bidClientHash,
         _userParams.account1.getPrimaryClientCode(),
+        symbolIdSet,
         _commonUtilities.instrument1->getStaticData()->exchangeId,
-        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ),
-        symbolIdSet );
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ));
 
     dumpPositionString  << " \n_________Bid Client : " << _userParams.account1.getPrimaryClientCode() << " Positions_________";
 
@@ -1098,14 +1173,33 @@ namespace SampleFutFutArbitrage
       dumpPositionString << positionHash.second.getPositionString();
     }
 
+    dumpPositionString<< "============== END ===================\n" ;
+
+    dumpPositionString<< "============== BID CLIent all symbol position for new RMS===================" ;
+
     //-----------------------------------getApiPositionForClient-------------------------------------
+    bidClientHash.clear();
+
+    if(getApiPositionForClient(
+          bidClientHash,
+          _userParams.account1.getPrimaryClientCode(),
+          boost::unordered_set< SIGNED_LONG >()))
+    {
+      for( auto& positionHash : bidClientHash )
+      {
+        dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+        dumpPositionString << positionHash.second.getPositionString();
+      }
+    }
+
+
 
     getApiPositionForClient(
         hedgeClientHash,
         _userParams.account2.getPrimaryClientCode(),
+        symbolIdSet,
         _commonUtilities.instrument2->getStaticData()->exchangeId,
-        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ),
-        symbolIdSet );
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ));
 
     dumpPositionString  << " \n_________Hedge Client : " << _userParams.account2.getPrimaryClientCode() << " Positions_________";
 
@@ -1125,7 +1219,7 @@ namespace SampleFutFutArbitrage
         API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ),
         symbolIdSet );
 
-    dumpPositionString << " \n_____Dealer ( " << reqQryClientID() << " ) + Bid Client ( "
+    dumpPositionString << " \n======================Dealer ( " << reqQryClientID() << " )====================== + \nBid Client ( "
       << _userParams.account1.getPrimaryClientCode() << " ) Positions_____";
 
     for( auto& positionHash : dealerBidClientHash )
@@ -1134,36 +1228,176 @@ namespace SampleFutFutArbitrage
       dumpPositionString << positionHash.second.getPositionString();
     }
 
+    dumpPositionString << "=============================END=========================================\n";
+
+    dumpPositionString << "=============================ERRORR=========================================\n";
+
     //--------------------------------getApiPositionForDealerClient----------------------------------
 
-    getApiPositionForDealerClient(
-        dealerHedgeClientHash,
-        reqQryClientID(),
-        _userParams.account2.getPrimaryClientCode(),
-        _commonUtilities.instrument2->getStaticData()->exchangeId,
-        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ),
-        symbolIdSet );
-
-    dumpPositionString << " \n_____Dealer ( " << reqQryClientID() << " ) + Hedge Client ( "
-      << _userParams.account2.getPrimaryClientCode() << " ) Positions_____";
-
-    for( auto& positionHash : dealerHedgeClientHash )
+    dumpPositionString << "================D+C+In Ex + Valid Segment===============================\n";
+    if(getApiPositionForDealerClient(
+          dealerHedgeClientHash,
+          reqQryClientID(),
+          _userParams.account2.getPrimaryClientCode(),
+          API2::CONSTANTS::CMD_ExchangeId_MAX,
+          API2::DATA_TYPES::ClientSegmentType::CM,
+          symbolIdSet ))
     {
-      dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
-      dumpPositionString << positionHash.second.getPositionString();
+      dumpPositionString << "================Supported===============================\n";
+
+    }
+    else
+    {
+      dumpPositionString << "================ Invalid input ===============================\n";
     }
 
+    dealerHedgeClientHash.clear();
+
+    dumpPositionString << "================D+C+IEx + inValid Segment===============================\n";
+
+    if(getApiPositionForDealerClient(
+          dealerHedgeClientHash,
+          reqQryClientID(),
+          _userParams.account2.getPrimaryClientCode(),
+          API2::CONSTANTS::CMD_ExchangeId_NSECM,
+          API2::DATA_TYPES::ClientSegmentType::MAX,
+          symbolIdSet ))
+    {
+      dumpPositionString << "================Supported===============================\n";
+
+    }
+    else
+    {
+      dumpPositionString << "================Invalid input===============================\n";
+    }
+    dealerHedgeClientHash.clear();
+
+    dumpPositionString << "=================ERRORR END===============================\n";
+
+    dumpPositionString << "=========DEALER + BID CLient + Ex MAX + Seg MAX  + Symbol set empty========================\n";
+
+    if(getApiPositionForDealerClient(
+          dealerHedgeClientHash,
+          reqQryClientID(),
+          _userParams.account1.getPrimaryClientCode(),
+          API2::CONSTANTS::CMD_ExchangeId_MAX,
+          API2::DATA_TYPES::ClientSegmentType::MAX,
+          boost::unordered_set< SIGNED_LONG >() ))
+    {
+      dumpPositionString << " \n===================Dealer ( " << reqQryClientID() << " ) ===========================\n Bid Client ( "
+        << _userParams.account1.getPrimaryClientCode() << " ) Positions_____";
+
+      for( auto& positionHash : dealerHedgeClientHash )
+      {
+        dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+        dumpPositionString << positionHash.second.getPositionString();
+      }
+    }
+    else
+    {
+      dumpPositionString << "ERROR: Position not available:"
+        << " \n===================Dealer ( " << reqQryClientID() << " ) ===========================\n Bid Client ( "
+        << _userParams.account1.getPrimaryClientCode() << " ) Positions_____";
+
+    }
+    dealerHedgeClientHash.clear();
+
+    dumpPositionString << "============= DEALER + HEDGE CLient + MAX ex+ MAX segment+ symbol set empty  =================\n";
+
+    if(getApiPositionForDealerClient(
+          dealerHedgeClientHash,
+          reqQryClientID(),
+          _userParams.account2.getPrimaryClientCode(),
+          API2::CONSTANTS::CMD_ExchangeId_MAX,
+          API2::DATA_TYPES::ClientSegmentType::MAX,
+          boost::unordered_set< SIGNED_LONG >() ))
+    {
+      dumpPositionString << " \n===========================Dealer ( " << reqQryClientID() << " ) ===========================\n Hedge Client ( "
+        << _userParams.account2.getPrimaryClientCode() << " ) Positions_____";
+
+      for( auto& positionHash : dealerHedgeClientHash )
+      {
+        dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+        dumpPositionString << positionHash.second.getPositionString();
+      }
+    }
+    else
+    {
+      dumpPositionString << "ERROR: Position not available ====== DEALER + HEDGE CLient + MAX ex+ MAX segment+ symbol set empty  =====\n";
+    }
+    dealerHedgeClientHash.clear();
+
+    dumpPositionString << "==============DEALER + HEDGE CLient + EX + SG + symbol set empty  ====================\n";
+
+    if(getApiPositionForDealerClient(
+          dealerHedgeClientHash,
+          reqQryClientID(),
+          _userParams.account2.getPrimaryClientCode(),
+          _commonUtilities.instrument2->getStaticData()->exchangeId,
+          API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ),
+          boost::unordered_set< SIGNED_LONG >() ))
+    {
+      dumpPositionString << " \n===========Dealer ( " << reqQryClientID() << " )=================\n Hedge Client ( "
+        << _userParams.account2.getPrimaryClientCode() << " ) Positions_____";
+
+      for( auto& positionHash : dealerHedgeClientHash )
+      {
+        dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+        dumpPositionString << positionHash.second.getPositionString();
+      }
+    }
+    else
+    {
+      dumpPositionString << "ERROR: Position no found ========DEALER + HEDGE CLient + EX + SG + symbol set empty  =================\n";
+
+    }
+
+    dealerHedgeClientHash.clear();
+
+    dumpPositionString << "=================DEALER + HEDGE CLient + EX + SEG + Valid symbo list===============================\n";
+
+    if(getApiPositionForDealerClient(
+          dealerHedgeClientHash,
+          reqQryClientID(),
+          _userParams.account2.getPrimaryClientCode(),
+          _commonUtilities.instrument2->getStaticData()->exchangeId,
+          API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument2->getStaticData()->segment ),
+          symbolIdSet))
+    {
+      dumpPositionString << " \n==============Dealer ( " << reqQryClientID() << " ) ===============\n Hedge Client ( "
+        << _userParams.account2.getPrimaryClientCode() << " ) Positions_____";
+
+      for( auto& positionHash : dealerHedgeClientHash )
+      {
+        dumpPositionString << "\n Symbol Id        : "  << positionHash.first;
+        dumpPositionString << positionHash.second.getPositionString();
+      }
+    }
+    else
+    {
+
+      dumpPositionString << "ERROR: Position not found ======DEALER + HEDGE CLient + EX + SEG + Valid symbo list===============================\n";
+
+    }
+
+
+
+    dealerHedgeClientHash.clear();
+
+
     //---------------------------------getApiGlobalDealerPosition------------------------------------
+    dumpPositionString << "---------------------------------getApiGlobalDealerPosition------------------------------------\n";
+    dumpPositionString << " \n______Dealer : " << reqQryClientID() << " Global Positions______";
 
     getApiGlobalDealerPosition(
         dealerGlobalPos,
         reqQryClientID() );
 
-    dumpPositionString << " \n______Dealer : " << reqQryClientID() << " Global Positions______";
     dumpPositionString << dealerGlobalPos.getPositionString();
 
     //--------------------------------getApiGlobalClientPosition-------------------------------------
 
+    dumpPositionString << "--------------------------------( BID) getApiGlobalClientPosition-------------------------------------\n";
     getApiGlobalClientPosition(
         bidClientGlobalPos,
         _userParams.account1.getPrimaryClientCode(),
@@ -1175,6 +1409,7 @@ namespace SampleFutFutArbitrage
 
     //--------------------------------getApiGlobalClientPosition-------------------------------------
 
+    dumpPositionString << "--------------------------------( HEDGE) getApiGlobalClientPosition-------------------------------------\n";
     getApiGlobalClientPosition(
         hedgeClientGlobalPos,
         _userParams.account2.getPrimaryClientCode(),
@@ -1188,11 +1423,405 @@ namespace SampleFutFutArbitrage
 
     DEBUG_MESSAGE( reqQryDebugLog(), dumpPositionString.str() );
 
+
+    getApiPositionBySymbolId(hedgeClientGlobalPos, _commonUtilities.instrument1->getSymbolId());
+
+    DEBUG_VARSHOW( reqQryDebugLog(), "==Symbol global==========",  _commonUtilities.instrument1->getSymbolId());
+    DEBUG_MESSAGE( reqQryDebugLog(), hedgeClientGlobalPos.getPositionString());
+
+    getApiPositionBySymbolId(hedgeClientGlobalPos, _commonUtilities.instrument2->getSymbolId());
+
+    DEBUG_VARSHOW( reqQryDebugLog(), "==Symbol global==========",  _commonUtilities.instrument2->getSymbolId());
+    DEBUG_MESSAGE( reqQryDebugLog(), hedgeClientGlobalPos.getPositionString());
+
+
+
+
   }
 
   bool FutFutArbitrage::isInstrumentCreated()
   {
     return ( _commonUtilities.instrument1 && _commonUtilities.instrument2 ) ;
+  }
+
+  void FutFutArbitrage::dumpMappedClientCodes()
+  {
+    if( !isInstrumentCreated() )
+    {
+      return;
+    }
+
+    std::vector< API2::DATA_TYPES::String > clientCodes;
+
+    getClientCodesDealerExchangeSegmentWise(
+        clientCodes,
+        reqQryClientID(),
+        _commonUtilities.instrument1->getStaticData()->exchangeId,
+        API2::DATA_TYPES::ClientSegmentType( _commonUtilities.instrument1->getStaticData()->segment ) );
+
+    std::stringstream dumpClientCodes;
+
+    dumpClientCodes << " \n--------------Method dumpMappedClientCodes---------------"
+      << " \n ClientCodes mapped to Dealer : " << reqQryClientID() << " Exchange : "
+      << _commonUtilities.instrument1->getStaticData()->exchangeId << " Segment : "
+      << int(_commonUtilities.instrument1->getStaticData()->segment)  << "\n";
+
+    int counter = 0;
+    for( auto &clientCode : clientCodes )
+    {
+      dumpClientCodes << ++counter << ".) " << clientCode << "\n";
+    }
+
+    DEBUG_MESSAGE( reqQryDebugLog(), dumpClientCodes.str() );
+  }
+
+  void FutFutArbitrage::dumpIvGreekValues()
+  {
+    if(!_positionPrintLog || !isInstrumentCreated())
+    {
+      return;
+    }
+
+    API2::DATA_TYPES::IMPLIED_VOLATILITY ivValue = 0;
+    API2::DATA_TYPES::IMPLIED_VOLATILITY ivValue1 = 0;
+    API2::DATA_TYPES::GREEK delta = 0;
+    API2::DATA_TYPES::PRICE optionPrice = 0;
+    API2::DATA_TYPES::PRICE ltp = 0;
+    API2::DATA_TYPES::PRICE spotPrice = 0;
+    API2::DATA_TYPES::TIME_TO_EXPIRE timeToExpire = 0;
+    std::stringstream dumpGreekValues;
+
+    //---------------------------------------PRE-COMPUTED-VALUES-TO-USE-IN-METHODS-------------------------------------------//
+
+    if( !API2::COMMON::MktData::getSymbolSpotPrice(
+          spotPrice,
+          _userParams.underlyingSymbol,
+          _userParams.refSpotPriceType) )
+    {
+      dumpGreekValues << " \n Error in fetching spot price \n ";
+    }
+
+    ltp = _commonUtilities.mktData1->getLastTradePrice();
+
+    timeToExpire = double(_userParams.expiryInDays) / 365.2;
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getIVForOption method 1 Inputs---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Spot Price : " << spotPrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  Symbol 1 Ltp as Option Price : " << ltp
+      << " \n  Dividend : " << _userParams.dividend
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getIVForOption(
+          ivValue,
+          _commonUtilities.instrument1,
+          spotPrice,
+          double(_userParams.interestRate)/10000,
+          ltp,
+          double(_userParams.dividend)/10000,
+          _userParams.expiryDayType ) )
+    {
+      dumpGreekValues << " \n Iv value from getIVForOption method 1 : " << ivValue << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating Iv value from getIVForOption method 1 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getIVForOption method 2 Inputs---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Underlyng Symbol : " << _userParams.underlyingSymbol
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  Symbol 1 Ltp as Option Price : " << ltp
+      << " \n  Dividend : " << _userParams.dividend
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType
+      << " \n  Ref Price Tpye : " << _userParams.refSpotPriceType << "\n" ;
+
+    if ( API2::COMMON::IvGreekInterface::getIVForOption(
+          ivValue,
+          _commonUtilities.instrument1,
+          _userParams.underlyingSymbol,
+          double(_userParams.interestRate)/10000,
+          double(_userParams.dividend)/10000,
+          ltp,
+          _userParams.expiryDayType,
+          _userParams.refSpotPriceType ) )
+    {
+      dumpGreekValues << " \n Iv value from getIVForOption method 2 : " << ivValue << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating Iv value from getIVForOption method 2 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getIVForOption method 3 Inputs---------------"
+      << " \n  Option Mode : " << short(_commonUtilities.instrument1->getStaticData()->optionMode)
+      << " \n  Spot Price : " << spotPrice
+      << " \n  Strike Price : " << _commonUtilities.instrument1->getStaticData()->strikePrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  Symbol 1 Ltp as Option Price : " << ltp
+      << " \n  Time to expire in years : " << timeToExpire
+      << " \n  Dividend : " << _userParams.dividend << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getIVForOption(
+          ivValue1,
+          _commonUtilities.instrument1->getStaticData(),
+          _commonUtilities.instrument1->getStaticData()->optionMode,
+          spotPrice,
+          _commonUtilities.instrument1->getStaticData()->strikePrice,
+          double(_userParams.interestRate)/10000,
+          ltp,
+          timeToExpire,
+          double(_userParams.dividend)/10000 ) )
+    {
+      dumpGreekValues << " \n Iv value from getIVForOption method 3 : " << ivValue1 << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating Iv value from getIVForOption method 3 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getDeltaForOption method 1 Inputs---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Spot Price" << spotPrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  Dividend : " << _userParams.dividend
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getDeltaForOption(
+          delta,
+          _commonUtilities.instrument1,
+          spotPrice,
+          double(_userParams.interestRate)/10000,
+          ivValue,
+          double(_userParams.dividend)/10000,
+          _userParams.expiryDayType ) )
+    {
+      dumpGreekValues << " \n Delta from getDeltaForOption method 1 : " << delta << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating Delta value from getDeltaForOption method 1 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getDeltaForOption method 2 Inputs---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Underlyng Symbol : " << _userParams.underlyingSymbol
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  Dividend : " << _userParams.dividend
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType
+      << " \n  Ref Price Tpye : " << _userParams.refSpotPriceType << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getDeltaForOption(
+          delta,
+          _commonUtilities.instrument1,
+          double(_userParams.interestRate)/10000,
+          _userParams.underlyingSymbol,
+          ivValue,
+          double(_userParams.dividend)/10000,
+          _userParams.expiryDayType,
+          _userParams.refSpotPriceType ) )
+    {
+      dumpGreekValues << " \n Delta from getDeltaForOption method 2 : " << delta << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating Delta value from getDeltaForOption method 2 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getDeltaForOption method 3 Inputs---------------"
+      << " \n  Option Mode : " << short(_commonUtilities.instrument1->getStaticData()->optionMode)
+      << " \n  Spot Price : " << spotPrice
+      << " \n  Strike Price : " << _commonUtilities.instrument1->getStaticData()->strikePrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  Symbol 1 Ltp as Option Price : " << ltp
+      << " \n  Time to expire in years : " << timeToExpire
+      << " \n  Dividend : " << _userParams.dividend << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getDeltaForOption(
+          delta,
+          _commonUtilities.instrument1->getStaticData(),
+          _commonUtilities.instrument1->getStaticData()->optionMode,
+          spotPrice,
+          _commonUtilities.instrument1->getStaticData()->strikePrice,
+          double(_userParams.interestRate)/10000,
+          ltp,
+          timeToExpire,
+          double(_userParams.dividend)/10000 ) )
+    {
+      dumpGreekValues << " \n Delta from getDeltaForOption method 3 : " << delta << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating Delta value from getDeltaForOption method 3 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getOptionPrice method 1 Inputs---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Spot Price : " << spotPrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  Dividend : " << _userParams.dividend
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType  << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getOptionPrice(
+          optionPrice,
+          _commonUtilities.instrument1,
+          spotPrice,
+          double(_userParams.interestRate)/10000,
+          ivValue,
+          double(_userParams.dividend)/10000,
+          _userParams.expiryDayType ) )
+    {
+      dumpGreekValues << " \n OptionPrice from getOptionPrice method 1 : " << optionPrice << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating OptionPrice value from getOptionPrice method 1 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getOptionPrice method 2 Inputs---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Underlyng Symbol : " << _userParams.underlyingSymbol
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  Dividend : " << _userParams.dividend
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType
+      << " \n  Ref Price Tpye : " << _userParams.refSpotPriceType << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getOptionPrice(
+          optionPrice,
+          _commonUtilities.instrument1,
+          double(_userParams.interestRate)/10000,
+          _userParams.underlyingSymbol,
+          ivValue,
+          double(_userParams.dividend)/10000,
+          _userParams.expiryDayType,
+          _userParams.refSpotPriceType ) )
+    {
+      dumpGreekValues << " \n OptionPrice from getOptionPrice method 2 : " << optionPrice << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating OptionPrice value from getOptionPrice method 2 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getOptionPrice method 3 Inputs---------------"
+      << " \n  Option Mode : " << short(_commonUtilities.instrument1->getStaticData()->optionMode)
+      << " \n  Spot Price : " << spotPrice
+      << " \n  Strike Price : " << _commonUtilities.instrument1->getStaticData()->strikePrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  Time to expire in years : " << timeToExpire
+      << " \n  Dividend : " << _userParams.dividend << "\n" ;
+
+    if( API2::COMMON::IvGreekInterface::getOptionPrice(
+          optionPrice,
+          _commonUtilities.instrument1->getStaticData(),
+          _commonUtilities.instrument1->getStaticData()->optionMode,
+          spotPrice,
+          _commonUtilities.instrument1->getStaticData()->strikePrice,
+          double(_userParams.interestRate)/10000,
+          ivValue,
+          timeToExpire,
+          double(_userParams.dividend)/10000 ) )
+    {
+      dumpGreekValues << " \n OptionPrice from getOptionPrice method 3 : " << optionPrice << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating OptionPrice value from getOptionPrice method 3 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getGreekValue method with Input 1---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Underlyng Symbol : " << _userParams.underlyingSymbol
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType
+      << " \n  Ref Price Tpye : " << _userParams.refSpotPriceType << "\n" ;
+
+    API2::COMMON::IvGreekValues greekValue1(
+        _commonUtilities.instrument1,
+        _userParams.underlyingSymbol,
+        0,
+        _userParams.interestRate/10000,
+        ivValue,
+        _userParams.expiryDayType,
+        _userParams.refSpotPriceType );
+
+    if( API2::COMMON::IvGreekInterface::getGreekValues( greekValue1 ) )
+    {
+      dumpGreekValues << " \n GreekValues from GreekValues method with Input 1 : "
+        << " \n Delta : " << greekValue1.getDelta()
+        << " \n Gamma : " << greekValue1.getGamma()
+        << " \n Theta : " << greekValue1.getTheta()
+        << " \n Vega  : " << greekValue1.getVega()
+        << " \n Rho   : " << greekValue1.getRho() << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating GreekValues value from GreekValues method with Input 1 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    dumpGreekValues << " \n--------------Method getGreekValue method with Input 2---------------"
+      << " \n  Symbol 1 : " << _commonUtilities.instrument1->getSymbolId()
+      << " \n  Spot Price : " << spotPrice
+      << " \n  Interest Rate : " << _userParams.interestRate
+      << " \n  IvValue : " << ivValue
+      << " \n  ExpiryDayType : " << _userParams.expiryDayType << "\n" ;
+
+    API2::COMMON::IvGreekValues greekValue2(
+        _commonUtilities.instrument1,
+        0,
+        spotPrice,
+        _userParams.interestRate/10000,
+        ivValue,
+        _userParams.expiryDayType,
+        _userParams.refSpotPriceType );
+
+    if( API2::COMMON::IvGreekInterface::getGreekValues( greekValue2 ) )
+    {
+      dumpGreekValues << " \n GreekValues from GreekValues method with Input 1 : "
+        << " \n Delta : " << greekValue2.getDelta()
+        << " \n Gamma : " << greekValue2.getGamma()
+        << " \n Theta : " << greekValue2.getTheta()
+        << " \n Vega  : " << greekValue2.getVega()
+        << " \n Rho   : " << greekValue2.getRho() << "\n";
+    }
+    else
+    {
+      dumpGreekValues << " \n Error calculating GreekValues value from GreekValues method with Input 1 \n";
+    }
+
+    //---------------------------------------------------------------------------------------------------------------------//
+
+    DEBUG_MESSAGE( reqQryDebugLog(), dumpGreekValues.str() );
   }
 
 }

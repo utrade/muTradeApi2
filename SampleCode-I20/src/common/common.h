@@ -18,6 +18,7 @@
 #include <string.h>
 #include <sgContext.h>
 #include "orderWrapper.h"
+#include "customData.h"
 
 #define FILL_PARAMS( NAME, PARAM)\
   if(customParams->getValue(NAME,PARAM) != API2::UserParamsError_OK)\
@@ -31,6 +32,33 @@
   ostringStream.clear();  \
   ostringStream << arg1 << arg2;  \
   list.push_back( ostringStream.str() );  \
+
+/**
+ * @description Sample derived class which can be used to pass specific data in
+ * the customData callBacks generated on all API strategies of a delaer.
+ * Function on which call back generated: receiveCustomData
+ * Function by which callback generated: sendCustomDataToStrategiesDealerWise
+ */
+class StrategyCustomData : public API2::CustomData
+{
+  std::string _data; 
+
+  public :
+
+    StrategyCustomData():
+      _data("StrategyString")
+    {}
+    
+    void setData(const std::string &data)
+    {
+      _data = data;
+    }
+
+    void print(API2::DebugLog *debugLog)
+    {
+      DEBUG_VARSHOW(debugLog,"StrategyData",_data);
+    }
+};
 
 namespace API2
 {
@@ -91,6 +119,40 @@ namespace API2
         outPut = boost::lexical_cast <to> ( input );
         return outPut;
       }
+
+    /* Lexicalcast error code handling
+     * example:  input="125.5" to double 125.5
+     * lexical_cast<double,std::string>(input,0)   // 0 is default value if cast failed
+     */
+    template<typename T1, typename T2>
+      T1 lexical_cast(T2 const& value, T1 const& defaultValue, DebugLog *debugLog)
+      {
+        try {
+          if(typeid(std::string) == typeid(T2))
+          {
+            std::string *tempString = (std::string *)&value;
+            if(tempString->empty())
+            {
+              return defaultValue;
+            }
+          }
+          return boost::lexical_cast<T1, T2>(value);
+        }
+        catch(const boost::bad_lexical_cast &e) 
+        {
+          DEBUG_VARSHOW(debugLog, "bad_lexical_cast Exception Throws", e.what());
+        }
+        catch(std::exception& e) 
+        {
+          DEBUG_VARSHOW(debugLog, "Exception Throws", e.what()); 
+        }
+        catch(...) 
+        {
+          DEBUG_MESSAGE(debugLog, "Unknown exception throw");
+        }
+        return defaultValue;
+      }
+
 
     inline std::string convertToHumanReadableFormat(const long epochTime)
     {
@@ -164,6 +226,9 @@ namespace API2
      *@Return bool
      **/
     bool isNseMarket(const API2::DATA_TYPES::ExchangeId exchangeId);
+
+    double applyPercentage(const double value, const API2::DATA_TYPES::PERCENTAGE percentage);
+
 
   }
 }

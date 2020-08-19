@@ -195,12 +195,12 @@ namespace API2  {
     /**
      * @brief lowerBandPrice
      */
-    long        lowerBandPrice;
+    long long lowerBandPrice;
 
     /**
      * @brief upperBandPrice
      */
-    long        upperBandPrice;
+    long long upperBandPrice;
 
     /**
      * @brief freezeQuantity
@@ -389,6 +389,23 @@ namespace API2  {
     API2::DATA_TYPES::ScripGroup scripGroup = API2::CONSTANTS::ScripGroup_MAX;
 
     /**
+     * @brief asmGsmSurveillanceIndicator : Stages 0 - 6 for GSM & Stages 10 - 16 for Short Term Securities
+     * and Long Term Securities of ASM
+     */
+    UNSIGNED_CHARACTER asmGsmSurveillanceIndicator;
+
+    /**
+     * @brief isNormalMarket - whether trading is allowed in normal market for this symbol
+     */
+    bool isNormalMarket;
+
+    /**
+     * @brief cashUniqueKey - made after multiple filters on exchange contract files to
+     * identify cash contracts on NSE and BSE.
+     */
+    API2::DATA_TYPES::CASH_UNIQUE_KEY cashUniqueKey;
+
+    /**
      * @brief API_SymbolStaticData
      */
     SymbolStaticData();
@@ -429,7 +446,8 @@ namespace API2  {
      * @param targetExchange : Exchange Id for the option
      * @return symbol id
      */
-    static SIGNED_LONG getATMOption(std::string symbolName,
+    static SIGNED_LONG getATMOption(
+        const std::string &symbolName,
         SIGNED_LONG lastTradePrice,
         const API2::DATA_TYPES::OptionMode optionMode,
         char upDown,
@@ -451,7 +469,7 @@ namespace API2  {
 
 
     static SIGNED_LONG getOption(
-        const std::string symbolName,
+        const std::string &symbolName,
         const SIGNED_LONG lastTradePrice,
         const API2::DATA_TYPES::OptionMode optionMode,
         const char upDown,
@@ -470,7 +488,8 @@ namespace API2  {
      * @param targetExchange : Exchange Id for the option
      * @return symbol id
      */
-    static SIGNED_LONG getATMOption(std::string symbolName,
+    static SIGNED_LONG getATMOption(
+        const std::string &symbolName,
         SIGNED_LONG lastTradePrice,
         const API2::DATA_TYPES::OptionMode optionMode,
         int yearMon,
@@ -484,13 +503,13 @@ namespace API2  {
      * @param targetExchange : Exchange Id for the future
      * @return symbol id
      */
-    static SIGNED_LONG getSymbolFuture(std::string symbolName,
+    static SIGNED_LONG getSymbolFuture(const std::string &symbolName,
         int yearMon,
         const API2::DATA_TYPES::ExchangeId targetExchange,
         int yearMon2 = 0);
 
-    bool tickComparer( MultiTickMap::value_type &a,
-        MultiTickMap::value_type &b) ;
+    bool tickComparer( const MultiTickMap::value_type &a,
+        const MultiTickMap::value_type &b) ;
     long getTickSizeForPrice( long price ) const;
     void insertTickSizeForPrice( long price, long tickSize ) ;
 

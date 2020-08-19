@@ -9,6 +9,16 @@ namespace INVOKING
     CREATE_FIELD( UNSIGNED_CHARACTER, StrategyComment );
     CREATE_FIELD( UNSIGNED_INTEGER, ParentId );
     CREATE_FIELD( UNSIGNED_INTEGER, Id );
+
+    public :
+     SgResponse() :
+       _ResponseType(0),
+       _RiskStatus(0),
+       _StrategyComment(0),
+       _ParentId(0),
+       _Id(0)
+       {
+       }
   };
   struct TwoLegArbitrage
   {
@@ -45,5 +55,25 @@ namespace INVOKING
     std::string getString();
   
   };
+
+  // DTA Work
+  /*
+  //   * @brief APIBaseParams: Every API strategy params structure must consist this structure
+  //   */
+  //  struct APIBaseParams
+  //  {
+  //    API2::DATA_TYPES::TransactionType transactionType;
+  //    API2::DATA_TYPES::STRATEGY_ID strategyId;
+  //    UNSIGNED_LONG fixClOrderId;
+  //
+  //    APIBaseParams( const API2::DATA_TYPES::TransactionType tType,
+  //        const API2::DATA_TYPES::STRATEGY_ID sId,
+  //        const UNSIGNED_LONG fixId ):
+  //      transactionType(tType),
+  //      strategyId(sId),
+  //      fixClOrderId(fixId)
+  //    {
+  //    }
+  //  };
 }
 #endif

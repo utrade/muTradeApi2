@@ -8,7 +8,7 @@
 #include <cmdDefines.h>
 #include "structure.h"
 #include "price.h"
-#include "futFutNewHedging.h"
+#include "hedging.h"
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
@@ -25,11 +25,17 @@ struct FrontEndParameters
 {
   API2::DATA_TYPES::SYMBOL_ID symbol1;
   API2::DATA_TYPES::SYMBOL_ID symbol2;
+  API2::DATA_TYPES::SYMBOL_ID underlyingSymbol;
   API2::DATA_TYPES::QTY totalQuantity;
   API2::DATA_TYPES::QTY perOrderQuantity;
   HedgeMethod hedgingMethod;
   SIGNED_LONG marketPercentage;
   SIGNED_LONG desiredSpread;
+  SIGNED_LONG interestRate;
+  SIGNED_LONG dividend;
+  SIGNED_LONG expiryInDays;
+  API2::DATA_TYPES::REFERENCE_SPOT_PRICE_TYPE refSpotPriceType;
+  API2::DATA_TYPES::EXPIRYDAY_TYPE expiryDayType;
   API2::DATA_TYPES::OrderMode orderMode1;
   API2::DATA_TYPES::OrderMode orderMode2;
   char isTBT;
@@ -39,11 +45,17 @@ struct FrontEndParameters
   FrontEndParameters():
     symbol1(0),
     symbol2(0),
+    underlyingSymbol(0),
     totalQuantity(0),
     perOrderQuantity(0),
     hedgingMethod(HedgeMethod::HedgeMethod_MAX),
     marketPercentage(0.0),
     desiredSpread(0.0),
+    interestRate(0),
+    dividend(0),
+    expiryInDays(0),
+    refSpotPriceType(API2::CONSTANTS::ReferenceSpotPrice_LTP),
+    expiryDayType(API2::CONSTANTS::CMD_ExpiryDay_INCLUDE),
     orderMode1(API2::CONSTANTS::CMD_OrderMode_MAX),
     orderMode2(API2::CONSTANTS::CMD_OrderMode_MAX),
     isTBT(0),
@@ -158,6 +170,7 @@ class FutFutArbitrage : public API2::SGContext
      */
     bool _checkBasicChecks;
 
+    bool _positionPrintLog = false;
     /**
      * @brief DO we bypass for Interexhange
      * @returnType short
@@ -176,7 +189,7 @@ class FutFutArbitrage : public API2::SGContext
     API2::DATA_TYPES::QTY _biddingFreezeQty;
 
 public:
-
+    
     /**
      * @brief Constructor
      * @param pointer to StrategyParameters
@@ -416,7 +429,16 @@ public:
      */
     bool isInstrumentCreated();
 
+    /**
+     * @brief dumpMappedClientCodes
+     * @description dump clientcodes mapped to Dealer + exchange + segment
+     */
+    void dumpMappedClientCodes();
 
+    /**
+     * @brief dumpIvGreekValues
+     */
+    void dumpIvGreekValues();
 
 /* ---------------------------------------------Workflow Functions --------------------------------------------------*/
 
@@ -520,6 +542,8 @@ public:
      * @return void
      */
     void onCMDTerminateStartegy() override;
+
+    void receiveCustomData(std::shared_ptr<API2::CustomData> customDataPtr) override;
 
     /**
      * @type WorkFlow Function

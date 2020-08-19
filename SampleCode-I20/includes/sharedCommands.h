@@ -141,7 +141,7 @@ namespace API2
     public:
       StrategyCommand();
 
-      StrategyCommand(const char* buf);
+      explicit StrategyCommand(const char* buf);
 
       int serialize(char* buf);
 
@@ -164,7 +164,7 @@ namespace API2
     /**
      * @brief _TraderId - sent to exchange for every order
      */
-    CREATE_FIELD(SIGNED_LONG,TraderId);
+    CREATE_FIELD(SIGNED_INTEGER,TraderId);
     /**
      * @brief _LocationId - sent to exchange for every order
      */
@@ -173,7 +173,7 @@ namespace API2
      * @brief _AccountType -  whether it's a normal client or 
      *                        a pro / institutional client ( broker )
      */
-    CREATE_FIELD(API2::DATA_TYPES::AccountType,AccountType);
+    CREATE_ENUM_CLASS_FIELD(API2::DATA_TYPES::AccountType,AccountType);
     /**
      * @brief _PrimaryClientCode - client code sent to exchange for client identification
      */
@@ -189,7 +189,7 @@ namespace API2
     /**
      * @brief _SegmentType - segment under which order is placed
      */
-    CREATE_FIELD(API2::DATA_TYPES::ClientSegmentType,SegmentType);
+    CREATE_ENUM_CLASS_FIELD(API2::DATA_TYPES::ClientSegmentType,SegmentType);
     /**
      * @brief _ExchangeClientCode - parent client code( UCC ) for the client,
      *                              sent to exchange

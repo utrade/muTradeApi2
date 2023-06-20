@@ -1,0 +1,14 @@
+[SYMBOL]
+SYMBOL LEG1=UINT64:F:1:Future 1
+Order Mode 1=UCHAR:0:1
+SYMBOL LEG2=UINT64:F:1:Future 2
+Order Mode 2=UCHAR:1:1
+
+[STRATEGY_PARAMS]
+Total Qty=UINT64:SPINBOX:0:99:0:1:spin:1
+Order Qty=UINT64:SPINBOX:0:99:0:1:spin:1
+Min Profit=FLOAT:DSPINBOX:-999.00:999.00:0.00:P:price:1
+Hedge Method=COMBO:Best Bid/Ask:Market Order:Best Bid/Ask:combobox:1
+SEPARATOR=1
+
+[OTHER]

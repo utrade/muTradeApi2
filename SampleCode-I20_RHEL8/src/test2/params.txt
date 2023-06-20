@@ -1,0 +1,10 @@
+[SYMBOL]
+SYMBOL LEG1=UINT64:F:1:Instrument 1
+Order Mode 1=UCHAR:0:1
+
+[STRATEGY_PARAMS]
+Order Qty=UINT64:SPINBOX:1:999999:0:1:spin:1
+Price Type=COMBO:Best Bid:Best Ask:LTP:Best Bid:Select:1
+SEPARATOR=1
+
+[OTHER]

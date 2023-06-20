@@ -1,0 +1,8 @@
+add_subdirectory( test1 )
+add_subdirectory( test2 )
+add_subdirectory( SampleStrategy )
+add_subdirectory( benchmarking )
+add_subdirectory( pythonStrategy )
+add_subdirectory( SampleBiddingAlgo )
+add_subdirectory( FutFutCustom )
+add_subdirectory( templateAlgo )

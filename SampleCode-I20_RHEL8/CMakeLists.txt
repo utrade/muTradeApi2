@@ -13,7 +13,7 @@ CMAKE_POLICY(SET CMP0054 NEW)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -std=c++17 -Wall -fpermissive -fPIC  ")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++17 -Wall -O2 -fpermissive -fPIC ")
 
-set(Boost_INCLUDE_PATH /build_dependencies/muTrade_rhel8_gcc11_dependencies/boost-1.66.0/include/)
+set(Boost_INCLUDE_PATH /usr/local/include/boost-1.66.0/include/)
 
 include_directories(
   ${muTrade_SOURCE_DIR}/includes

@@ -13,6 +13,12 @@
 #include <unordered_set>
 #include <string>
 
+
+namespace SG
+{
+  struct SymbolStaticData;
+}
+
 namespace API2
 {
 
@@ -57,8 +63,10 @@ namespace API2
        * @brief SGContext Constructor
        * @param params API2::StrategyParameters
        * @param sgName Unique String for Strategy Name
+       * @param useDumpingMethod : optimize debug log dumping
        */
-    SGContext(StrategyParameters *params, const std::string &sgName);
+    SGContext(StrategyParameters *params, const std::string &sgName,
+        bool useDumpingMethod = false);
 
     static void registerStrategy(boost::shared_ptr<SGContext>);
     SGContextImpl * getSGContextImpl();
@@ -107,7 +115,8 @@ namespace API2
                                               bool useSnapShot=true, 
                                               bool useTbt=false, 
                                               bool useOhlc=false,
-                                              size_t depthSize = CONSTANTS::MarketDepthArraySize);
+                                              size_t depthSize = CONSTANTS::MarketDepthArraySize,
+                                              bool isOISubscribe = false);
 
     /**
        * @brief createNewInstrument To add a new Instrument in the strategy \n
@@ -168,7 +177,8 @@ namespace API2
                                                bool useSnapShot=true, 
                                                bool useTbt=false, 
                                                bool useOhlc=false,
-                                               size_t depthSize = CONSTANTS:: MarketDepthArraySize);
+                                               size_t depthSize = CONSTANTS:: MarketDepthArraySize,
+                                               bool isOISubscribe = false);
 
     /**
        * @brief createNewOrder To create a New Order for an instrument
@@ -222,6 +232,7 @@ namespace API2
      * @param orderId     - order id
      * @param isSpreadOrder - true if spread order, false otherwise
      * @param validateAccountDetail - true if account detail validation required in rms, false otherwise
+     * @param isBatchOrder - true if orders needs to be combined and sent together to adapter
      * @return
      */
     bool reqNewSingleOrder(DATA_TYPES::RiskStatus &riskStatus,
@@ -229,7 +240,10 @@ namespace API2
         SingleOrder *order,
         COMMON::OrderId *orderId,
         bool isSpreadOrder = false,
-        const bool validateAccountDetail = true);
+        const bool validateAccountDetail = true,
+        const bool checkParallelRms = false,
+        const timespec timeStart = timespec(),
+        const bool isBatchOrder=false);
 
     /**
      * @brief validateAccountDetail               - validate account detail for dealer and client code present in exchangeAdapterDetails,
@@ -292,10 +306,14 @@ namespace API2
         COMMON::Instrument *instrument;
         SingleOrder *order;
         COMMON::OrderId *orderId;
-        explicit OrderLegData(COMMON::Instrument *instrument):
-          instrument(instrument),
-          order(0),
-          orderId(0){}
+        
+        explicit OrderLegData(COMMON::Instrument *instrument,
+          API2::COMMON::OrderId* orderId = nullptr,
+          API2::SingleOrder* singleOrder = nullptr):
+        instrument(instrument),
+        order(singleOrder),
+        orderId(orderId){}
+
 
         OrderLegData():
           instrument(0),
@@ -304,7 +322,7 @@ namespace API2
     };
 
     /**
-      @brief reqNewMultilegOrder
+      @brief reqNewMultilegOrder To send a new Multileg Order
       @param riskStatus
       @param data
       @return
@@ -334,16 +352,31 @@ namespace API2
                           bool isSpreadOrder = false);
 
     /**
+     * @brief reqRefreshOrder To Refresh strategy order price for bid orders
+     * @param riskStatus passed as reference
+     * @param instrument
+     * @param order
+     * @param orderId
+     * @param isSpreadOrder
+     * @param canRefresh
+     * @return true if order is REFRESHED sucessfully
+     */
+    bool reqRefreshOrder(DATA_TYPES::RiskStatus &riskStatus, COMMON::Instrument *instrument ,
+        SingleOrder *order, COMMON::OrderId *orderId, bool isSpreadOrder, const DATA_TYPES::PRICE price, const DATA_TYPES::QTY qty);
+
+    /**
        * @brief reqCancelOrder To Cancel Order
        * @param riskStatus passed by reference This is the risk status for sending Canceled Order
        * @param orderId
        * @param ignorePendingState : send cancel request to exchange even if order is in panding state.
+       * @param modifiedBy
        * @return true if order is cancelled sucessfully
        *              else false (Also it return false if order type is IOC because there is no sense to cancel/replace IOC order)
        * Note: If cancellation of IOC order is requested, then false is returned without any processing.
        *       As there is no meaning to cancel IOC order.
        */
-    bool reqCancelOrder(DATA_TYPES::RiskStatus &riskStatus, COMMON::OrderId *orderId, const bool ignorePendingState = false);
+    bool reqCancelOrder(DATA_TYPES::RiskStatus &riskStatus, COMMON::OrderId *orderId, const bool ignorePendingState = false,
+                        const SIGNED_LONG modifiedBy = API2::CONSTANTS::Default_Modified_By_Id);
 
 
     /**
@@ -359,8 +392,23 @@ namespace API2
        * 1) Cancel All Orders \n
        * 2) Send Opposite Orders for closing Position \n
        * 3) Terminate the strategy \n
+       * 
+       * @param useAccountDetailFromStg - whether to get account detail from strategy or not
+       * if useAccountDetailFromStg is True,
+       *   then, account detail will be fetched from strategy
+       *   for squaring Off orders
+       * else
+       *   Client ID is taken from configuration file
+       * @param useMarketOrderPercentage - whether to use market order percentage or not
+       * if useMarketOrderPercentage is True,
+       *   then, market order percentage will be used for calculating prices of square of IOC orders
+       * else
+       *   IOC orders will be placed at top depth of opposite side
+       *
+       * Note: In order to use retry counter for square off orders, set the retry counter in the strategy
+       *       using the method - getSquareOffRetryCounter
        */
-    virtual void reqTerminateSquareOffStrategy();
+    virtual void reqTerminateSquareOffStrategy(bool useAccountDetailFromStg = false, bool useMarketOrderPercentage = false);
 
     /**
        * @brief reqTerminateStrategy Called to Terminate Strategy\n
@@ -423,7 +471,7 @@ namespace API2
     void *reqStartOHLCAlgo();
 
     /**
-     * @brief reqProcessTradeTicks
+     * @brief reqProcessTradeTicks To process when Trade Ticks update Event is received
      * @param error
      * @param symbolId
      * @return
@@ -457,12 +505,13 @@ namespace API2
     bool reqUpdateMarketData(UNSIGNED_LONG symbolId);
 
       /**
-       * @brief reqRegisterMarketData
+       * @brief reqRegisterMarketData To register Market Data for a given symbolId
        * @param symbolId
        * @param isSnapshot
        * @param isTbt
        * @param isOhlc
        * @param depthSize Max depth to process
+       * @param isOISubscribe
        * @return
        *
        * NOTE: In case of Indices,it can read data only from snapshot,so register index instrument for snapshot.
@@ -472,11 +521,12 @@ namespace API2
           bool isSnapshot = true,
           bool isTbt = false,
           bool isOhlc = false,
-          size_t depthSize = CONSTANTS::MarketDepthArraySize
+          size_t depthSize = CONSTANTS::MarketDepthArraySize,
+          bool isOISubscribe = false
           );
 
       /**
-       * @brief reqRegisterMarketData
+       * @brief reqRegisterMarketData To register Market Data for a given instrument
        * @param instrumentName
        * @param instrumentName Instrument Name
        *
@@ -533,7 +583,8 @@ namespace API2
           bool isSnapshot = true,
           bool isTbt = false,
           bool isOhlc = false,
-          size_t depthSize = CONSTANTS::MarketDepthArraySize
+          size_t depthSize = CONSTANTS::MarketDepthArraySize,
+          bool isOISubscribe = false
           );
 
       /**
@@ -542,6 +593,13 @@ namespace API2
        * @param com
        */
       void reqAddStrategyComment(DATA_TYPES::StrategyComment com);
+
+      /**
+       * @brief reqAddStrategyError To set the current Startegy Error Whenever a strategy Response is sent to frontend
+       * this will be the sent as the custom strategy error and will be shown as it is at frontend.
+       * @param err
+       */
+      void reqAddStrategyError(DATA_TYPES::StrategyError err);
 
       /**
        * @brief reqAddStrategyComment To set the current Startegy Comment Whenever a strategy Response is sent to frontend
@@ -563,8 +621,8 @@ namespace API2
         DATA_TYPES::RiskStatus riskStatus,
         DATA_TYPES::StrategyComment strategyComment = CONSTANTS::RSP_StrategyComment_MAX,
         DATA_TYPES::TerminationReasonType terminationReasonType = CONSTANTS::RSP_TerminationReasonType_AUTO,
-        const DATA_TYPES::String &strategyCustomComment = ""
-        );
+        const DATA_TYPES::String &strategyCustomComment = "",
+        const std::string & errorText = "");
 
     /**
        * @brief reqExitStrategy To exit a strategy terminates the Strategy thread and returns the StrategyDriver.
@@ -572,8 +630,9 @@ namespace API2
     void reqExitStrategy();
 
     /**
-       * @brief reqExitStrategy To exit a strategy terminates the Strategy thread and returns the StrategyDriver.
-       * returns if timer was set or not
+       * @brief reqTimerEvent To set a timer event
+       * @param timerMicroSecondInterval The timer interval in microseconds
+       * @return True if timer was set, false otherwise
        */
     bool reqTimerEvent(DATA_TYPES::TimerMicroSecondInterval timerMicroSecondInterval);
 
@@ -593,6 +652,12 @@ namespace API2
         const DATA_TYPES::SecurityType &securityType = CONSTANTS::CMD_SecurityType_MAX
         );
 
+    
+     /**
+     * flushOrderBuffer
+     * Combine and send multiple orders to adapter . Called from stg
+     */
+     void flushOrderBuffer(std::unordered_set< API2::COMMON::OrderId * > &placedOrderIdSet);
 
     /**
        * @brief reqQryClientID To get ClientId
@@ -605,6 +670,14 @@ namespace API2
        * @return
        */
     int reqQryAdminTokenId();
+    
+    /**
+     * @brief reqInitializeOrModifyStopLossData - 
+     * This function is used to initialize or modify the stop loss data. 
+     */
+    void reqInitializeOrModifyStopLossData(const SIGNED_LONG initialBasePrice,
+                                           const SIGNED_LONG trailBy, 
+                                           const SIGNED_LONG trailIncrement);
 
     /**
        * @brief reqQryStrategyParams To get StartegyParameters
@@ -658,7 +731,7 @@ namespace API2
       COMMON::MktData *reqQryTbtMarketData(SYMBOL_ID symbolId);
 
     /**
-     * @brief reqQryOHLCQuote
+     * @brief reqQryOHLCQuote To get OHLC Quote for a given symbol
      * @param error
      * @param symbolId
      * @return
@@ -903,6 +976,11 @@ namespace API2
     virtual void onCMDTerminateStartegy();
 
     /**
+       * @brief onCMDTerminateStartegyInternal Called when strategy receives Terminate Command Internally
+       */
+    virtual void onCMDTerminateStartegyInternal();
+
+    /**
      * @brief onCMDDmsDisconnection - This method needs to be called when DMS gets disconnected from
      *                                hft or front-end gets disconnected from DMS.
      */
@@ -927,6 +1005,11 @@ namespace API2
        * @brief OnCMDInit To Set Initial state of the algo
        */
     virtual void onCMDInit(){}
+
+    /**
+     * @brief onCMDTbtStreamDisconnection Called when TBT stream gets disconnected
+     */
+    virtual void onCMDTbtStreamDisconnection();
 
     /***********************************************************/
     /************************ Event Call-Backs ********************/
@@ -984,7 +1067,6 @@ namespace API2
        * @param confirmation Reference to the API2::OrderConformation
        */
     virtual void onProcessOrderConfirmation(OrderConfirmation &confirmation){}
-
 
     /**
      * @brief onConfirmed Call back when a new Order gets confirmed by exchange.
@@ -1099,6 +1181,51 @@ namespace API2
      */
     virtual void onStrategyCustomCommand( const API2::CONSTANTS::CUSTOM_STRATEGY_COMMAND command ){}
 
+    /**
+     * @brief onStgMTMStopLossTriggered Call back when MTM stop loss is triggered
+     */
+    virtual void onStgMTMStopLossTriggered(){}
+
+    /** 
+     * @brief getFirstLegAccountDetails - This function is used to get the account details of the first leg of the strategy
+     * @return API2::AccountDetail
+     */
+    virtual const API2::AccountDetail& getFirstLegAccountDetails() {}
+        
+    /**
+     * @brief getMarketOrderPercentageForOption - This function is used to get the market order percentage for option
+     * @return UNSIGNED_LONG 
+     */
+    virtual const UNSIGNED_LONG getMarketOrderPercentageForOption();
+    
+    /**
+     * @brief getMarketOrderPercentageForFuture - This function is used to get the market order percentage for future
+     * @return UNSIGNED_LONG 
+     */
+    virtual const UNSIGNED_LONG getMarketOrderPercentageForFuture();
+    
+    /**
+     * @brief getMarketOrderPercentageForDeltaHedging - This function is used to get the market order percentage for Delta symbol
+     * @return UNSIGNED_LONG 
+     */
+    virtual const UNSIGNED_LONG getMarketOrderPercentageForDeltaHedging();
+
+    /**
+     * @brief getSquareOffRetryCounter - This function is used to get the square off retry counter value
+     * It is same as the hedge leg retry counter value 
+     */
+    virtual const int getSquareOffRetryCounter();
+
+    /**
+     * @brief getDeltaHedgeMktOrderCtr - This function is used to get the square off retry counter value for delta
+     */
+    virtual const int getDeltaHedgeMktOrderCtr();
+    
+    /**
+     * @brief getDeltaHedgeSymbolId - This function is used to get symbol ID for delta hedging
+     */
+    virtual const DATA_TYPES::SYMBOL_ID getDeltaHedgeSymbolIdForStopLoss();
+    
     /***********************************************************/
     /************************ RMS Getters ********************/
     /***********************************************************/
@@ -1143,6 +1270,22 @@ namespace API2
     bool getApiPositionBySymbolId(
         SymbolIdAndPositionStructHash& hashSymbolIdAndPositionStruct,
         const std::vector< SIGNED_LONG >& symbolIdVec );
+
+    /**
+     * @brief getDealerLevelMarginUtilization - This function will be used for getting the margin utilized
+     *        on dealer level.
+     * @param dealerId dealer unique Id
+     * @return
+     */
+    const double getDealerLevelMarginUtilization(SIGNED_INTEGER dealerId);
+
+    /**
+     * @brief getDealerLevelTotalDeposit - This function will be used for getting the margin assigned
+     *        on dealer level.
+     * @param dealerId dealer unique Id
+     * @return
+     */
+    const double getDealerLevelTotalDeposit(SIGNED_INTEGER dealerId);
 
     /**
      * @brief getApiPositionBySymbolId it is an overload function for getting the position for one symbol id
@@ -1463,6 +1606,50 @@ namespace API2
         const API2::DATA_TYPES::CLIENT_ID dealerId );
 
     /**
+     * @brief getNetPnlForSymbolId - This function will be used for getting the
+     *                                  Net Profit Loss for one symbol id.
+     * @param netPnl - Returns the net profit loss of symbol id
+     * @param symbolId - symbol id for which we need to get net profit loss.
+     *
+     * @note - Will return netPnl = 0 if inputs are invalid or if net profit loss is 0
+     *       - netPnl is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     */
+    void getNetPnlForSymbolId(
+        API2::DATA_TYPES::PRICE &netPnl,
+        const API2::DATA_TYPES::SYMBOL_ID symbolId);
+
+    /**
+     * @brief getNetPnlForClient - This function will be used for getting the
+     *                                  Net Profit Loss for client.
+     * @param netPnl - Returns the net profit loss of client
+     * @param primaryClientCode - client for which we need to get net profit loss.
+     *
+     *
+     * @note - Will return netPnl = 0 if inputs are invalid or if net profit loss is 0
+     *       - netPnl is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     */
+    void getNetPnlForClient(
+        API2::DATA_TYPES::PRICE &netPnl,
+        const API2::DATA_TYPES::String &primaryClientCode);
+
+    /**
+     * @brief getNetPnlForDealer - This function will be used for getting the
+     *                                  Net Profit Loss for dealer.
+     * @param netPnl - Returns the net profit loss of dealer
+     * @param dealerId - dealer for which we need to get net profit loss.
+     *
+     *
+     * @note - Will return netPnl = 0 if inputs are invalid or if net profit loss is 0
+     *       - netPnl is coming with RMS_PRECISION_POSITION can be normalize to actual price
+     *         using getRmsPositionPrecision() method.
+     */
+    void getNetPnlForDealer(
+        API2::DATA_TYPES::PRICE &netPnl,
+        const API2::DATA_TYPES::CLIENT_ID dealerId);
+
+    /**
      * @brief getRmsPositionPrecision
      * @description - Return the RMS position precision in terms of multiplier
      *                For e.g.
@@ -1572,6 +1759,43 @@ namespace API2
      * if pov mandate is satisfied or not.
      */
     virtual bool isMandateSatisfiesGetFromStrategy();
+
+    /**
+    * @brief getRestApiMsg: Returns a string message to a rest API call.
+    *                       When a rest API requesting an API msg is called,
+    *                       then hft will provide callback to this function.
+    *                       Client need to override this function in his API
+    *                       strategy and return the string msg he want to send,
+    *                       or else by default it will pass empty string.
+    */
+    virtual const std::string getRestApiMsg(){ return ""; };
+
+    /**
+     * @brief getClientId from strategy to save latency
+     * @return 0
+     */
+    virtual int getClientId();
+
+    /**
+     * @brief isUnhedgeTrackerRequired To be removed from the strategy whose unhedge tracker handling is done
+     *                added on temporary basis to save latency
+     * @return true
+     */
+    virtual bool isUnhedgeTrackerRequired() const ;
+
+    /**
+     * @brief getStaticDataFromStrategy
+     * @param symbolId
+     * @return  nullptr
+     */
+    virtual  SG::SymbolStaticData* getStaticDataFromStrategy(API2::DATA_TYPES::SYMBOL_ID symbolId) const ;
+
+    /**
+     * @brief addStreamIdInSet
+     * @param streamId
+     * @param exchangeId
+     */
+    void addStreamIdInSet(API2::DATA_TYPES::STREAM_ID streamId, API2::DATA_TYPES::ExchangeId exchangeId);
 
   private:
 

@@ -517,3 +517,187 @@ Documentation  updated: SGContext.h : reqCancelOrder, ReqReplace Order| OrderWra
 18 Jun, 2020
 - API version increased from 3.0.8 to 3.0.9
   MarketPriceProtectionPercentage field added in OrderConfirmation
+
+22 Jun, 2020
+- API version increased from 3.0.9 to 3.1.9
+  Order Confirmation Structure trimmed
+
+16 July, 2020
+- API version increased from 3.1.9 to 3.2.0
+  Added in field in BaseStrategyParamCommmand (i.e. WebApiParam )
+
+28 Aug, 2020
+- API version increased from 3.2.1 to 3.2.2
+- Added new constant in apiConstants.h
+- Added new structure in sharedResponse.h for unhedgeTracker.
+
+03 Sep, 2020
+- API version increased from 3.2.2 to 3.2.3
+- New dataType for epoch time is added in api2DataTypes.h
+- New Fields (i.e contractStartDate , contractEndDate , tendorStartDate and
+  tendorEndDate) added in Class SymbolStaticData in sgSymbolDataDefines.h
+
+10 Sep, 2020
+- Version increased from 3.2.3 to 3.2.4
+- New exception added which is thrown incase strategy is not allowed to run on an
+    exchange for the specific dealer. This needs to be handled alongside other exceptions.
+    This can come in following cases:
+ - Instrument registration.
+ - Market data registration.
+ - Market data raw object construction.
+    -   Note : MktData construction signature has changed, strategy needs to pass a reference
+                to itself(the this pointer) to create the object. The change in signature can
+                be found in sgMktData.h.
+ Exception signature can be found in api2Exceptions.h : LicenseNotAvailableException.
+
+25 Sep, 2020
+- API version increased from 3.2.3 to 3.2.4
+- New function added "getRestApiMsg" in sgContext, to send a text msg to a
+  rest API call.
+
+02 Nov, 2020
+- Added new macro UT_SINGLETON in file cmdDefines.h, which can be used
+  to create any singleton class.
+
+06 Nov, 2020
+- New constants CMD_InstrumentType_AGR and CMD_InstrumentType_BAS added in
+  apiConstants.h
+
+10 Dec, 2020
+- Version increased from 3.2.5 to 3.2.6
+- New parameter for modifiedBy field added in orderWrapper's replaceOrder method.
+- New Field is added in singleOrder structure.
+- New Field is added in orderConfirmation structure.
+
+23 Dec, 2020
+- Changed the data type of the parameter "tradeValue" of staticData 
+  from long to double type in sgSymbolDataDefines.h
+
+31 Dec, 2020
+- Version increased from 3.2.6 to 3.2.7
+- New data type added.
+- New field added in SymbolStatic data.
+
+1 Jan, 2021
+- New field for symbol name unique id added in SymbolStatic data.
+- Scrip Group string fields removed from SymbolStatic data.
+
+01 Feb, 2020
+- New data type and constants added for asset type and asset code.
+
+17 Feb, 2021
+- Support added for multileg order in orderWrapperAPI.
+
+08 March,2021
+- Validation added on Exchange order Id
+Error code : RiskStatus_INVALID_EXCHANGE_ORDER_ID
+
+
+01 April, 2021
+- API version increased from 3.2.8 to 3.2.9
+- New methods added in sgContext
+    /**
+    * @brief getNetPnlForSymbolId - This function will be used for getting the
+    *                                  Net Profit Loss for one symbol id.
+    * @param netPnl - Returns the net profit loss of symbol id
+    * @param symbolId - symbol id for which we need to get net profit loss.
+    *
+    * @note - Will return netPnl = 0 if inputs are invalid or if net profit loss is 0
+    *       - netPnl is coming with RMS_PRECISION_POSITION can be normalize to actual price
+    *         using getRmsPositionPrecision() method.
+    */
+    void getNetPnlForSymbolId(
+        API2::DATA_TYPES::PRICE &netPnl,
+        const API2::DATA_TYPES::SYMBOL_ID symbolId);
+
+    /**
+    * @brief getNetPnlForClient - This function will be used for getting the
+    *                                  Net Profit Loss for client.
+    * @param netPnl - Returns the net profit loss of client
+    * @param primaryClientCode - client for which we need to get net profit loss.
+    *
+    *
+    * @note - Will return netPnl = 0 if inputs are invalid or if net profit loss is 0
+    *       - netPnl is coming with RMS_PRECISION_POSITION can be normalize to actual price
+    *         using getRmsPositionPrecision() method.
+    */
+    void getNetPnlForClient(
+        API2::DATA_TYPES::PRICE &netPnl,
+        const API2::DATA_TYPES::String &primaryClientCode);
+
+    /**
+    * @brief getNetPnlForDealer - This function will be used for getting the
+    *                                  Net Profit Loss for dealer.
+    * @param netPnl - Returns the net profit loss of dealer
+    * @param dealerId - dealer for which we need to get net profit loss.
+    *
+    *
+    * @note - Will return netPnl = 0 if inputs are invalid or if net profit loss is 0
+    *       - netPnl is coming with RMS_PRECISION_POSITION can be normalize to actual price
+    *         using getRmsPositionPrecision() method.
+    */
+    void getNetPnlForDealer(
+        API2::DATA_TYPES::PRICE &netPnl,
+        const API2::DATA_TYPES::CLIENT_ID dealerId);
+
+09 April, 2021
+- API version increased from 3.2.9 to 3.3.0
+
+11 June, 2021
+- API version increased from 3.3.0 to 3.3.1
+- Added new instruments and new scrip groups in apiConstants.h
+
+21 October, 2021
+- API Version increased from 3.3.1 to 3.3.2
+- Added new field companyName in struct SymbolStaticData of api2UserCommands.h
+
+24 December, 2021
+- API Version increased from 3.3.2 to 3.3.3
+- New parameter is added in sharedSingleOrder named, CustomTraderId
+  This paramteter is used to get custom trader Id in case of NSE from
+  API strategy .
+
+  To set customTraderId call : singleOrder.setCustomTraderId( value ) ;
+  To get customTraderId call : singleOrder.getCustomTraderId() ;
+
+- New parameter is added in orderWrapper named, CustomTraderId
+  This paramteter is used to get custom trader Id in case of NSE from
+  API strategy .
+
+  To set customTraderId call : orderWrapper.setCustomTraderId( value ) ;
+  To get customTraderId call : orderWrapper.getCustomTraderId() ;
+
+30 Dec , 2021
+-New RiskStatus constant is added
+ RiskStatus_INVALID_ALGO_ID = 66
+
+16 Feb, 2022
+- New RiskStatus Constant is added
+  RiskStatus_ORDER_VALUE_EXCEEDED = 67
+
+- New Constant has been added
+  MAX_ORDER_VALUE = 100000000 (10 Cr )
+  BL_SYMBOL_SERIES = BL (Represents BlockDeal )
+
+26-Apr-2022
+- New Constant has been added -> RiskStatus_NO_LTP_AVAILABLE : 68
+
+21-JUN-2022
+- New typedef has been added -> LISTING_DATE
+
+08-Sep-2022
+- New Exchange Id are added for internal use
+  ExchangeId_BINANCE = 87 ;
+  ExchangeId_KRAKEN = 88 ;
+
+13-Jan-2023
+- Support for Value from TBT is added
+- Average trade price support added with Slim TBT feed
+- valid risk status being returned from order wrapper if any check failed. Earlier it was returning 0 in some cases.
+25-October-2024
+- New Command Category has been added
+  CMD_CommandCategory_TBT_STREAM_DISCONNECTED
+  CMD_CommandCategory_TBT_STREAM_CONNECTED
+
+- One API has been added
+  addStreamIdInSet(streamId, exchangeId)

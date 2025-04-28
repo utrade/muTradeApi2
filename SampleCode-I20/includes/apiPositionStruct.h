@@ -93,6 +93,18 @@ namespace API2
       return positionDump.str();
     }
 
+    void reset()
+    {
+      _TotalBuyQuantity = 0;
+      _TotalSellQuantity = 0;
+      _TotalBuyValue = 0;
+      _TotalSellValue = 0;
+      _OldBuyQuantity = 0;
+      _OldSellQuantity = 0;
+      _OldBuyValue = 0;
+      _OldSellValue = 0;
+    }
+
   };
 
   typedef boost::unordered_map< SIGNED_LONG, PositionStruct > SymbolIdAndPositionStructHash;

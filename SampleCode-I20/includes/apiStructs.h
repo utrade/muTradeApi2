@@ -52,6 +52,38 @@ namespace API2
         std::string toString();
     };
 
+    class OpenInterestApiStruct
+    {
+      CREATE_FIELD(DATA_TYPES::ExchangeId, ExchangeId);
+      CREATE_FIELD(DATA_TYPES::SECURITY_ID, SecurityId);
+      CREATE_FIELD(DATA_TYPES::QTY, OIQty);
+      CREATE_FIELD(DATA_TYPES::PRICE, OIValue);
+      CREATE_FIELD(DATA_TYPES::PRICE, OIChange);
+
+    public:
+      OpenInterestApiStruct();
+      ~OpenInterestApiStruct() = default;
+
+      // Copy operations
+      OpenInterestApiStruct(const OpenInterestApiStruct&) = default;
+      OpenInterestApiStruct &operator=(const OpenInterestApiStruct &other)
+      {
+        // No need for self-assignment check as modern compilers optimize this
+        setExchangeId(other.getExchangeId());
+        setSecurityId(other.getSecurityId());
+        setOIQty(other.getOIQty());
+        setOIValue(other.getOIValue());
+        setOIChange(other.getOIChange());
+        return *this;
+      }
+
+      #ifndef FRONTEND_COMPILATION
+      // Move operations
+      OpenInterestApiStruct(OpenInterestApiStruct&&) noexcept = default;
+      OpenInterestApiStruct& operator=(OpenInterestApiStruct&&) noexcept = default;
+      #endif
+    };
+
     /**
      * @brief The MarketDataWrapper class will contain the Snapshot/TBT Market Data
      */
@@ -100,6 +132,12 @@ namespace API2
         DATA_TYPES::LAST_TRADE_TIME LastTradeTime;
 
         /**
+         * @brief LastUpdatedTime
+         */
+        DATA_TYPES::LAST_TRADE_TIME LastUpdatedTime;
+
+
+        /**
          * @brief Value
          */
         DATA_TYPES::PRICE Value;
@@ -115,6 +153,11 @@ namespace API2
         MarketDepthWrapper MarketDepth[CONSTANTS::MarketDepthArraySize];
 
         /**
+         * @brief OpenInterest
+         */
+        OpenInterestApiStruct OpenInterest;
+
+        /**
          * @brief MarketDataWrapper
          */
         MarketDataWrapper();
@@ -124,6 +167,11 @@ namespace API2
          * @return
          */
         std::string toString();
+
+        /**
+         * @brief toString will return formatted Market Picture upto depth
+         */
+        const std::string toString(size_t depth);
 
         /**
          * @brief Reset will set value of its member variables to zero
@@ -212,6 +260,13 @@ namespace API2
        */
       CREATE_FIELD( DATA_TYPES::UINTEGER64, AggregateDeposit );
 
+      /**
+       * @brief MaximumMTM
+       * For Old RMS : will store mtm value for both client and dealer according to Old RMS Formula
+       * For  New RMS: will store mtm value only for client and for dealer.
+       */
+      CREATE_FIELD( DATA_TYPES::INTEGER64, MaximumMTM);
+
       public:
 
       /**
@@ -228,6 +283,7 @@ namespace API2
        * @param maximumNetQuantity
        * @param maximumNetValue
        * @param AggregateDeposit
+       * @param MaximumMTM
        */
       OrderLimitsApiStruct(
           DATA_TYPES::UINTEGER64 maximumTotalBuyQuantity,
@@ -236,7 +292,8 @@ namespace API2
           DATA_TYPES::UINTEGER64 maximumTotalSellValue,
           DATA_TYPES::UINTEGER64 maximumNetQuantity,
           DATA_TYPES::UINTEGER64 maximumNetValue,
-          DATA_TYPES::UINTEGER64 AggregateDeposit
+          DATA_TYPES::UINTEGER64 AggregateDeposit,
+          DATA_TYPES::INTEGER64 MaximumMTM
           );
 
       /**

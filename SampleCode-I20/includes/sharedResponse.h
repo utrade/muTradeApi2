@@ -21,22 +21,70 @@ namespace API2
       DATA_TYPES::UCHAR getIsOffline() const { return _isOffline;}
       DATA_TYPES::UINTEGER32 getStrategyId() const { return _strategyId;}
       DATA_TYPES::UINTEGER32 getParentId() const { return _parentId;}
+      /**
+       * @brief Gets the admin token identifier
+       * @return Admin token ID as 64-bit unsigned integer
+       */
       DATA_TYPES::UINTEGER64 getAdminTokenId() const { return _adminTokenId;}
+      /**
+       * @brief Gets the sequence number of the response
+       * @return Sequence number as 64-bit unsigned integer
+       */
       DATA_TYPES::UINTEGER64 getSequenceNumber() const { return _sequenceNumber;}
+      /**
+       * @brief Gets the strategy comment indicator
+       * @return Strategy comment as unsigned character
+       */
       DATA_TYPES::UCHAR getStrategyComment() const { return _strategyComment; }
+      /**
+       * @brief Gets the termination reason type
+       * @return Reason for termination as TerminationReasonType enum
+       */
       DATA_TYPES::TerminationReasonType getTerminationReasonType() const { return _terminationReasonType; }
+      /**
+       * @brief Gets the custom comment string for the strategy
+       * @return Constant reference to strategy custom comment string
+       */
       const DATA_TYPES::String& getStrategyCustomComment() const { return _strategyCustomComment; }
 
       void setResponseType(DATA_TYPES::UCHAR responseType){ _responseType = responseType;}
       void setRiskStatus(DATA_TYPES::UCHAR riskStatus){ _riskStatus = riskStatus;}
       void setIsOffline(DATA_TYPES::UCHAR isOffline){ _isOffline = isOffline;}
       void setStrategyId(DATA_TYPES::UINTEGER32 strategyId) { _strategyId = strategyId;}
+      /**
+       * @brief Sets the parent identifier
+       * @param pId Parent ID as 32-bit unsigned integer
+       */
       void setParentId(DATA_TYPES::UINTEGER32 pId) { _parentId = pId;}
+      /**
+       * @brief Sets the admin token identifier
+       * @param adminTokenId Admin token ID as 64-bit unsigned integer
+       */
       void setAdminTokenId(DATA_TYPES::UINTEGER64 adminTokenId) { _adminTokenId = adminTokenId;}
+      /**
+       * @brief Sets the sequence number of the response
+       * @param sequenceNumber Sequence number as 64-bit unsigned integer
+       */
       void setSequenceNumber(DATA_TYPES::UINTEGER64 sequenceNumber) { _sequenceNumber = sequenceNumber;}
+      /**
+       * @brief Sets the strategy comment indicator
+       * @param strategyComment Strategy comment as unsigned character
+       */
       void setStrategyComment(DATA_TYPES::UCHAR strategyComment) { _strategyComment = strategyComment; }
+      /**
+       * @brief Sets the termination reason type
+       * @param terminationReasonType Reason for termination as TerminationReasonType enum
+       */
       void setTerminationReasonType(DATA_TYPES::TerminationReasonType terminationReasonType) { _terminationReasonType = terminationReasonType; }
+      /**
+       * @brief Sets the custom comment string for the strategy
+       * @param strategyCustomComment Constant reference to strategy custom comment string
+       */
       void setStrategyCustomComment(const DATA_TYPES::String &strategyCustomComment) { _strategyCustomComment = strategyCustomComment; }
+      /**
+       * @brief Dumps the contents of the shared response for debugging
+       * @details Prints all member variables in a formatted manner
+       */
       void dump();
     private:
       DATA_TYPES::UCHAR _responseType;    // Value (SUCCESS / FAILURE)
@@ -147,15 +195,41 @@ namespace API2
     CREATE_FIELD( DATA_TYPES::PERCENTAGE, MktPriceProtection );
 
     /**
+     * @brief SelfTradeFlag
+     */
+    CREATE_FIELD( DATA_TYPES::SelfTradeOrderFlag, SelfTradeFlag );
+
+    /**
      * @brief GiveupFlag: this response is recieved from exchange, if participant code is set for client
      *            Default value is P(Pending).
      *            A(Approved), R(Rejected)  will be recieved from exchange.
      */
     CREATE_FIELD_WITH_DEFAULT_VALUE(DATA_TYPES::GiveUpFlag, GiveupFlag, 0);
-    
+
+    /*
+     * @brief ModifiedBy - Client Id of the user who is modifying/updating the order.
+     *                               For example: Order placed by D1 and then modified by A1 then,
+     *                               ModifiedBy = A1.
+     */
+    CREATE_FIELD( SIGNED_LONG, ModifiedBy );
+
+    /**
+     * @brief CREATE_FIELD - Store Throttle End time
+     */
+    CREATE_FIELD(SIGNED_LONG, ThrottleEndTime);
+        
+    /**
+     * @brief IsSquareOffOrder - To identify if the order is square off order triggered from strategy
+     */
+    CREATE_FIELD( UNSIGNED_SHORT, IsSquareOffOrder) ;
+
     UNSIGNED_SHORT _errorTextSize = 0;
 
     char* _errorText = nullptr;
+
+    UNSIGNED_SHORT _basketIdSize = 0;
+
+    char* _basketId = nullptr;
 
     public:
 
@@ -180,6 +254,7 @@ namespace API2
     OrderConfirmation &operator =(const OrderConfirmation& );
 
     void clone(const OrderConfirmation& other);
+
 
     /**
      * @brief ~OrderConfirmation
@@ -849,6 +924,23 @@ namespace API2
      * @return
      */
     const ::API2::DATA_TYPES::EXCHANGE_TIME getExchangeEntryTimeEpoch() const;
+
+    UNSIGNED_SHORT getBasketIdSize() const;
+    void setBasketIdSize(UNSIGNED_SHORT basketIdSize);
+    
+    const char *getBasketId() const;
+    
+    std::string getBasketIdAsString() const;
+    
+    char * getRefBasketId();
+    
+    void setBasketId(const std::string &value );
+    
+    void initializeBasketId();
+
+    void clearBasketId();
+
+    void resetBasketId();
   };
 
 
@@ -914,6 +1006,35 @@ namespace API2
 
 #endif 
 
+  /////////////////////////////////////////////////////////////////////////
+
+  /**
+   * @brief The UnhedgeTrackerCustomData class : Manages custom data which is to be sent to Front_end
+   *                                             to show undhedged qty.
+   */
+  class UnhedgeTrackerCustomData
+  {
+    CREATE_FIELD( DATA_TYPES::STRATEGY_ID, StrategyId );
+    CREATE_FIELD( DATA_TYPES::STRATEGY_ID, AdminTokenId );
+    CREATE_FIELD( DATA_TYPES::OrderMode, OrderMode );
+    CREATE_FIELD( DATA_TYPES::SYMBOL_ID, SymbolId );
+    CREATE_FIELD( DATA_TYPES::PRICE, UnhedgePrice );
+    CREATE_FIELD( DATA_TYPES::QTY, UnhedgeQuantity );
+    CREATE_FIELD( DATA_TYPES::TransactionType, TransactionType );
+    CREATE_FIELD( DATA_TYPES::String, RemarksStr );
+    CREATE_FIELD( UNSIGNED_INTEGER,  LegType);
+    CREATE_FIELD( DATA_TYPES::String, PrimaryClientCode);
+    CREATE_FIELD( DATA_TYPES::String, UniqueIdForUnhedgeTracker);
+    CREATE_FIELD( UNSIGNED_SHORT, UnhedgeStrategyType);
+
+    public:
+    UnhedgeTrackerCustomData();
+    explicit UnhedgeTrackerCustomData(const char* buf);
+    int serialize(char* buf);
+    void dump() const;
+  };
+
+  /////////////////////////////////////////////////////////////////////////
 }
 #endif 
 

@@ -113,6 +113,23 @@ namespace API2
         const UNSIGNED_LONG &locationId,
         const SIGNED_LONG &traderId
         );
+    
+    AccountDetail(const AccountDetail &other) : 
+      _TraderId(other._TraderId),
+      _LocationId(other._LocationId),
+      _AccountType(other._AccountType)
+    {
+      strncpy(_primaryClientCode,other._primaryClientCode,PRIMARY_CLIENT_CODE_SIZE);
+    }
+    
+    AccountDetail& operator =(const AccountDetail &other)
+    {
+      strncpy(_primaryClientCode,other._primaryClientCode,PRIMARY_CLIENT_CODE_SIZE);
+      _TraderId = other._TraderId;
+      _LocationId = other._LocationId;
+      _AccountType = other._AccountType;
+      return *this;
+    }
 
     void initialize(const char *account,
         char accountType,

@@ -188,11 +188,6 @@ extern "C"
         DATA_TYPES::STRATEGY_ID _loadBalancingId;
 
         /*
-         * @brief : DealerId field, it is a client id will be used in DMA
-         * */
-        DATA_TYPES::CLIENT_ID _dealerId;
-
-        /*
          * @brief : Fix Client OrderId
          * */
         CREATE_FIELD( std::string, FixClOrderId );
@@ -254,6 +249,28 @@ extern "C"
          */
         CREATE_FIELD( DATA_TYPES::CLORDER_ID, MasterClientOrderId );
 
+        /*
+         * @brief ModifiedBy - Client Id of the user who is modifying/updating the order.
+         *                     For example: Order placed by D1 and then modified by A1 then,
+         *                     ModifiedBy = A1.
+         */
+        CREATE_FIELD( SIGNED_LONG, ModifiedBy );
+
+        /**
+         * @brief Customtraderid : Used to get custom traderId from API
+         * strategy in case of NSE.
+         */
+        CREATE_FIELD( DATA_TYPES::CUSTOM_TRADER_ID, CustomTraderId) ;
+
+        /**
+         * @brief isSquareOffOrder : Used to differentiate square off orders triggered from stg
+         */
+        CREATE_FIELD( UNSIGNED_SHORT, IsSquareOffOrder) ;
+
+        /**
+         * @brief basketId : Used to get basketId from API
+         */
+        char  _basketId[BASKET_ID_SIZE];
 
       public :
 
@@ -563,12 +580,6 @@ extern "C"
          */
         DATA_TYPES::STRATEGY_ID getLoadBalancingId() const;
 
-        /*
-         * @brief getDealerId
-         * @return
-         * */
-        DATA_TYPES::CLIENT_ID getDealerId() const;
-
         /**
          * @brief setStrategyType
          * @return
@@ -781,13 +792,7 @@ extern "C"
          * @brief setLoadBalancingId
          * @param detail
          */
-        void setLoadBalancingId(DATA_TYPES::STRATEGY_ID loadBalancingId); 
-
-        /*
-         * @brief setDealerId
-         * @return
-         * */
-        void setDealerId(DATA_TYPES::CLIENT_ID dealerId);
+        void setLoadBalancingId(DATA_TYPES::STRATEGY_ID loadBalancingId);
         
         /**
          * @brief insertTradingSessId
@@ -830,6 +835,31 @@ extern "C"
          * @return
          */
         std::vector<std::string>& getRefVectorTradingSessionIds() ;
+
+        /**
+         * @brief getBasketId
+         * @return const char pointer to BasketId
+         */
+        const char* getBasketId() const ;
+
+        /**
+         * @brief setBasketId
+         * @param basketId
+         */
+        void setBasketId(char basketId[]);
+
+        /**
+         * @brief setBasketId
+         * @param basketId
+         */
+        void setBasketId(const std::string& basketId);
+
+        /**
+         * @brief setBasketId
+         * @param basketId
+         */
+        void setBasketId(const char *basketId);
+
 
     };
 

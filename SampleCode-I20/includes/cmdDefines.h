@@ -1,5 +1,6 @@
 #ifndef API2_CMD_DEFINES_H
 #define API2_CMD_DEFINES_H
+#include <algorithm>
 
 #define CREATE_FIELD_DECLARATION( TYPE, NAME ) \
   public : TYPE get##NAME() const ; \
@@ -32,6 +33,12 @@ public : std::underlying_type<TYPE>::type get##NAME() const {  return \
 public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
 private : TYPE _##NAME
 
+#define CREATE_ENUM_CLASS_FIELD_WITH_DEFAULT_VALUE( TYPE, NAME, DEFAULT_VALUE ) \
+public : std::underlying_type<TYPE>::type get##NAME() const {  return \
+             static_cast<typename std::underlying_type<TYPE>::type>(_##NAME) ; } \
+public : void set##NAME(const TYPE &value ) { _##NAME = value ; } \
+private : TYPE _##NAME = DEFAULT_VALUE
+
 #define CREATE_FIELD_ACCESS_SPECIFIER( TYPE, NAME, ACCESS_SPECIFIER ) \
   public : TYPE get##NAME() const {  return _##NAME ; } \
 public : TYPE &getRef##NAME() {  return _##NAME ; } \
@@ -48,6 +55,8 @@ private : TYPE _##NAME
 public : char * getRef##NAME() {  return _##NAME; } \
 public : void set##NAME(const std::string &value ) { strncpy(_##NAME, value.c_str(), SIZE);} \
 public : void set##NAME(const char * value ) { strncpy(_##NAME, value, SIZE);} \
+public : std::string get##NAME##Str() const \
+{ return std::string(_##NAME,std::find(_##NAME,_##NAME+sizeof(_##NAME),'\0')); } \
 private : char _##NAME[SIZE]
 
 #define CREATE_REF_FIELD( TYPE, NAME ) \
@@ -133,6 +142,23 @@ addType(&_##NAME);
 #define DELETE_PTR(param) if(param) {\
     delete param;\
   param =nullptr; }
+
+#define DELETE_PTR_ARRAY(param) if(param) {\
+    delete []param;\
+  param =nullptr; }
+
+#define UT_SINGLETON( Type ) public : static Type & getInstance();\
+    static void createInstance();\
+    static void deleteInstance();\
+    \
+    private : Type(const Type&) = delete;\
+    Type& operator=(const Type&) = delete;\
+    \
+    Type(Type&&) = delete;\
+    Type& operator=(Type&&) = delete;\
+    \
+    static Type * _instance;\
+    static std::once_flag _instanceFlag;
 
 #define DEBUG_METHOD(DEBUG_OBJECT) { DEBUG_OBJECT->message(__FUNCTION__); }
 #define DEBUG_MESSAGE(DEBUG_OBJECT,debug_message) {  DEBUG_OBJECT->message(debug_message); }

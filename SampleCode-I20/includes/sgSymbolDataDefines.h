@@ -113,6 +113,14 @@ namespace API2  {
 
     /**
      * @brief suspended
+     *
+     * FOR SGX ITCH-OUCH SPREAD Contracts :
+     *  We are storing information about whether to buy or sell the leg
+     * while buying or selling the spread contracts in suspended field of
+     * scrip master for first leg.
+     * Possible values :
+     *  B -> Same
+     *  C -> Opposite.
      */
     char        suspended;
 
@@ -319,7 +327,7 @@ namespace API2  {
     
     std::string tradingSessionId; // Newfor MOEX FX
 
-    long tradeValue;
+    double tradeValue;
 
     std::string tradeUnit;
     
@@ -372,11 +380,6 @@ namespace API2  {
     std::string deliveryUnit;
 
     /**
-     * @brief scrip_group
-     */
-    std::string scrip_group;
- 
-    /**
      * @brief index name for indices symbol
      */
     std::string indexName;
@@ -389,10 +392,42 @@ namespace API2  {
     API2::DATA_TYPES::ScripGroup scripGroup = API2::CONSTANTS::ScripGroup_MAX;
 
     /**
+     * @brief upperStrikePriceStaticData - Pointer of the staticData of strikePrice adjacent to the staticData of current strike price.
+     * Its strike price is greater than the strike price of current staticData
+     * Null for other symbols other than options.
+     */
+    SymbolStaticData* upperStrikePriceStaticData;
+
+    /**
+     * @brief lowerStrikePriceStaticData - Pointer of the staticData of strikePrice adjacent to the staticData of current strike price.
+     * Its strike price is lesser than the strike price of current staticData
+     * Null for other symbols other than options.
+     */
+    SymbolStaticData* lowerStrikePriceStaticData;
+
+    /**
+     * @brief underlyingFutureStaticData - Pointer of the staticData of underlying Future
+     * It is the Future of same month as that of option
+     * Null for other symbols other than options.
+     */
+    SymbolStaticData* underlyingFutureStaticData;
+
+    /**
+     * @brief lastTradePrice - ltp of the symbol
+     * Initial value is zero.
+     */
+    long lastTradePrice;
+    
+    /**
      * @brief asmGsmSurveillanceIndicator : Stages 0 - 6 for GSM & Stages 10 - 16 for Short Term Securities
      * and Long Term Securities of ASM
      */
     UNSIGNED_CHARACTER asmGsmSurveillanceIndicator;
+
+    /**
+     * @brief tradeForTrade
+     */
+    bool tradeForTrade;
 
     /**
      * @brief isNormalMarket - whether trading is allowed in normal market for this symbol
@@ -404,6 +439,90 @@ namespace API2  {
      * identify cash contracts on NSE and BSE.
      */
     API2::DATA_TYPES::CASH_UNIQUE_KEY cashUniqueKey;
+
+    /**
+     * Fields contractStartDate , contractEndDate , tendorStartDate and
+     * tendorEndDate added for MCX
+     */
+
+    /**
+     * @brief contractStartDate - First trading date of the product
+     */
+    API2::DATA_TYPES::EPOCH_TIME  contractStartDate;
+    
+    /**
+     * @brief - Last trading date of the product
+     */
+    API2::DATA_TYPES::EPOCH_TIME contractEndDate;
+    
+    /**
+     * @brief - First Date from which delivery intention shall be accepted for
+     * the product 
+     */
+    API2::DATA_TYPES::EPOCH_TIME tendorStartDate;
+    
+    /**
+     * @brief - Last date upto which delivery intention shall be accepted for
+     * the product
+     */
+    API2::DATA_TYPES::EPOCH_TIME tendorEndDate;
+
+    /**
+     * @brief marketType
+     */
+    API2::DATA_TYPES::MarketType marketType;
+
+    /**
+     * @brief symbolNameId
+     */
+    int32_t symbolNameId;
+
+    /**
+     * AssetType
+     */
+    API2::TYPE_DEFS::AssetType assetType;
+
+    /**
+     * wrappedExchange : This will be used in case of interopts, it will
+     * be common among symbols present in multiple exchanges.
+     * In other cases it will be same as exchange id field.
+     */
+    API2::DATA_TYPES::ExchangeId wrappedExchange;
+
+    /**
+     * uniqueId : This will be used in case of interopts, it will be symbol
+     * id of the preferred exchange and will be common among symbols present
+     * in multiple exchanges.
+     * In other cases it will be same as symbol id field.
+     */
+    API2::DATA_TYPES::SYMBOL_ID uniqueId;
+
+    /**
+     * preferredExchangeStaticData : This will be used in case of interopts, it
+     * will be static data ptr of the preferred exchange.
+     * In other cases it will point to this pointer.
+     */
+    SymbolStaticData* preferredExchangeStaticData;
+
+    /**
+     * @brief companyName - stores company name of a scrip
+     */
+    std::string companyName;
+
+    /**
+     * @brief listingDate
+     */
+    API2::DATA_TYPES::LISTING_DATE listingDate;
+
+    /**
+     * @brief isListedToday : This will be used to check that listing date is equal to current date
+     */
+    bool isListedToday;
+
+    /**
+     * @brief streamId
+     */
+    API2::DATA_TYPES::STREAM_ID streamId;
 
     /**
      * @brief API_SymbolStaticData

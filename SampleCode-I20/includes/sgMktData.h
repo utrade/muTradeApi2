@@ -17,13 +17,18 @@ namespace TBTDATA {
 
 namespace API2 
 { 
+  class SGContext;
+  class SymbolStaticData;
+
   namespace COMMON 
   {
+    enum UpdateType
+    {
+      UpdateType_TBT,
+      UpdateType_SNAPSHOT,
+      UpdateType_MAX
+    };
 
-  enum UpdateType{
-    UpdateType_TBT,
-    UpdateType_SNAPSHOT
-  };
     class OhlcQuoteImpl;
 
     /**
@@ -177,10 +182,26 @@ namespace API2
       bool _IsSnapShot;
 
       /**
-       * @brief _IsTbt, If Set true, will provide Tbt feed
+       * @brief _isOISubscribe, If Set true, will provide OI Data
+       */
+      bool _isOISubscribe;
+
+      /**
+       * @brief _IsTbt, If Set true, will provide TBT feed
        */
       bool _IsTbt;
 
+      /**
+       * @brief ClientType
+       * Client Type for the TBT market data (CUR,FO,CM,IFSC,COM)
+       */
+      CREATE_FIELD(short, ClientType );
+
+      /**
+       * @brief StreamId, Stream Id for the TBT market data
+       */
+      CREATE_FIELD(short, StreamId );
+      
       /**
        * @brief multiplier
        */
@@ -252,6 +273,11 @@ namespace API2
       int _precision;
 
       /**
+       * @brief _sgContext  - strategy which constructed this market data
+       */
+      SGContext *_sgContext;
+
+      /**
        * @brief getPrice
        * @param wrapper
        * @param mode
@@ -270,7 +296,7 @@ namespace API2
                               const DATA_TYPES::OrderMode & mode);
 
       /**
-       * @brief getNoOfOrdersInDepth
+       * @brief getNoOfOrdersInDepth To get the number of orders in depth
        * @param wrapper
        * @param mode
        * @return
@@ -279,18 +305,38 @@ namespace API2
                               const DATA_TYPES::OrderMode & mode);
 
       /**
-       * @brief updateTbt
+       * @brief updateTbt To update the TBT data
+       * @param updateType
+       * @param isFeedStuck (Not used, to be used in case of feed stuck check based on timestamp)
+       * @param retString (Not used, to be used in case of feed stuck check based on timestamp)
+       * @param status returns STRUCTURE_UNCHANGED if feed is unchanged, otherwise does not change the status
+       * @param orderMode OrderMode_BUY or OrderMode_SELL, for which side the status is required
        * @return
        */
-      bool updateTbt();
-
-
+      bool updateTbt( UpdateType & updateType,
+                      bool *isFeedStuck = nullptr,
+                      std::string * retString = nullptr,
+                      int *status = nullptr,
+                      DATA_TYPES::OrderMode orderMode = API2::CONSTANTS::CMD_OrderMode_MAX);
 
       /**
-       * @brief updateMcl
+       * @brief isFeedStuckThresholdBreached
+       * @param lastTimeStamp
+       * checks if the difference of lastTimeStamp and current time is greater than 
+       * FeedStuckThreshold( FEED_STUCK_CHECK_DURATION provided HFT Block of params.conf, default value 500 milliseconds)
+       * @param retString returns the string with the details of timestamps of the feed stuck
+       * @param isSnapshotCase if true, then it is snapshot case else TBT case
+       * @return True if Feed is stuck for more than FeedStuckThreshold value
+       */
+      bool isFeedStuckThresholdBreached(int64_t lastTimeStamp, std::string * retString = nullptr, bool isSnapshotCase = false);
+
+      /**
+       * @brief updateMcl To update the MCL data
+       * @param isFeedStuck, if feed is stuck returns true
+       * @param retString, returns the string with the details of timestamps of the feed stuck
        * @return
        */
-      bool updateMcl();
+      bool updateMcl(bool *isFeedStuck = nullptr, std::string * retString = nullptr);
     public:
 
     UpdateType getLastUpdateType(){return _LastUpdateType;}
@@ -377,7 +423,6 @@ namespace API2
        */
       DATA_TYPES::NanoSecondTimeStamp getTimeStamp();
 
-
       /**
        * @brief getPrice
        * @param position
@@ -445,38 +490,83 @@ namespace API2
       DATA_TYPES::DEPTH_POSITION getNoOfAsks(size_t pos);
 
       /**
-       * @brief subscribe
-       * @param symbol
-       * @param isSnapshot
-       * @return
+       * @brief Get the exchange identifier for Open Interest data
+       * @return ExchangeId The exchange identifier where the Open Interest is from
        */
-      bool subscribe(DATA_TYPES::SYMBOL_ID symbol, bool isSnapshot, bool isTbt);
+      DATA_TYPES::ExchangeId getOpenInterestExchangeId();
 
       /**
-       * @brief unsubscribe
+       * @brief Get the security identifier for Open Interest data
+       * @return SECURITY_ID The unique identifier of the security for which Open Interest is reported
+       */
+      DATA_TYPES::SECURITY_ID getOpenInterestSecurityId();
+
+      /**
+       * @brief Get the current Open Interest quantity
+       * @return QTY The total number of outstanding contracts/positions
+       */
+      DATA_TYPES::QTY getOpenInterestOIQty();
+
+      /**
+       * @brief Get the current Open Interest value
+       * @return PRICE The monetary value of the Open Interest
+       */
+      DATA_TYPES::PRICE getOpenInterestOIValue();
+
+      /**
+       * @brief Get the change in Open Interest from previous period
+       * @return PRICE The change in Open Interest value (positive for increase, negative for decrease)
+       */
+      DATA_TYPES::PRICE getOpenInterestOIChange();
+
+      /**
+       * @brief subscribe - subscribe to market data
+       * @param symbolId  - symbol id for subscription
+       * @param isSnapshot  - is snaphot enabled
+       * @param isTbt - is tbt enabled
+       * @return
+       */
+      bool subscribe(
+          DATA_TYPES::SYMBOL_ID symbolId, bool isSnapshot, bool isTbt);
+
+      /**
+       * @brief unsubscribe To unsubscribe from market data
        */
       void unsubscribe();
 
       /**
        * @brief MktData
-       * @param symbolId
-       * @param isSnapshot
-       * @param isTbt
-       * @param depthSize
+       * @param symbolId  - symbol id for which market data needs to be constructed
+       * @param sgContext - strategy from which subscription requested
+       * @param isSnapshot  - is snapshot enabled
+       * @param isTbt - is tbt enabled
+       * @param depthSize - depth size required
        */
-      explicit MktData(DATA_TYPES::SYMBOL_ID symbolId,bool isSnapshot = true, bool isTbt = false,size_t depthSize = CONSTANTS::MarketDepthArraySize);
+      explicit MktData(
+          DATA_TYPES::SYMBOL_ID symbolId,
+          SGContext *sgContext,
+          bool isSnapshot = true, bool isTbt = false,
+          size_t depthSize = CONSTANTS::MarketDepthArraySize,
+          bool isOISubscribe = false);
 
       //MktData();
       ~MktData();
 
       /**
        * @brief update
+       * @param isFeedStuck (Not used, to be used in case of feed stuck check based on timestamp)
+       * @param retString (Not used, to be used in case of feed stuck check based on timestamp)
+       * @param status returns STRUCTURE_UNCHANGED if feed is unchanged, otherwise does not change the status
+       * @param orderMode OrderMode_BUY or OrderMode_SELL, for which side the status is required
        * @return
        */
-      bool update();
+      bool update( bool *isFeedStuck = nullptr,
+                   std::string * retString = nullptr,
+                   int *status = nullptr,
+                   DATA_TYPES::OrderMode orderMode = API2::CONSTANTS::CMD_OrderMode_MAX);
 
       /**
-       * @brief updateTbtTradeTicks
+       * @brief updateTbtTradeTicks To update the TBT trade ticks
        * @return
        */
       bool updateTbtTradeTicks();
@@ -527,6 +617,19 @@ namespace API2
        */
       void dump(API2::DebugLog *debugObject);
 
+      void dump(DebugLog *debugObject, size_t depth);
+
+      /**
+       * @brief isFeedUnchanged
+       * Compares the local feed counter with the TBT Depth Feed Counter and
+       * Returns true if the feed is changed, else returns false for feed unchanged
+       * @param orderMode - The Side for which the feed is to be checked (Buy or Sell)
+       * @param counter - The Last Counter Value of the feed previously received
+       * @return bool - True if the feed is changed, else returns false for feed unchanged
+       * Also updates the counter with the latest value received from the TBT Depth Feed
+       */
+      bool isFeedUnchanged(DATA_TYPES::OrderMode orderMode, volatile unsigned long& counter);
+
       /**
        * @brief getMaxDepthSupported : This method is used to get Max Depth supported by HFT infra.
        * @return Max Depth unsigned integer
@@ -565,6 +668,32 @@ namespace API2
           const API2::DATA_TYPES::REFERENCE_SPOT_PRICE_TYPE referenceSpotPriceType = API2::CONSTANTS::ReferenceSpotPrice_LTP );
 
 
+      /**
+       * @brief getMarketPercentPrice - gets the price for market order. The price returned is IOCFactor'ed over the ltp
+       * @param orderMode
+       * @param IOCFactor - (market percentage over ltp)/ 100. Ex: 2% should be passed as 0.02
+       * @param data
+       * @param dprCheckEnabled - If true, DPR check gets applied and price returned will be adjusted as per dpr
+       * @param isRoundOffTypeAggressive - If true, agressive rounding will happen. RoundUp in case of buy and rounddown in case of sell
+       * @param isAggressive - If true, price will be adjusted in aggressive way. 
+       *                       For Buy: Will place the order at price added with adjustment factor. 
+       *                       For Sell: Will place the order at price subtracted with adjustment factor
+       * @param useOppositeDepth - If true, opposite depth will be used to get the price. Else LTP will be used
+       * @param useUpdatedDPRPriceHandling - If true, updated DPR price handling will be used
+       * @param isDprFailed - If dpr check failed, this will be set to true
+       * @param debugObject - DebugLog object
+       * @return
+       */
+      double getMarketPercentPrice(const API2::DATA_TYPES::OrderMode orderMode,
+          const double IOCFactor,
+          const API2::SymbolStaticData * data,
+          const bool dprCheckEnabled,
+          const bool isRoundOffTypeAggressive = false,
+          const bool isAggressive = false,
+          const bool useOppositeDepth = false,
+          const bool useUpdatedDPRPriceHandling = false,
+          bool * isDprFailed = nullptr,
+          DebugLog * debugObject = nullptr);
     };
 }
 }

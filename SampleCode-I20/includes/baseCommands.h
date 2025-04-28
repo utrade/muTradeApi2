@@ -420,6 +420,11 @@ namespace API2{
     CREATE_FIELD_DERIVED( UNSIGNED_LONG, SequenceNumber);
 
     /**
+     * @brief WebApiParam : Params to set when an Api strategy initiated through Rest Api
+     */
+     CREATE_FIELD_DERIVED( std::string, WebApiParam );
+
+    /**
      * @brief _Members
      */
     BaseTypeVector _Members;
@@ -454,6 +459,7 @@ namespace API2{
       SET_DERIVED_TYPE_API2( StrategyId, 0);
       SET_DERIVED_TYPE_API2( AdminTokenId, 0);
       SET_DERIVED_TYPE_API2( SequenceNumber, 0);
+      SET_DERIVED_TYPE_API2( WebApiParam, "");
     }
 
     int serializeBase(char *buf, bool isResponse, COMMAND_CATEGORY_TYPE cat, COMMAND_CATEGORY_TYPE comCat)
@@ -475,6 +481,7 @@ namespace API2{
       Serialization::serialize(getStrategyId(),buf,bytes);
       Serialization::serialize(getAdminTokenId(),buf,bytes);
       Serialization::serialize(getSequenceNumber(),buf,bytes);
+      Serialization::serialize(getWebApiParam(),buf,bytes);
       CMD::BaseStrategyParamCommmand::serializeMembers(buf, bytes);
 
       /**
@@ -648,7 +655,7 @@ namespace API2{
       int strategyBytes = serialize(strategyCommandBuffer,false,0,0);
       return strategyBytes;
     }
-    void deSerializeMemorySize(const char *buff)
+    int deSerializeMemorySize(const char *buff)
     {
       COMMAND_CATEGORY_TYPE tmp1;
       PACKET_LENGTH_TYPE tmp2;
@@ -656,7 +663,9 @@ namespace API2{
 
       Serialization::deSerializeCommand(tmp1, buff, offset);
       Serialization::deSerializePacketLength(tmp2,buff,offset);
-      deSerialize(buff + offset);
+      offset += deSerialize(buff + offset);
+
+      return offset;
     }
 
     /**

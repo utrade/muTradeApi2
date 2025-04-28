@@ -180,9 +180,9 @@ namespace API2
     const unsigned short RSP_OrderStatus_AMO_CONFIRMED = 32;
 
     /**
-     * @brief RSP_OrderStatus_AMO_MODIFIED After Market Order Modified.
+     * @brief RSP_OrderStatus_AMO_REPLACED After Market Order Replaced.
      */
-    const unsigned short RSP_OrderStatus_AMO_MODIFIED = 33;
+    const unsigned short RSP_OrderStatus_AMO_REPLACED = 33;
 
     /**
      * @brief RSP_OrderStatus_AMO_CANCELED After Market Order Canceled.
@@ -195,9 +195,9 @@ namespace API2
     const unsigned short RSP_OrderStatus_AMO_REJECTED = 35;
 
     /**
-     * @brief RSP_OrderStatus_AMO_EXCHANGE_PUSHED After Market Order pushed to exchange.
+     * @brief RSP_OrderStatus_AMO_REPLACE_REJECTED After Market Order replace request rejected.
      */
-    const unsigned short RSP_OrderStatus_AMO_EXCHANGE_PUSHED = 36;
+    const unsigned short RSP_OrderStatus_AMO_REPLACE_REJECTED = 36;
 
     /**
      * @brief RSP_OrderStatus_CONVERTED_ORDER_STRATEGY_TO_MANUAL strategy order moved to manual order.
@@ -220,9 +220,24 @@ namespace API2
     const unsigned short RSP_OrderStatus_QUEUED_CANCELED = 40;
 
     /**
+     * @brief RSP_OrderStatus_AMO_CANCEL_REJECTED After Market Order cancel request rejected.
+     */
+    const unsigned short RSP_OrderStatus_AMO_CANCEL_REJECTED = 41;
+
+    /**
+     * @brief RSP_OrderStatus_REFRESH_PENDING this status is used when we update price when order is not written on exchange
+    */
+    const unsigned short RSP_OrderStatus_REFRESH_PENDING = 42; 
+
+    /**
+     * @brief When Refresh order is rejected
+    */
+    const unsigned short RSP_OrderStatus_REFRESH_REJECTED = 43; 
+
+    /**
      * @brief OrderStatus_MAX
      */
-    const unsigned short  RSP_OrderStatus_MAX = 41;
+    const unsigned short  RSP_OrderStatus_MAX = 44;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -589,10 +604,30 @@ namespace API2
      */
     const unsigned short RSP_StrategyComment_TERMINATE_MAX_DEVIATION_BREACHED = 71;
 
+
+    const unsigned short RSP_StrategyComment_FRONT_END_TERMINATION_ORDER_NOT_FILLED_OPEN_POSITIONS_CLOSED = 72;    
+
+    const unsigned short RSP_StrategyComment_FRONT_END_TERMINATION_NO_OPEN_POSITIONS_EXISTS_IN_CURRENT_ITERATION = 73;
+
+    /**
+     * @brief RSP_StrategyComment_STRATEGY_NOT_TERMINATE
+     */
+    const unsigned short RSP_StrategyComment_NO_TERMINATE = 74;
+
+    /**
+     * @brief RSP_StrategyComment_TBTCOM_DISCONNECTED
+     */
+    const unsigned short RSP_StrategyComment_TBTCOM_DISCONNECTED = 75;
+    
     /**
      * @brief RSP_StrategyComment_STRATEGY_END
      */
-    const unsigned short RSP_StrategyComment_MAX = 72;
+
+    const unsigned short RSP_StrategyComment_TRADE_DIFF_FAILURE = 76;
+
+    const unsigned short RSP_StrategyComment_NO_ORDER_QUANTITY_TO_TRADE = 77;
+
+    const unsigned short RSP_StrategyComment_MAX = 78;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -936,9 +971,64 @@ namespace API2
     const unsigned short RiskStatus_DISCLOSED_QTY_IS_NOT_IN_MARKET_LOT = 63;
 
     /**
+     * @brief RiskStatus_QUANTITY_NOT_IN_LOT_SIZE
+     */
+    const unsigned short  RiskStatus_QUANTITY_NOT_IN_LOT_SIZE = 64;
+
+    /**
+     * @brief RiskStatus_INVALID_EXCHANGE_ORDER_ID
+     */
+    const unsigned short RiskStatus_INVALID_EXCHANGE_ORDER_ID = 65;
+    
+    /**
+     * @brief RiskStatus_INVALID_ALGO_ID
+     */
+    const unsigned short RiskStatus_INVALID_ALGO_ID = 66;
+    
+    /**
+     * @brief RiskStatus_ORDER_VALUE_EXCEEDED
+     */
+    const unsigned short RiskStatus_ORDER_VALUE_EXCEEDED = 67;
+
+    /**
+     * @brief RiskStatus_NO_LTP_AVAILABLE
+     */
+    const unsigned short RiskStatus_NO_LTP_AVAILABLE = 68;
+
+    /**
+     * @brief RiskStatus_LIMIT_PRICE_PROTECTION
+     */
+    const unsigned short RiskStatus_LIMIT_PRICE_PROTECTION = 69;
+
+    /**
+     * @brief RiskStatus_INTRINSIC_VALUE_CHECK_VIOLATED
+     */
+    const unsigned short RiskStatus_INTRINSIC_VALUE_CHECK_VIOLATED = 70;
+
+    /**
+     * @brief RiskStatus_ALTERNATE_STRIKE_PRICE_CHECK_VIOLATED
+     */
+    const unsigned short RiskStatus_ALTERNATE_STRIKE_PRICE_CHECK_VIOLATED = 71;
+
+    /**
+     * @brief RiskStatus_SL_TRIGGER_PRICE_DIFF_EXCEEDED
+     */
+    const unsigned short RiskStatus_SL_TRIGGER_PRICE_DIFF_EXCEEDED = 72;
+
+    /**
+     * @brief RSP_RiskStatus_TRADE_DIFF_CHECK_FAILURE
+     */
+    const unsigned short RSP_RiskStatus_TRADE_DIFF_CHECK_FAILURE = 73;
+
+    /**
+     * @brief RiskStatus_INVALID_ALGO_ID_ORDER_TYPE_COMBINATION
+     */
+    const unsigned short RiskStatus_INVALID_ALGO_ID_ORDER_TYPE_COMBINATION = 74;
+
+    /**
      * @brief RSP_RiskStatus_MAX
      */
-    const unsigned short RSP_RiskStatus_MAX = 64;
+    const unsigned short RSP_RiskStatus_MAX = 75;
 
 
     /************************************************************************************************************************/
@@ -1081,7 +1171,12 @@ namespace API2
     const unsigned short CMD_ExchangeId_BSECOM = 81;
     const unsigned short CMD_ExchangeId_ICEX = 82;
     const unsigned short CMD_ExchangeId_MFX = 83;
-    const unsigned short CMD_ExchangeId_MAX = 84;
+    const unsigned short CMD_ExchangeId_EQUITY_IO = 84;
+    const unsigned short CMD_ExchangeId_DERIVATIVE_IO = 85;
+    const unsigned short CMD_ExchangeId_CURRENCY_IO = 86;
+    const unsigned short CMD_ExchangeId_BINANCE = 87 ;   //This is added because of License portal dependency
+    const unsigned short CMD_ExchangeId_KRAKEN = 88 ;    //This is added because of License portal dependency
+    const unsigned short CMD_ExchangeId_MAX = 89;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1372,7 +1467,7 @@ namespace API2
     /**
      * @brief CMD_ProductType_MAX
      */
-    const unsigned short CMD_ProductType_MAX = 2;
+    const unsigned short CMD_ProductType_MAX = 100;
 
 
 
@@ -1441,10 +1536,39 @@ namespace API2
     const unsigned short CMD_InstrumentType_IRT = 11;
 
     /**
+     * @brief CMD_InstrumentType_AUCTION
+     */
+    const unsigned short CMD_InstrumentType_AUCTION = 12;
+    
+    /**
+     * @brief CMD_InstrumentType_AGR
+     */
+    const unsigned short CMD_InstrumentType_AGR = 13; 
+    
+    /**
+     * @brief CMD_InstrumentType_BAS
+     */
+    const unsigned short CMD_InstrumentType_BAS = 14; 
+     
+    /**
+     * @brief CMD_InstrumentType_YDR
+     */
+    const unsigned short CMD_InstrumentType_YDR = 15;
+
+    /**
+     * @brief CMD_InstrumentType_OPTFUT
+     */
+    const unsigned short CMD_InstrumentType_OPTFUT = 16;
+
+    /**
+     * @brief CMD_InstrumentType_IRC
+     */
+    const unsigned short CMD_InstrumentType_IRC = 17;
+
+    /**
      * @brief CMD_InstrumentType_MAX
      */
-    const unsigned short CMD_InstrumentType_MAX = 12;
-
+    const unsigned short CMD_InstrumentType_MAX = 18;
 
     /************************************************************************************************************************/
     /************************************************************************************************************************/
@@ -1755,19 +1879,158 @@ namespace API2
     const unsigned short CMD_CommandCategory_NSECDS_MARKETSESSION_OPEN=162;
 
     /**
+     * @brief CMD_CommandCategory_IV_STRATEGY
+     */
+    const unsigned short CMD_CommandCategory_IV_STRATEGY=163;
+
+    /**
+     * @brief CMD_CommandCategory_MANUAL_DPR_UPDATE
+     */
+    const unsigned short CMD_CommandCategory_MANUAL_DPR_UPDATE=164;
+
+    /**
+     * @brief CMD_CommandCategory_UPDATE_CONNECTIVITY_STATUS
+     */
+    const unsigned short CMD_CommandCategory_UPDATE_CONNECTIVITY_STATUS = 165;
+
+    /**
+     * @brief CMD_CommandCategory_SUBSCRIBE_FEED
+     */
+    const unsigned short CMD_CommandCategory_SUBSCRIBE_FEED = 166;
+
+    /**
+     * @brief CMD_CommandCategory_REQUEST_PARTICIPANT_CODES
+     */
+    const unsigned short CMD_CommandCategory_REQUEST_PARTICIPANT_CODES = 167;
+
+    /**
+     * @brief CMD_CommandCategory_DMS_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_DMS_DISCONNECTED = 168;
+
+    /**
      * @brief CMD_CommandCategory_ICEX_DISCONNECTED
      */
-    const unsigned short CMD_CommandCategory_ICEX_DISCONNECTED=163;
-    
+    const unsigned short CMD_CommandCategory_ICEX_DISCONNECTED=169;
+
+    /**
+     * @brief CMD_CommandCategory_CONF_BACKEND_PARAMETERS
+     */
+    const unsigned short CMD_CommandCategory_CONF_BACKEND_PARAMETERS = 170;
+
+    /**
+     * @brief CMD_CommandCategory_BOCO
+     */
+    const unsigned short CMD_CommandCategory_BOCO = 171;
+
+    /**
+     * @brief CMD_CommandCategory_BOCO_OFFLINE_REPLAY
+     */
+    const unsigned short CMD_CommandCategory_BOCO_OFFLINE_REPLAY = 172;
+
+    /**
+     * @brief CMD_CommandCategory_CLIENT_CATEGORY_BAN
+     */
+    const unsigned short CMD_CommandCategory_CLIENT_CATEGORY_BAN = 173;
+
+    /**
+     * @brief CMD_CommandCategory_ASM_GSM_BAN
+     */
+    const unsigned short CMD_CommandCategory_ASM_GSM_BAN = 174;
+
+    /**
+     * @brief CMD_CommandCategory_PHYSICAL_DELIVERY_BAN
+     */
+    const unsigned short CMD_CommandCategory_PHYSICAL_DELIVERY_BAN = 175;
+
+    /**
+     * @brief CMD_CommandCategory_MTM_ALERT_BREACH_ACTION
+     */
+    const unsigned short CMD_CommandCategory_MTM_ALERT_BREACH_ACTION = 176;
+
+    /**
+     * @brief CMD_CommandCategory_AUTO_SQUAREOFF_POPUP_ACTION
+     */
+    const unsigned short CMD_CommandCategory_AUTO_SQUAREOFF_POPUP_ACTION = 177;
+
+    /**
+     * @brief CMD_CommandCategory_MULTI_LEG_ORDER
+     */
+    const unsigned short CMD_CommandCategory_MULTI_LEG_ORDER = 178;
+
+    /**
+     * @brief CMD_CommandCategory_OPTIONS_WIDGET_UPDATE
+     */
+    const unsigned short CMD_CommandCategory_OPTIONS_WIDGET_UPDATE = 179;
+
     /**
      * @brief CMD_CommandCategory_MFX_DISCONNECTED
      */
-    const unsigned short CMD_CommandCategory_MFX_DISCONNECTED=164;
+    const unsigned short CMD_CommandCategory_MFX_DISCONNECTED=180;
+
+    /**
+     * @brief CMD_CommandCategory_WAVE_SINGLE_ORDER
+     */
+    const unsigned short CMD_CommandCategory_WAVE_SINGLE_ORDER = 181;
+
+    /**
+     * @brief CMD_CommandCategory_FIX_SENDER_COMP_ID_LIST
+     */
+    const unsigned short CMD_CommandCategory_FIX_SENDER_COMP_ID_LIST = 182;
 
     /**
      * @brief CMD_CommandCategory_SOR_UNMAPPED
      */
-    const unsigned short CMD_CommandCategory_SOR_UNMAPPED = 183;
+    const unsigned short CMD_CommandCategory_SOR_UNMAPPED = 183; 
+
+    /**
+     * @brief CMD_CommandCategory_BOCO_SETTINGS_UPDATE
+     */
+    const unsigned short CMD_CommandCategory_BOCO_SETTINGS_UPDATE = 184;
+
+    /**
+     * @brief CMD_CommandCategory_AMO_ORDER
+     */
+    const unsigned short CMD_CommandCategory_AMO_ORDER = 185;
+
+    /**
+     * @brief CMD_CommandCategory_AMO_MANUAL_TRIGGER
+     */
+    const unsigned short CMD_CommandCategory_AMO_MANUAL_TRIGGER = 186;
+
+    /**
+     * @brief CMD_CommandCategory_CMD_LINE_API2_STRATEGY
+     */
+    const unsigned short CMD_CommandCategory_CMD_LINE_API2_STRATEGY = 187;
+
+    /**
+     * @brief CommandCategory_TWO_LEG_THREE_LEG_RATIO_IOC
+     */
+    const unsigned short CommandCategory_TWO_LEG_THREE_LEG_RATIO_IOC = 188;
+    /**
+     * @brief CMD_CommandCategory_UNHEDGE_TRACKER_DATA_REQUEST
+     */
+    const unsigned short CMD_CommandCategory_UNHEDGE_TRACKER_DATA_REQUEST = 189;
+
+    /**
+     * @brief CMD_CommandCategory_TBTCOM_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_TBTCOM_DISCONNECTED = 190;
+
+    /**
+     * @brief CMD_CommandCategory_TBTCOM_CONNECTED
+     */
+    const unsigned short CMD_CommandCategory_TBTCOM_CONNECTED = 191;
+
+    /**
+     * @brief CMD_CommandCategory_TBT_STREAM_DISCONNECTED
+     */
+    const unsigned short CMD_CommandCategory_TBT_STREAM_DISCONNECTED = 192;
+
+    /**
+     * @brief CMD_CommandCategory_TBT_STREAM_CONNECTED
+     */
+    const unsigned short CMD_CommandCategory_TBT_STREAM_CONNECTED = 193;
     
     /**
      * @brief CMD_CommandCategory_MAX
@@ -1783,7 +2046,7 @@ namespace API2
     const unsigned short CMD_OrderCateGory_PAIRED = 2;
     const unsigned short CMD_OrderCateGory_STRADDLE = 3;
     const unsigned short CMD_OrderCateGory_MULTILEG = 4;
-    const unsigned short CMD_OrderCateGory_MAX = 7;
+    const unsigned short CMD_OrderCateGory_MAX = 9;
 
     /**
      * @brief CMD_ContractType_NORMAL
@@ -1951,6 +2214,11 @@ namespace API2
      */
     const short RSP_ErrorCode_PR_REJECTION_BSE = 10001;
 
+    /**
+     * @brief RSP_ErrorCode_RECORD_NOT_FOUND
+     */
+    const short RSP_ErrorCode_ORDER_CANT_BE_CANCELLED_NSEFO = 16616;
+
     /************************************************************************************************************************/
     /************************************************************************************************************************/
 
@@ -1972,19 +2240,24 @@ namespace API2
     const short CMD_CONFIRMATION_TYPE_SELF = 1;
 
     /**
-     * @brief CMD_CONFIRMATION_TYPE_AFTER_MARKET_ORDER - for After Market Orders.
-     */
-    const short CMD_CONFIRMATION_TYPE_AFTER_MARKET_ORDER = 2;
-
-    /**
      * @brief CMD_CONFIRMATION_TYPE_MAX - invalid confirmation type
      */
-    const short CMD_CONFIRMATION_TYPE_MAX = 3;
+    const short CMD_CONFIRMATION_TYPE_MAX = 2;
 
     const uint64_t SECONDS_PER_DAY = 86400;
     const uint64_t SECONDS_PER_HOUR = 3600;
     const uint64_t SECONDS_PER_MINUTE = 60;
     const uint64_t SECONDS_TO_NANOSECONDS = 1000000000;
+
+    /**
+     * @brief MAX_ORDER_VALUE - value of 10 cr to check for total order value
+     */
+    const int64_t MAX_ORDER_VALUE = 100000000;
+
+    /**
+     * @brief BL_SYMBOL_SERIES - Series of the symbol is BL i.e. BlockDeal
+     */
+    const std::string BL_SYMBOL_SERIES = "BL";
 
     const time_t BASE = 0;
     const uint32_t UTC   = 0;
@@ -2088,9 +2361,49 @@ namespace API2
     const short ScripGroup_OPTCOM = 12;
 
     /**
+     * @brief ScripGroup_OPTIRT
+     */
+    const short ScripGroup_OPTIRT = 13;
+
+    /**
+     * @brief ScripGroup_FUTIRT
+     */
+    const short ScripGroup_FUTIRT = 14;
+
+    const short ScripGroup_EQTYDR = 15;
+
+    const short ScripGroup_FUTBLN = 16;
+
+    const short ScripGroup_OPTBLN = 17;
+
+    const short ScripGroup_FUTENR = 18;
+
+    const short ScripGroup_OPTENR = 19;
+
+    const short ScripGroup_FUTAGR = 20;
+
+    const short ScripGroup_FUTBAS = 21;
+
+    const short ScripGroup_OPTBAS = 22;
+
+    const short ScripGroup_OPTFUT = 23;
+
+    const short ScripGroup_FUTIRC = 24;
+
+    const short ScripGroup_OPTIRC = 25;
+
+    const short ScripGroup_UNDCUR = 26;
+
+    const short ScripGroup_USAIDR = 27;
+
+    const short ScripGroup_UNDSTK = 28;
+
+    const short ScripGroup_UNDCOM = 29;
+
+    /**
      * @brief ScripGroup_MAX
      */
-    const short ScripGroup_MAX = 13;
+    const short ScripGroup_MAX = 30;
 
     /**
      * @brief API params buffer header(4(command category) + 4(packet length) + 4(apiId) )
@@ -2268,9 +2581,12 @@ namespace API2
     const short Service_INCOGNITO = 3;
     const short Service_TWAP = 4;
     const short Service_POV = 5;
-    const short Service_MANUAL_ORDER = 6;
-    const short Service_FORKWAVE = 7;
-    const short Srvce_MAX = 8;
+    const short Service_PRICE_POINT = 6;
+    const short Service_MANUAL_ORDER = 7;
+    const short Service_BASKET = 8;
+    const short Service_FORKWAVE = 9;
+    const short Service_TICKER = 10;
+    const short Srvce_MAX = 11;
 
     /**
      * @brief CUSTOM_STRATEGY_COMMAND -Will store custom commands will need to
@@ -2333,6 +2649,24 @@ namespace API2
      * @brief ReferenceSpotPrice_LTP
      */
     const short ReferenceSpotPrice_LTP = 2;
+
+    /**
+     * @brief Default_Modified_By_Id
+     */
+    const signed long Default_Modified_By_Id = -1;
+
+    const API2::TYPE_DEFS::AssetType AssetType_Default  = 0;
+    const API2::TYPE_DEFS::AssetType AssetType_Agri     = 1;
+    const API2::TYPE_DEFS::AssetType AssetType_Non_Agri = 2;
+    const API2::TYPE_DEFS::AssetType AssetType_Intl     = 3;
+    const API2::TYPE_DEFS::AssetType AssetType_Max      = 4;
+
+    const std::string ASSET_CODE_OILSEEDS = "OILSEEDS";
+    const std::string ASSET_CODE_SPICES = "SPICES";
+    const std::string ASSET_CODE_OTHERS = "OTHERS";
+    const std::string ASSET_CODE_AGRO_PRODUCTS = "AGRO PRODUCTS";
+    const std::string ASSET_CODE_PLANTATION = "PLANTATION";
+    const std::string ASSET_CODE_OIL = "Oil";
 
   }
 }

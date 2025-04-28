@@ -1,11 +1,17 @@
 #ifndef SG_API_PARAMETERS_H
 #define SG_API_PARAMETERS_H
+
+namespace SG
+{
+  class AccessParameters;
+}
+
 namespace API2
 {
   /**
- * @brief The StrategyParameters class provides the Basic Strategy Parameters, StrategyId and ClientId.\n
- * Stratgy Parameters are provided by StrategyParameters::getInfo()
- */
+   * @brief The StrategyParameters class provides the Basic Strategy Parameters, StrategyId and ClientId.\n
+   * Stratgy Parameters are provided by StrategyParameters::getInfo()
+   */
   class StrategyParameters
   {
   public:
@@ -19,7 +25,7 @@ namespace API2
        * @brief getClientId
        * @return
        */
-    int getClientId() ;
+    int getClientId() const;
     /**
        * @brief getId
        * @return
@@ -27,17 +33,23 @@ namespace API2
     int getId();
 
     /**
-     * @brief getInfo, Provides the Strategy Paramete
+     * @brief getInfo, Provides the Strategy Parameters
      * @return
      */
     void* getBaseInfo();
-    StrategyParameters():
-      _clientId(-1),
-      _info(0),
-      _id(-1),
-      _baseInfo(0)
-    {}
+
+    /**
+     * @brief StrategyParameters
+     */
+    StrategyParameters();
+
+    /**
+     * @brief ~StrategyParameters
+     */
+    virtual ~StrategyParameters();
+
   protected:
+
     /**
        * @brief _clientId
        */
@@ -51,12 +63,16 @@ namespace API2
        * @brief _id
        */
     int _id;
+
     /**
      * @brief _baseInfo
      */
     void* _baseInfo;
 
-
+    /**
+     * @brief _accessParameters - access allowed in strategy
+     */
+    SG::AccessParameters *_accessParameters = nullptr;
   };
 }
 #endif

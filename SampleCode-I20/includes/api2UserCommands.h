@@ -1,7 +1,8 @@
 #ifndef api2_UserParams_h
 #define api2_UserParams_h
 #include <baseCommands.h>
-#define API2_VERSION_STRING "3.1.9"
+
+#define API2_VERSION_STRING "3.5.4"
 
 namespace API2 {
 
@@ -59,9 +60,12 @@ class UserParams : public AbstractUserParams
      * @brief serialize
      * @param buf
      * @param apiIndex
+     * @param comCat
      * @return
      */
-    int serialize(char *buf,int apiIndex);
+    int serialize(char *buf,int apiIndex,
+        COMMAND_CATEGORY_TYPE comCat
+        = CONSTANTS::CMD_CommandCategory_API2_STRATEGY);
 
 
     /**

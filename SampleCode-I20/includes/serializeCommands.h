@@ -249,7 +249,7 @@ namespace API2 {
      * @param buf
      * @param offset
      */
-    void deSerialize(double val, const char *buf, int &offset);
+    void deSerialize(double &val, const char *buf, int &offset);
 
     /**
      * @brief deSerialize overloaded function, deserializes to val from buf, and adjusts offset to bytes read for deserialization.

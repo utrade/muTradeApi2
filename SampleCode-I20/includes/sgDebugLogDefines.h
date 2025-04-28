@@ -188,13 +188,25 @@ namespace API2
     std::vector<AbstractSingle *> *_logVector;
 
     //////////////  Locked logs end ////////////
+  
+    /**
+     * @brief print : dump logs into file
+     * @param isCalledFromStrategy: if directly called from strategy this 
+     * should be true
+     */
+    void print(bool isCalledFromStrategy = false);
 
-    void print();
     public:
     Logs();
 
     void releaseResources();
-    void forcePrintLogs();
+
+    /**
+     * @brief forcePrintLogs : dump logs into file forcefully
+     * @param isCalledFromStrategy: if directly called from strategy this 
+     * should be true
+     */
+    void forcePrintLogs(bool isCalledFromStrategy = false);
 
     /**
      * @brief intialize     -   initialize the object
@@ -382,7 +394,7 @@ namespace API2
 
     void flushLogBuffLogs();
 
-    void flushLog(bool printNextLine = true);
+    void flushLog(bool printNextLine = true, bool isFlushFromStrategyRequired = false);
 
     /**
      * @brief value_of
@@ -512,4 +524,5 @@ if( isShow )\
 #define DEBUG_VARSHOW2(DEBUG_OBJECT,debug_message,var1, var2) { DEBUG_OBJECT->printToLog2(debug_message,var1, var2); }
 #define DEBUG_ARRAYSHOW(DEBUG_OBJECT,debug_message,var,var2) { DEBUG_OBJECT->printToLogArr(debug_message,var,var2); }
 #define DEBUG_FLUSH(DEBUG_OBJECT) { DEBUG_OBJECT->flushLog(); }
+#define DEBUG_FLUSH2(DEBUG_OBJECT) { DEBUG_OBJECT->flushLog(true, true); }
 #endif

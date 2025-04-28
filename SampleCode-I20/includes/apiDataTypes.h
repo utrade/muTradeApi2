@@ -105,6 +105,12 @@ namespace API2
 
     /**
      * @typedef
+     * @brief STREAM_ID
+     */
+    typedef UNSIGNED_SHORT STREAM_ID;
+    
+    /**
+     * @typedef
      * @brief EXPIRY_DATE
      */
     typedef UNSIGNED_INTEGER EXPIRY_DATE;
@@ -132,6 +138,8 @@ namespace API2
      * @brief StrategyComment
      */
     typedef UNSIGNED_SHORT StrategyComment;
+
+    typedef std::string StrategyError;
 
     /**
      * @brief TerminationReasonType
@@ -207,6 +215,12 @@ namespace API2
 
     /**
      * @typedef
+     * @brief STPC
+     */
+    typedef uint8_t STPC;
+
+    /**
+     * @typedef
      * @brief ProductType
      */
     typedef UNSIGNED_SHORT ProductType;
@@ -246,6 +260,12 @@ namespace API2
      * @brief MarketSessionType
      */
     typedef UNSIGNED_SHORT MarketSessionType;
+
+    /**
+     * @typedef
+     * @brief MarketType
+     */
+    typedef UNSIGNED_SHORT MarketType;
 
     /**
      * enum
@@ -624,6 +644,23 @@ namespace API2
      * @brief DELTA
      */
     typedef double GREEK;
+
+    /**
+     * @brief time in epoch
+     */
+    typedef UNSIGNED_INTEGER EPOCH_TIME;
+
+    /**
+     * @brief CUSTOM_TRADER_ID
+     */
+    typedef UNSIGNED_SHORT CUSTOM_TRADER_ID ;
+
+    /**
+     * @typedef
+     * @brief LISTING_DATE
+     */
+    typedef UNSIGNED_INTEGER LISTING_DATE;
+    
   }
 
   namespace TYPE_DEFS
@@ -686,6 +723,12 @@ namespace API2
      * @brief AlgoCategory
      */
     typedef UNSIGNED_CHARACTER  AlgoCategory;
+
+    /**
+     * @brief AssetType
+     */
+    typedef UNSIGNED_SHORT AssetType;
+
   }
 }
 #endif

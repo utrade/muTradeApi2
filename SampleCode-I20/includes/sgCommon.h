@@ -42,9 +42,10 @@ namespace API2{
       /**
        * @brief getTradedQty To get Traded Quantity at requested OrderMode
        * @param mode DATA_TYPES::CMD_OrderMode
-       * @return traded Qty as DATA_TYPES::QTY
+       * @param isOld
+       * @return traded Qty as DATA_TYPES::QTY       
        */
-      SIGNED_LONG getTradedQty(const DATA_TYPES::OrderMode &mode);
+      SIGNED_LONG getTradedQty(const DATA_TYPES::OrderMode &mode, bool isOld = false);
 
       /**
        * @brief getOpenSide, To get Open Side Position, if BuyQty>SellQty, returns API2::CONSTANTS::CMD_OrderMode_BUY else API2::CONSTANTS::CMD_OrderMode_SELL
@@ -75,9 +76,10 @@ namespace API2{
       /**
        ** @brief getAmount, Get amount(price*qty) of requested order mode
        ** @param mode
+       ** @param isOld
        ** @return returns total amount traded uptill now of requested order mode
        **/
-      UNSIGNED_LONG getAmount(const DATA_TYPES::OrderMode mode);
+      UNSIGNED_LONG getAmount(const DATA_TYPES::OrderMode mode, bool isOld = false);
       
       /**
        * @brief getPendingQty, To get Quantity Pending (or not filled)
